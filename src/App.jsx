@@ -1,34 +1,55 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { ThemeProvider, createTheme } from "@mui/material/styles"
+import CssBaseline from "@mui/material/CssBaseline"
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
+import Header from "./components/Header"
+import RegisterForm from "./pages/Auth/Register"
+import LogIn from "./pages/Auth/LogIn"
+import "./App.css"
+import { useState } from "react"
+
+const theme = createTheme({
+  palette: {
+    primary: { main: "#1FAB89" },
+    secondary: { main: "#FF3366" },
+    success: { main: "#1FAB89" },
+  },
+  typography: { fontFamily: "Roboto, Arial, sans-serif" },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: { textTransform: "none" },
+      },
+    },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: { borderRadius: 8 },
+      },
+    },
+  },
+})
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Router>
+        <div className="app">
+          <Header isLoggedIn={isLoggedIn} />
+          <main>
+            <Routes>
+              <Route
+                path="/login"
+                element={<LogIn onLoginSuccess={() => setIsLoggedIn(true)} />}
+              />
+              <Route path="/register" element={<RegisterForm />} />
+              {/* Route khác nếu cần, ví dụ Home */}
+            </Routes>
+          </main>
+        </div>
+      </Router>
+    </ThemeProvider>
   )
 }
 
