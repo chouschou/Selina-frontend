@@ -14,8 +14,10 @@ import { Visibility, VisibilityOff, ArrowForward } from "@mui/icons-material";
 import "./RegisterForm.scss";
 import imgRegister from "../../../assets/images/imgRegister.png";
 import CustomTextField from "../../../components/CustomTextField";
+import { useNavigate } from "react-router-dom"
 
-const RegisterForm = ({ onSwitchToLogin }) => {
+const RegisterForm = () => {
+  const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -150,7 +152,7 @@ const RegisterForm = ({ onSwitchToLogin }) => {
               <Typography variant="body2" className="login-link-container">
                 Bạn đã có tài khoản?
                 <span
-                  onClick={onSwitchToLogin}
+                  onClick={() => navigate("/login")}
                   className="login-link"
                   style={{ cursor: "pointer", color: "#1FAB89" }}
                 >

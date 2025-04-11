@@ -1,6 +1,7 @@
 import { Card, CardMedia, CardContent, Typography, Button, Box, IconButton } from "@mui/material"
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart"
 import StarIcon from "@mui/icons-material/Star"
+import CameraAltIcon from "@mui/icons-material/CameraAlt"
 import "./ProductItem.scss"
 
 const ProductItem = ({ product }) => {
@@ -43,7 +44,7 @@ const ProductItem = ({ product }) => {
           <Button
             variant="contained"
             className="try-button"
-            startIcon={<span className="material-icons">visibility</span>}
+            startIcon={<CameraAltIcon />}
           >
             Thử kính
           </Button>

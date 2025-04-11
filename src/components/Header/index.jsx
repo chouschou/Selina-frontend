@@ -13,7 +13,7 @@ const Header = ({ isLoggedIn }) => {
 
           {/* Logo */}
           <Box className="logo-container">
-            <p variant="h5" component="a" href="/" className="logo">
+            <p variant="h5" component="a" onClick={() => navigate("/")} className="logo">
               Selina
               <span className="logo-icon">👓</span>
             </p>
@@ -51,6 +51,7 @@ const Header = ({ isLoggedIn }) => {
                   backgroundColor: "#ECEBE9",
                   borderColor: "#016957",
                 },
+                width: "100px",
               }}
               onClick={() => navigate("/register")}
             >
@@ -67,6 +68,7 @@ const Header = ({ isLoggedIn }) => {
                   backgroundColor: "#ECEBE9",
                   borderColor: "#016957",
                 },
+                width: "100px",
               }}
               onClick={() => navigate("/login")}
             >

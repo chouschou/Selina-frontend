@@ -6,6 +6,7 @@ import RegisterForm from "./pages/Auth/Register"
 import LogIn from "./pages/Auth/LogIn"
 import "./App.css"
 import { useState } from "react"
+import HomePage from "./pages/Homepage"
 
 const theme = createTheme({
   palette: {
@@ -37,13 +38,14 @@ function App() {
       <Router>
         <div className="app">
           <Header isLoggedIn={isLoggedIn} />
-          <main>
+          <main>            
             <Routes>
               <Route
                 path="/login"
                 element={<LogIn onLoginSuccess={() => setIsLoggedIn(true)} />}
               />
               <Route path="/register" element={<RegisterForm />} />
+              <Route path="/" element={<HomePage/>}/>
               {/* Route khác nếu cần, ví dụ Home */}
             </Routes>
           </main>

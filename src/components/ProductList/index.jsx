@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import { Box, Container, Typography, Grid, IconButton, Pagination } from "@mui/material"
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew"
@@ -9,7 +7,7 @@ import "./ProductList.scss"
 
 const ProductList = ({ title, products }) => {
   const [currentPage, setCurrentPage] = useState(1)
-  const productsPerPage = 3
+  const productsPerPage = 4
 
   // Calculate total pages
   const totalPages = Math.ceil(products.length / productsPerPage)

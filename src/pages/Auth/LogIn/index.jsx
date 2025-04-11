@@ -14,12 +14,13 @@ import { Visibility, VisibilityOff } from "@mui/icons-material"
 import imgLogIn from "../../../assets/images/imgLogIn.png"
 import "./LogIn.scss"
 import CustomTextField from "../../../components/CustomTextField"
+import { useNavigate } from "react-router-dom"
 
-const LogIn = ({onSwitchToRegister, onLoginSuccess}) => {
+const LogIn = ({ onLoginSuccess}) => {
   const [showPassword, setShowPassword] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-
+  const navigate = useNavigate()
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword)
   }
@@ -151,7 +152,7 @@ const LogIn = ({onSwitchToRegister, onLoginSuccess}) => {
               <Typography variant="body2" className="register-link-container">
                 Bạn chưa có tài khoản?
                 <span
-                  onClick={onSwitchToRegister}
+                  onClick={() => navigate("/register")}
                   className="register-link"
                   style={{ cursor: "pointer", color: "#1FAB89" }}
                 >
