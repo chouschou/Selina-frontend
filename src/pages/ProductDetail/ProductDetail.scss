@@ -1,0 +1,220 @@
+.product-detail-page {
+  .product-container {
+    padding-top: 100px;
+  }
+
+  .product-images {
+    .main-image-container {
+      position: relative;
+      background-color: #f9f9f9;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 16px;
+
+      .main-image {
+        max-width: 520px;
+        height: 300px;
+        object-fit: contain;
+      }
+
+      .try-button {
+        position: absolute;
+        bottom: 16px;
+        left: 16px;
+        background-color: #1fab89;
+        color: white;
+        text-transform: none;
+        padding: 6px 12px;
+        font-size: 14px;
+
+        &:hover {
+          background-color: #158f73;
+        }
+      }
+    }
+
+    .thumbnail-container {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+
+      .thumbnail {
+        width: 80px;
+        height: 80px;
+        border-radius: 4px;
+        overflow: hidden;
+        cursor: pointer;
+        border: 2px solid transparent;
+
+        &.active {
+          border-color: #1fab89;
+        }
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: fit;
+        }
+      }
+    }
+  }
+
+  .product-info {
+    .product-title {
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .color-options {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+
+      .color-circle {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 1px solid #ddd;
+        transition: transform 0.2s;
+
+        &.active {
+          transform: scale(1.2);
+          border: 2px solid #1fab89;
+        }
+
+        &:hover {
+          transform: scale(1.1);
+        }
+      }
+    }
+
+    .price-container {
+      margin-bottom: 20px;
+
+      .original-price {
+        text-decoration: line-through;
+        color: #999;
+      }
+
+      .sale-price {
+        font-weight: 700;
+        color: #333;
+      }
+    }
+
+    .product-details {
+      margin-bottom: 24px;
+
+      .stock-info,
+      .material-info {
+        margin-bottom: 8px;
+        color: #555;
+      }
+
+      .quantity-selector {
+        display: flex;
+        align-items: center;
+        margin-top: 16px;
+
+        .quantity-label {
+          margin-right: 16px;
+        }
+
+        .quantity-controls {
+          display: flex;
+          align-items: center;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+
+          .quantity-button {
+            color: #555;
+
+            &:disabled {
+              color: #ccc;
+            }
+          }
+
+          .quantity-value {
+            padding: 0 16px;
+            min-width: 40px;
+            text-align: center;
+          }
+        }
+      }
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+      width: 500px;
+
+      .cart-button {
+        flex: 1;
+        border-color: #1fab89;
+        color: #1fab89;
+        border-radius: 30px;
+
+        &:hover {
+          background-color: rgba(31, 171, 137, 0.1);
+        }
+      }
+
+      .buy-button {
+        flex: 1;
+        background-color: #1fab89;
+        border-radius: 30px;
+        color: white;
+
+        &:hover {
+          background-color: #158f73;
+        }
+      }
+    }
+
+    .ratings-summary {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+
+      .rating-stars {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .view-all-button {
+        color: #1fab89;
+        padding: 0;
+
+        &:hover {
+          background-color: transparent;
+          text-decoration: underline;
+        }
+      }
+    }
+
+    .reviews-container {
+      margin-top: 16px;
+      max-height: 400px;
+      overflow-y: auto;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      padding: 16px;
+    }
+  }
+
+  .section-divider {
+    margin: 40px 0;
+  }
+
+  .similar-products-section {
+    .section-title {
+      font-weight: 600;
+      margin-bottom: 24px;
+    }
+  }
+}

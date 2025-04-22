@@ -1,0 +1,251 @@
+.order-item {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  
+  .order-header {
+    padding: 16px;
+    
+    .order-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      
+      .status-indicator {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      
+      .payment-status {
+        font-weight: 500;
+      }
+    }
+    
+    .delivery-info-accordion {
+      box-shadow: none;
+      background-color: transparent;
+      
+      &::before {
+        display: none;
+      }
+      
+      .accordion-summary {
+        padding: 0;
+        min-height: 0;
+        
+        .MuiAccordionSummary-content {
+          margin: 0;
+        }
+        
+        .delivery-info-title {
+          font-weight: 500;
+        }
+      }
+      
+      .accordion-details {
+        padding: 8px 0 0 0;
+        
+        .recipient-name,
+        .recipient-phone,
+        .recipient-address {
+          margin-bottom: 4px;
+          color: #555;
+        }
+      }
+    }
+  }
+  
+  .order-timeline {
+    padding: 0 16px 16px;
+    
+    .timeline-item {
+      display: flex;
+      position: relative;
+      
+      .timeline-marker {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-right: 12px;
+        
+        .marker-dot {
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          background-color: #ccc;
+          margin-top: 6px;
+          
+          .active & {
+            background-color: #1fab89;
+          }
+        }
+        
+        .marker-line {
+          width: 2px;
+          height: 30px;
+          background-color: #ccc;
+          margin-top: 2px;
+        }
+      }
+      
+      .timeline-content {
+        padding-bottom: 16px;
+        
+        .timeline-status {
+          font-weight: 500;
+          
+          .active & {
+            color: #1fab89;
+          }
+        }
+        
+        .timeline-time {
+          color: #777;
+        }
+      }
+      
+      &.active {
+        .timeline-status {
+          color: #1fab89;
+        }
+      }
+    }
+  }
+  
+  .order-divider {
+    margin: 0;
+  }
+  
+  .order-products {
+    padding: 16px;
+  }
+  
+  .order-summary {
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    background-color: #f9f9f9;
+    
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 16px;
+    }
+    
+    .order-totals {
+      flex-grow: 1;
+      
+      .total-row {
+        display: flex;
+        justify-content: flex-end;
+        gap: 16px;
+        margin-bottom: 8px;
+        
+        &.grand-total {
+          margin-top: 8px;
+          margin-bottom: 0;
+        }
+        
+        .total-label {
+          color: #555;
+        }
+        
+        .total-value {
+          min-width: 100px;
+          text-align: right;
+          
+          &.discount {
+            color: #ff3366;
+          }
+        }
+        
+        .grand-total-value {
+          color: #1fab89;
+          font-weight: 700;
+        }
+      }
+      
+      .totals-divider {
+        margin: 8px 0;
+        width: 200px;
+        margin-left: auto;
+      }
+    }
+    
+    .order-actions {
+      display: flex;
+      gap: 16px;
+      
+      .cancel-button {
+        background-color: #ff3366;
+        border-radius: 30px;
+        padding: 8px 24px;
+        
+        &:hover {
+          background-color: #e62958;
+        }
+      }
+      
+      .review-button {
+        background-color: #1fab89;
+        border-radius: 30px;
+        padding: 8px 24px;
+        
+        &:hover {
+          background-color: #158f73;
+        }
+      }
+    }
+  }
+}
+
+// Review Dialog Styles
+.review-dialog {
+  .review-dialog-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    font-weight: 600;
+    
+    .close-button {
+      padding: 8px;
+      margin-right: -8px;
+    }
+  }
+  
+  .review-dialog-content {
+    padding: 16px 24px;
+    max-height: 70vh;
+  }
+  
+  .review-dialog-actions {
+    padding: 16px 24px;
+    
+    .cancel-button {
+      border-color: #ddd;
+      color: #555;
+      border-radius: 30px;
+      padding: 8px 24px;
+      
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.04);
+      }
+    }
+    
+    .save-button {
+      background-color: #1fab89;
+      border-radius: 30px;
+      padding: 8px 32px;
+      margin-left: 16px;
+      
+      &:hover {
+        background-color: #158f73;
+      }
+    }
+  }
+}

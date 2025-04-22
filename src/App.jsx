@@ -7,6 +7,12 @@ import LogIn from "./pages/Auth/LogIn"
 import "./App.css"
 import { useState } from "react"
 import HomePage from "./pages/Homepage"
+import ProductDetail from "./pages/ProductDetail"
+import Cart from "./pages/Cart"
+import Order from "./pages/Order"
+import MyOrders from "./pages/MyOrders"
+import ChatButton from "./components/ChatButton"
+import UserProfile from "./components/UserProfile"
 
 const theme = createTheme({
   palette: {
@@ -46,9 +52,15 @@ function App() {
               />
               <Route path="/register" element={<RegisterForm />} />
               <Route path="/" element={<HomePage/>}/>
-              {/* Route khác nếu cần, ví dụ Home */}
+              <Route path="/detail" element={<ProductDetail/>}/>
+              <Route path="/cart" element={<Cart/>}/>
+              <Route path="/order" element={<Order/>}/>
+              <Route path="/my-orders" element={<MyOrders/>}/>
+              <Route path="/profile" element={<UserProfile/>} />
             </Routes>
+            <ChatButton/>
           </main>
+          {/* <ChatButton /> */}
         </div>
       </Router>
     </ThemeProvider>

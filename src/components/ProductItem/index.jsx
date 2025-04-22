@@ -4,11 +4,11 @@ import StarIcon from "@mui/icons-material/Star"
 import CameraAltIcon from "@mui/icons-material/CameraAlt"
 import "./ProductItem.scss"
 
-const ProductItem = ({ product }) => {
+const ProductItem = ({ product, onClick }) => {
   const { image, originalPrice, salePrice, description, colors, rating } = product
 
   return (
-    <Card className="product-item">
+    <Card className="product-item" onClick={onClick}>
       <Box className="product-image-container">
         <CardMedia component="img" image={image} alt={description} className="product-image" />
         <IconButton className="cart-button">

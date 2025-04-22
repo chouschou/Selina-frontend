@@ -64,3 +64,72 @@
 .account-icon {
   color: #1b5e20 !important;
 }
+
+
+/* User Profile Modal Styles */
+.user-profile-modal {
+  width: 300px;
+  padding: 16px;
+}
+
+.user-profile-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.user-avatar {
+  width: 60px;
+  height: 60px;
+  margin-right: 16px;
+}
+
+.user-info {
+  flex: 1;
+}
+
+.user-name {
+  font-weight: 600;
+  margin-bottom: 4px;
+  font-size: 1.1rem;
+}
+
+.user-email {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.user-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.menu-item {
+  justify-content: flex-start;
+  text-transform: none;
+  padding: 8px 0;
+  color: #333;
+}
+
+.menu-item:hover {
+  background-color: rgba(31, 171, 137, 0.1);
+  color: #1fab89;
+}
+
+.menu-divider {
+  margin: 8px 0 16px;
+}
+
+.logout-button {
+  background-color: #1fab89;
+  color: white;
+  text-transform: none;
+  padding: 10px;
+  border-radius: 30px;
+}
+
+.logout-button:hover {
+  background-color: #158f73;
+}

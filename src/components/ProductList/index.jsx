@@ -4,6 +4,7 @@ import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew"
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos"
 import ProductItem from "../ProductItem"
 import "./ProductList.scss"
+import { useNavigate } from "react-router-dom"
 
 const ProductList = ({ title, products }) => {
   const [currentPage, setCurrentPage] = useState(1)
@@ -35,7 +36,7 @@ const ProductList = ({ title, products }) => {
       setCurrentPage(currentPage + 1)
     }
   }
-
+  const navigate = useNavigate()
   return (
     <Container className="product-list-container">
       {title && (
@@ -52,7 +53,7 @@ const ProductList = ({ title, products }) => {
         <Grid container spacing={3} className="products-grid">
           {currentProducts.map((product) => (
             <Grid item xs={12} sm={6} md={4} key={product.id}>
-              <ProductItem product={product} />
+              <ProductItem product={product} onClick={()=>navigate("/detail")}/>
             </Grid>
           ))}
         </Grid>

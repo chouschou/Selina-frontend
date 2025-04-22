@@ -1,0 +1,159 @@
+.user-profile-page {
+  background-color: #f9f9f9;
+  min-height: 100vh;
+  
+  .profile-container {
+    padding-top: 100px;
+  }
+  
+  .profile-section,
+  .addresses-section {
+    padding: 24px;
+    margin-bottom: 24px;
+    border-radius: 8px;
+    
+    .section-title {
+      font-weight: 600;
+      margin-bottom: 24px;
+      color: #333;
+    }
+  }
+  
+  .profile-image-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
+    .profile-image-container {
+      width: 250px;
+      height: 250px;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 16px;
+      border: 1px solid #eee;
+      
+      .profile-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+    
+    .choose-image-button {
+      color: #1fab89;
+      border-color: #1fab89;
+      
+      &:hover {
+        background-color: rgba(31, 171, 137, 0.1);
+      }
+    }
+  }
+  
+  .profile-form-section {
+    .form-label {
+      padding-top: 10px;
+      font-weight: 500;
+      width: 200px;
+    }
+    
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 16px;
+      margin-top: 16px;
+      
+      .cancel-button {
+        color: #555;
+        border-color: #ddd;
+        
+        &:hover {
+          background-color: rgba(0, 0, 0, 0.04);
+          border-color: #ccc;
+        }
+      }
+      
+      .save-button {
+        background-color: #1fab89;
+        color: white;
+        
+        &:hover {
+          background-color: #158f73;
+        }
+      }
+    }
+  }
+  
+  .addresses-section {
+    .default-badge {
+      background-color: #ff3366;
+      color: white;
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 12px;
+      margin-left: 8px;
+    }
+    
+    .edit-button {
+      color: #1fab89;
+    }
+    
+    .delete-button {
+      color: #ff3366;
+    }
+    
+    .add-address-container {
+      margin-top: 24px;
+      display: flex;
+      justify-content: flex-end;
+      
+      .add-address-button {
+        background-color: #1fab89;
+        color: white;
+        border-radius: 30px;
+        padding: 8px 24px;
+        
+        &:hover {
+          background-color: #158f73;
+        }
+      }
+    }
+  }
+}
+
+// Address Modal Styles
+.address-modal {
+  .modal-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    font-weight: 600;
+    
+    .close-button {
+      padding: 8px;
+    }
+  }
+  
+  .modal-content {
+    padding: 16px 24px;
+    
+    .address-form {
+      margin-top: 8px;
+    }
+  }
+  
+  .modal-actions {
+    padding: 16px 24px;
+    
+    .save-address-button {
+      background-color: #1fab89;
+      color: white;
+      border-radius: 30px;
+      padding: 8px 32px;
+      
+      &:hover {
+        background-color: #158f73;
+      }
+    }
+  }
+}

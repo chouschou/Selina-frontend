@@ -1,11 +1,59 @@
-import { AppBar, Toolbar, Button, IconButton, Badge, Box, Container, Stack } from "@mui/material"
+import { AppBar, Toolbar, Button,Popover, IconButton, Badge, Box, Container, Stack, Avatar, Typography, Divider } from "@mui/material"
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart"
 import AccountCircleIcon from "@mui/icons-material/AccountCircle"
 import { useNavigate } from "react-router-dom"
 import "./Header.scss"
+import { useState } from "react"
+import avatar2 from "../../assets/images/avatar2.png"
 
 const Header = ({ isLoggedIn }) => {
   const navigate = useNavigate()
+  // const [cartCount, setCartCount] = useState(1)
+  const cartCount = 1 // Sample cart count (would normally come from state or context)
+  const [anchorEl, setAnchorEl] = useState(null)
+  const open = Boolean(anchorEl)
+
+  // Sample user data (would normally come from authentication context/state)
+  const user = {
+    name: "Nguyễn Lý Na",
+    email: "lynanguyen@gmail.com",
+    avatar: "/avatar.jpg", // Default avatar if none provided
+  }
+  const handleCartClick = () => {
+    navigate("/cart")
+  }
+  const handleAccountClick = (event) => {
+    setAnchorEl(event.currentTarget)
+  }
+
+  const handleClose = () => {
+    setAnchorEl(null)
+  }
+
+  const handleMyAccountClick = () => {
+    handleClose()
+    // Navigate to account page
+    navigate("/profile")
+  }
+
+  const handleMyOrdersClick = () => {
+    handleClose()
+    navigate("/my-orders")
+  }
+
+  const handleChangePasswordClick = () => {
+    handleClose()
+    // Navigate to change password page
+    // navigate("/change-password")
+  }
+
+  const handleLogout = () => {
+    handleClose()
+    // Handle logout logic
+    console.log("Logging out")
+    // After logout, redirect to home
+    navigate("/")
+  }
   return (
     <AppBar position="fixed" color="default" elevation={1} sx={{ backgroundColor: "white" }} className="header">
       <Container maxWidth="lg">
@@ -30,14 +78,61 @@ const Header = ({ isLoggedIn }) => {
           {/* Icons hiển thị nếu đã đăng nhập */}
           {isLoggedIn ? (
             <Box className="icons-container">
-              <IconButton aria-label="cart">
-                <Badge badgeContent={1} color="success">
+              <IconButton aria-label="cart" onClick={handleCartClick}>
+                <Badge badgeContent={cartCount} color="success">
                   <ShoppingCartIcon />
                 </Badge>
               </IconButton>
-              <IconButton aria-label="account" className="account-icon">
+              <IconButton aria-label="account" className="account-icon" onClick={handleAccountClick}>
                 <AccountCircleIcon fontSize="large" />
               </IconButton>
+              {/* User Profile Popover */}
+            <Popover
+              open={open}
+              anchorEl={anchorEl}
+              onClose={handleClose}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "right",
+              }}
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "right",
+              }}
+              className="user-popover"
+            >
+              <Box className="user-profile-modal">
+                <Box className="user-profile-header">
+                  <Avatar src={avatar2} alt='avatar' className="user-avatar" />
+                  <Box className="user-info">
+                    <Typography variant="h6" className="user-name">
+                      {user.name}
+                    </Typography>
+                    <Typography variant="body2" className="user-email">
+                      {user.email}
+                    </Typography>
+                  </Box>
+                </Box>
+
+                <Box className="user-menu">
+                  <Button className="menu-item" fullWidth onClick={handleMyAccountClick}>
+                    Tài khoản của tôi
+                  </Button>
+                  <Button className="menu-item" fullWidth onClick={handleMyOrdersClick}>
+                    Đơn mua hàng
+                  </Button>
+                  <Button className="menu-item" fullWidth onClick={handleChangePasswordClick}>
+                    Đổi mật khẩu
+                  </Button>
+                </Box>
+
+                <Divider className="menu-divider" />
+
+                <Button variant="contained" color="primary" fullWidth className="logout-button" onClick={handleLogout}>
+                  Đăng xuất
+                </Button>
+              </Box>
+            </Popover>
             </Box>
           ):(<Stack direction="row" spacing={2}>
             <Button
