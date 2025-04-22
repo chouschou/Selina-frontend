@@ -5,6 +5,7 @@ import ProductList from "../../components/ProductList"
 import "./HomePage.scss"
 import model2Removebg from "../../assets/images/model2-removebg.png"
 import glass1 from "../../assets/images/glass1.png"
+import glass_nobg from "../../assets/images/glass_nobg.png"
 
 const HomePage = () => {
   const [activeFilter, setActiveFilter] = useState("all")
@@ -119,7 +120,7 @@ const HomePage = () => {
               <p variant="h6" className="brand-tagline">
                 Thương hiệu thời trang mắt kính
               </p>
-              <img src="/featured-glasses.png" alt="Featured glasses" className="featured-glasses" />
+              <img src={glass_nobg} alt="Featured glasses" className="featured-glasses" />
             </Grid>
           </Grid>
         </Container>
