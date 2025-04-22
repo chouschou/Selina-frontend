@@ -1,0 +1,108 @@
+.cart-page {
+    background-color: #f9f9f9;
+    min-height: 100vh;
+    
+    .cart-container {
+      padding-top: 100px;
+    }
+    
+    .cart-title {
+      font-weight: 600;
+      margin-bottom: 24px;
+    }
+    
+    .cart-summary {
+      background-color: white;
+      border-radius: 8px;
+      padding: 16px 24px;
+      margin-top: 24px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      
+      @media (max-width: 768px) {
+        flex-direction: column;
+        gap: 16px;
+      }
+      
+      .select-all {
+        .select-checkbox {
+          color: #1fab89;
+        }
+        
+        .select-label {
+          font-weight: 500;
+        }
+      }
+      
+      .summary-details {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        
+        @media (max-width: 768px) {
+          width: 100%;
+          justify-content: space-between;
+        }
+        
+        .price-details {
+          text-align: right;
+          
+          .total-label {
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 4px;
+          }
+          
+          .total-price {
+            font-weight: 700;
+            color: #1fab89;
+            margin-bottom: 4px;
+          }
+          
+          .savings {
+            color: #ff3366;
+          }
+        }
+        
+        .checkout-button {
+          background-color: #1fab89;
+          color: white;
+          padding: 10px 32px;
+          border-radius: 30px;
+          font-weight: 600;
+          
+          &:hover {
+            background-color: #158f73;
+          }
+          
+          &:disabled {
+            background-color: #cccccc;
+            color: #666666;
+          }
+        }
+      }
+    }
+    
+    .empty-cart {
+      background-color: white;
+      border-radius: 8px;
+      padding: 48px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      
+      .continue-shopping {
+        background-color: #1fab89;
+        color: white;
+        margin-top: 24px;
+        padding: 10px 24px;
+        border-radius: 30px;
+        
+        &:hover {
+          background-color: #158f73;
+        }
+      }
+    }
+  }
+  

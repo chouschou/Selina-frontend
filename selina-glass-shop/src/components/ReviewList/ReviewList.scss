@@ -1,0 +1,39 @@
+.review-list {
+    .review-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      
+      .tab-button {
+        min-width: 60px;
+        border-radius: 20px;
+        text-transform: none;
+        font-size: 14px;
+        
+        &.active {
+          background-color: #1fab89;
+          color: white;
+        }
+        
+        &:not(.active) {
+          border-color: #ddd;
+          color: #555;
+        }
+      }
+    }
+    
+    .reviews-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    
+    .no-reviews {
+      text-align: center;
+      color: #777;
+      padding: 20px 0;
+    }
+  }
+  
