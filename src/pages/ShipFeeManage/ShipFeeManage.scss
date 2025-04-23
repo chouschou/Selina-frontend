@@ -1,0 +1,96 @@
+.shipping-content {
+  padding: 24px;
+
+  .shipping-form {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+    .form-header {
+      padding: 20px 24px;
+      background-color: #f8f9fa;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      .shipping-icon {
+        color: #5cba9a;
+      }
+
+      h6 {
+        color: #333;
+        font-weight: 600;
+        margin: 0;
+      }
+    }
+
+    .form-content {
+      padding: 24px;
+
+      .form-field {
+        margin-bottom: 20px;
+      }
+
+      .distance-config {
+        margin: 24px 0;
+
+        .formula-label {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          color: #333;
+          font-size: 0.9rem;
+
+          .distance-input,
+          .fee-input,
+          .per-km-input {
+            width: 100px;
+            margin: 0 4px;
+
+            input {
+              text-align: center;
+            }
+          }
+        }
+      }
+
+      .formula-display {
+        background-color: #f8f9fa;
+        padding: 16px;
+        border-radius: 8px;
+        margin-top: 24px;
+
+        .formula-title {
+          color: #333;
+          font-weight: 500;
+          margin-bottom: 8px;
+        }
+
+        .formula {
+          color: #5cba9a;
+          font-weight: 500;
+          font-size: 1.1rem;
+          margin-bottom: 8px;
+        }
+
+        .formula-note {
+          color: #666;
+          font-size: 0.85rem;
+          font-style: italic;
+        }
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 16px;
+
+    .distance-config {
+      .formula-label {
+        flex-wrap: wrap;
+      }
+    }
+  }
+}

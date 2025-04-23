@@ -19,8 +19,13 @@ import ConversationModal from "./pages/MessageSystem/ConversationModal";
 import MessageItem from "./pages/MessageSystem/MessageItem";
 import MessageNotificationModal from "./pages/MessageSystem/MessageNotificationModal";
 import MessageList from "./pages/MessageSystem/MessageList";
-import { Button } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import AIButton from "./components/AIButton";
+import ProductManagement from "./pages/ProductManagement";
+import TabBar from "./components/TabBar";
+import Sidebar from "./components/SideBar";
+import MainContent from "./pages/MainContent";
+import HeaderOwner from "./components/HeaderOwner";
 
 const theme = createTheme({
   palette: {
@@ -45,11 +50,12 @@ const theme = createTheme({
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [activeMenuItem, setActiveMenuItem] = useState("products");
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Router>
+      {/* <Router>
         <div className="app">
           <Header isLoggedIn={isLoggedIn} />
           <main>
@@ -68,23 +74,27 @@ function App() {
 
               <Route path="/order-manage" element={<OrderManage />} />
               <Route path="/message" element={<MessageNotificationModal />} />
+
+              <Route path="/product-manage" element={<ProductManagement/>} />
             </Routes>
             <ChatButton />
             <AIButton/>
-            {/* <Button
-              variant="contained"
-              color="secondary"
-              size="small"
-              sx={{ position: "fixed", bottom: 90, right: 16 }}
-            >
-              Gợi ý từ AI 🤖
-            </Button> */}
-
-            {/* <MessageNotificationModal/> */}
+            
           </main>
-          {/* <ChatButton /> */}
+          <ChatButton />
         </div>
-      </Router>
+      </Router> */}
+      {/* ---- Owner ----*/}
+      <Box className="app-container">
+        <Sidebar
+          activeMenuItem={activeMenuItem}
+          setActiveMenuItem={setActiveMenuItem}
+        />
+        <Box className="main-section">
+          <HeaderOwner/>
+          <MainContent activeMenuItem={activeMenuItem} />
+        </Box>
+      </Box>
     </ThemeProvider>
   );
 }

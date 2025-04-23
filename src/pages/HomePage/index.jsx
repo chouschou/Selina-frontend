@@ -25,9 +25,9 @@ const HomePage = () => {
       id: 2,
       image: glass1,
       originalPrice: 150000,
-      salePrice: 120000,
+      salePrice: 150000,
       description: "Gọng kim loại, hình tròn",
-      colors: ["white", "black", "green"],
+      colors: ["BlanchedAlmond", "black", "green"],
       rating: 4.5,
     },
     {

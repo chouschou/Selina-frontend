@@ -1,0 +1,95 @@
+.add-product-modal {
+  .MuiDialog-paper {
+    border-radius: 12px;
+  }
+
+  .modal-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    color: #333;
+    font-weight: 600;
+    border-bottom: 1px solid #e0e0e0;
+
+    .close-button {
+      margin-right: -12px;
+    }
+  }
+
+  .modal-content {
+    padding: 16px 0;
+
+    .form-field {
+      margin-bottom: 20px;
+    }
+
+    .color-section {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+
+      .add-color-btn {
+        white-space: nowrap;
+        margin-top: 8px;
+        padding: 10px 24px;
+      }
+    }
+
+    .currency {
+      margin-left: 8px;
+      color: #666;
+    }
+
+    .image-upload-section {
+      .upload-label {
+        margin-bottom: 12px;
+        color: #666;
+      }
+
+      .upload-box {
+        aspect-ratio: 1;
+        border: 2px dashed #ccc;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &:hover {
+          border-color: #5cba9a;
+          background-color: rgba(92, 186, 154, 0.05);
+
+          .MuiSvgIcon-root {
+            color: #5cba9a;
+          }
+        }
+
+        .MuiSvgIcon-root {
+          color: #999;
+          transition: color 0.2s ease;
+        }
+      }
+    }
+  }
+
+  .modal-actions {
+    padding: 16px 24px;
+    border-top: 1px solid #e0e0e0;
+
+    .cancel-btn {
+      color: #666;
+
+      &:hover {
+        background-color: #f5f5f5;
+      }
+    }
+
+    .save-btn {
+      min-width: 100px;
+      text-transform: none;
+      font-weight: 500;
+    }
+  }
+}

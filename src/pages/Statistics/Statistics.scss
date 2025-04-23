@@ -1,0 +1,48 @@
+.statistics-content {
+  // padding: 24px;
+
+  .time-selector {
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: flex-end;
+
+    .year-select {
+      min-width: 120px;
+    }
+  }
+
+  .statistics-section {
+    padding: 24px;
+    margin-bottom: 24px;
+    border-radius: 12px;
+
+    .section-title {
+      margin-bottom: 24px;
+      color: #333;
+      font-weight: 600;
+    }
+
+    .chart-container {
+      position: relative;
+      margin: auto;
+      height: 300px;
+      width: 100%;
+
+      canvas {
+        max-height: 300px;
+      }
+    }
+
+    .chart-radio-group {
+      margin-bottom: 16px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 16px;
+
+    .statistics-section {
+      padding: 16px;
+    }
+  }
+}
