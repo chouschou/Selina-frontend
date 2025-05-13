@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useContext, useState } from "react";
 import {
   Box,
   Typography,
@@ -9,37 +9,68 @@ import {
   Container,
   Grid,
   Paper,
-} from "@mui/material"
-import { Visibility, VisibilityOff } from "@mui/icons-material"
-import imgLogIn from "../../../assets/images/imgLogIn.png"
-import "./LogIn.scss"
-import CustomTextField from "../../../components/CustomTextField"
-import { useNavigate } from "react-router-dom"
+} from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import imgLogIn from "../../../assets/images/imgLogIn.png";
+import "./LogIn.scss";
+import CustomTextField from "../../../components/CustomTextField";
+import { useNavigate } from "react-router-dom";
+import { login } from "../../../services/auth/login";
+import { toast } from "react-toastify";
+import { AuthContext } from "../../../contexts/AuthContext/AuthContext";
 
-const LogIn = ({ onLoginSuccess}) => {
-  const [showPassword, setShowPassword] = useState(false)
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const navigate = useNavigate()
+const LogIn = () => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
   const handleClickShowPassword = () => {
-    setShowPassword(!showPassword)
-  }
+    setShowPassword(!showPassword);
+  };
 
   const handleEmailChange = (e) => {
-    setEmail(e.target.value)
-  }
+    setEmail(e.target.value);
+  };
 
   const handlePasswordChange = (e) => {
-    setPassword(e.target.value)
-  }
+    setPassword(e.target.value);
+  };
+  const { loginContext } = useContext(AuthContext);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await login(email, password);
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    console.log("Login attempt with:", { email, password })
-  }
-  const handleLogin = () => {
-    onLoginSuccess(); 
-  }
+      const role = response.user.Role.Name;
+
+      loginContext(role); // dùng context để cập nhật React
+      toast.success("Đăng nhập thành công!");
+
+      // 👉 Điều hướng theo vai trò
+      if (role === "employee") {
+        navigate("/order-manage");
+      } else if (role === "owner") {
+        navigate("/owner");
+      } else {
+        navigate("/");
+      }
+    } catch (err) {
+      if (err === "Incorrect password") {
+        toast.error("Mật khẩu không chính xác");
+      } else if (err === "Username does not exist") {
+        toast.error("Tài khoản chưa được kích hoạt");
+      } else if (err[0] === "Username must be an email") {
+        toast.error("Vui lòng nhập đúng định dạng email");
+      }
+    }
+  };
+
+  // // Lưu role
+  // localStorage.setItem("role", "staff");
+  // // Lấy role
+  // const role = localStorage.getItem("role");
+  // // Xóa role (khi logout)
+  // localStorage.removeItem("role");
 
   return (
     <Container maxWidth="lg" className="login-container">
@@ -51,7 +82,13 @@ const LogIn = ({ onLoginSuccess}) => {
             className="login-image"
           />
         </Grid>
-        <Grid item xs={12} md={6} className="form-container" sx={{ paddingLeft: 5 }}>
+        <Grid
+          item
+          xs={12}
+          md={6}
+          className="form-container"
+          sx={{ paddingLeft: 5 }}
+        >
           <Paper elevation={0} className="form-paper">
             <p variant="h3" className="login-title">
               ĐĂNG NHẬP
@@ -121,7 +158,7 @@ const LogIn = ({ onLoginSuccess}) => {
                 className="login-button"
                 type="submit"
                 fullWidth
-                onClick={handleLogin}
+                // onClick={handleLogin}
               >
                 Đăng nhập
               </Button>
@@ -164,7 +201,7 @@ const LogIn = ({ onLoginSuccess}) => {
         </Grid>
       </Grid>
     </Container>
-  )
-}
+  );
+};
 
-export default LogIn
+export default LogIn;

@@ -1,21 +1,24 @@
-import Box from "@mui/material/Box"
-import Avatar from "@mui/material/Avatar"
-import List from "@mui/material/List"
-import ListItem from "@mui/material/ListItem"
-import ListItemButton from "@mui/material/ListItemButton"
-import ListItemIcon from "@mui/material/ListItemIcon"
-import ListItemText from "@mui/material/ListItemText"
-import Typography from "@mui/material/Typography"
+import Box from "@mui/material/Box";
+import Avatar from "@mui/material/Avatar";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import Typography from "@mui/material/Typography";
 import {
   Inventory as InventoryIcon,
   LocalOffer as LocalOfferIcon,
   LocalShipping as LocalShippingIcon,
   BarChart as BarChartIcon,
   Logout as LogoutIcon,
-} from "@mui/icons-material"
+} from "@mui/icons-material";
 
-import "./Sidebar.scss"
-
+import "./Sidebar.scss";
+import { useContext } from "react";
+import { AuthContext } from "../../contexts/AuthContext/AuthContext";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const menu = [
   {
@@ -38,12 +41,16 @@ const menu = [
     text: "Thống kê",
     icon: BarChartIcon,
   },
-]
+];
 
 function Sidebar({ activeMenuItem, setActiveMenuItem }) {
+  const navigate = useNavigate();
+  const { logoutContext } = useContext(AuthContext);
   const handleLogout = () => {
-    console.log("Logging out...")
-  }
+    logoutContext(); // clear context + localStorage
+    toast.success("Đăng xuất thành công!");
+    navigate("/");
+  };
   return (
     <Box className="sidebar">
       <Box>
@@ -57,7 +64,9 @@ function Sidebar({ activeMenuItem, setActiveMenuItem }) {
             className="sidebar-avatar"
             sx={{ width: 56, height: 56 }}
           />
-          <Typography variant="h6" className="sidebar-username">Admin</Typography>
+          <Typography variant="h6" className="sidebar-username">
+            Admin
+          </Typography>
           <Typography variant="body2" className="sidebar-role">
             Quản lý cửa hàng hiệu quả và tiết kiệm
           </Typography>
@@ -70,7 +79,9 @@ function Sidebar({ activeMenuItem, setActiveMenuItem }) {
                 className={activeMenuItem === item.id ? "active" : ""}
                 onClick={() => setActiveMenuItem(item.id)}
               >
-                <ListItemIcon><item.icon /></ListItemIcon>
+                <ListItemIcon>
+                  <item.icon />
+                </ListItemIcon>
                 <ListItemText primary={item.text} />
               </ListItemButton>
             </ListItem>
@@ -81,13 +92,15 @@ function Sidebar({ activeMenuItem, setActiveMenuItem }) {
       <Box className="logout-container">
         <ListItem disablePadding>
           <ListItemButton onClick={handleLogout} className="logout-button">
-            <ListItemIcon><LogoutIcon /></ListItemIcon>
+            <ListItemIcon>
+              <LogoutIcon />
+            </ListItemIcon>
             <ListItemText primary="Đăng xuất" />
           </ListItemButton>
         </ListItem>
       </Box>
     </Box>
-  )
+  );
 }
 
-export default Sidebar
+export default Sidebar;
