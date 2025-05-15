@@ -6,9 +6,10 @@ import ProductItem from "../ProductItem"
 import "./ProductList.scss"
 import { useNavigate } from "react-router-dom"
 
-const ProductList = ({ title, products }) => {
+const ProductList = ({ title, products, numberProductPerPage = 4 }) => {
   const [currentPage, setCurrentPage] = useState(1)
-  const productsPerPage = 4
+  const productsPerPage = numberProductPerPage
+  console.log("--products", products)
 
   // Calculate total pages
   const totalPages = Math.ceil(products.length / productsPerPage)

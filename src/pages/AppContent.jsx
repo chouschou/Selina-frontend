@@ -13,12 +13,12 @@ function AppContent() {
   const location = useLocation();
 
   const isCustomerOrGuest = (isLoggedIn && role === "customer") || !isLoggedIn;
-  const isHiddenRoute = ["/login", "/register"].includes(location.pathname);
+  const isHiddenRoute = ["/login", "/register", "/recommendation", "/quiz", "/camera-detection", "/results"].includes(location.pathname);
   const shouldShowChatAndAI = isCustomerOrGuest && !isHiddenRoute;
 
   return (
     <div className="app">
-      {isLoggedIn && role !== "owner" && <Header />}
+      {role !== "owner" && <Header />}
       <main>
         <AppRoutes
           activeMenuItem={activeMenuItem}

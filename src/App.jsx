@@ -160,6 +160,7 @@ import { BrowserRouter as Router } from "react-router-dom";
 
 import "./App.css";
 import AppContent from "./pages/AppContent";
+import { GlassesProvider } from "./pages/Recommendation/GlassesContext";
 
 const theme = createTheme({
   palette: {
@@ -178,9 +179,11 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Router>
-        <AppContent />
-      </Router>
+      <GlassesProvider>
+        <Router>
+          <AppContent />
+        </Router>
+      </GlassesProvider>
     </ThemeProvider>
   );
 }
