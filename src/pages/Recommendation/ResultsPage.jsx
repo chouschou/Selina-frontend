@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
@@ -10,6 +10,7 @@ import {
   Chip,
   CircularProgress,
   Alert,
+  ButtonGroup,
 } from "@mui/material";
 // import { ArrowLeft, Redo, ShoppingCart } from 'lucide-react';
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -70,6 +71,15 @@ const ResultsPage = () => {
   }, [gender, faceShape, recommendations, isLoading, navigate]);
 
   const recommendedShapes = getRecommendedGlassShapes(faceShape);
+
+  const [filter, setFilter] = useState("Tất cả");
+
+  const filteredRecommendations = useMemo(() => {
+    if (recommendations.length !== 0) {
+      if (filter === "Tất cả") return recommendations;
+      return recommendations.filter((item) => item.Category === filter);
+    }
+  }, [filter, recommendations]);
 
   return (
     <Box sx={{ py: 12, bgcolor: "grey.50", minHeight: "calc(100vh - 64px)" }}>
@@ -196,9 +206,40 @@ const ResultsPage = () => {
               </Paper>
 
               <Box mb={6}>
-                <Typography variant="h4" fontWeight="bold" gutterBottom>
-                  Sản phẩm gợi ý cho bạn
-                </Typography>
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  mb={2}
+                >
+                  <Typography variant="h4" fontWeight="bold" gutterBottom>
+                    Sản phẩm gợi ý cho bạn
+                  </Typography>
+
+                  <ButtonGroup variant="outlined" size="small">
+                    <Button
+                      variant={filter === "Tất cả" ? "contained" : "outlined"}
+                      onClick={() => setFilter("Tất cả")}
+                    >
+                      Tất cả
+                    </Button>
+                    <Button
+                      variant={
+                        filter === "Gọng kính" ? "contained" : "outlined"
+                      }
+                      onClick={() => setFilter("Gọng kính")}
+                    >
+                      Gọng kính
+                    </Button>
+                    <Button
+                      variant={filter === "Kính mát" ? "contained" : "outlined"}
+                      onClick={() => setFilter("Kính mát")}
+                    >
+                      Kính mát
+                    </Button>
+                  </ButtonGroup>
+                </Box>
+
                 <Typography variant="body1" color="text.secondary" gutterBottom>
                   Dựa trên phân tích khuôn mặt, chúng tôi đã lựa chọn những mẫu
                   kính phù hợp nhất với bạn.
@@ -212,12 +253,8 @@ const ResultsPage = () => {
                   </Alert>
                 ) : (
                   <Grid container spacing={3}>
-                    {/* {recommendations.map((glasses) => (
-                      <Grid item key={glasses.id} xs={12} sm={6} md={3}>
-                        <GlassesCard {...glasses} />
-                      </Grid>
-                    ))} */}
-                    <ProductList products={recommendations} />
+                    {/* Filtered list logic can be added based on `filter` state */}
+                    <ProductList products={filteredRecommendations} />
                   </Grid>
                 )}
               </Box>

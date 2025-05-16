@@ -127,7 +127,7 @@ const LogIn = () => {
                   type={showPassword ? "text" : "password"}
                   placeholder="Mật khẩu"
                   className="text-input"
-                  value={password}
+                  // value={password}
                   onChange={handlePasswordChange}
                   required
                   InputProps={{

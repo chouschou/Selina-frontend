@@ -55,7 +55,7 @@ const CameraDetection = () => {
     oblong: ["Square", "Round", "Rectangle", "Oval"],
   };
   const {
-    // setGender,
+    setGender,
     setFaceShape,
     isLoading,
     setIsLoading,
@@ -133,6 +133,7 @@ const CameraDetection = () => {
     console.log("Kết quả từ AI:", result);
     setShapeFace(result.prediction);
     setFaceShape(result.prediction);
+    setGender(result.gender);
     console.log("shapeFace:", result.prediction);
   };
 
@@ -143,13 +144,13 @@ const CameraDetection = () => {
       if (imageSrc) {
         setCapturedImage(imageSrc);
 
-        // Tải ảnh về
-        const link = document.createElement("a");
-        link.href = imageSrc;
-        link.download = `captured-image-${Date.now()}.png`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        // // Tải ảnh về
+        // const link = document.createElement("a");
+        // link.href = imageSrc;
+        // link.download = `captured-image-${Date.now()}.png`;
+        // document.body.appendChild(link);
+        // link.click();
+        // document.body.removeChild(link);
 
         // Gửi đến server
         const file = dataURLtoFile(imageSrc, `image-${Date.now()}.png`);
@@ -190,10 +191,11 @@ const CameraDetection = () => {
       //   setRecommendations(filteredGlasses);
       //   navigate("/results");
 
+      console.log("shapeFace", shapeFace);
+      
       const recommendedShapes = recommendationMap[shapeFace.toLowerCase()];
 
       console.log("recommendedShapes", recommendedShapes);
-      console.log("shapeFace", shapeFace);
 
       const filteredGlasses = await getProductsByShapes(recommendedShapes);
       console.log("filteredGlasses", filteredGlasses);
@@ -207,13 +209,13 @@ const CameraDetection = () => {
       setIsLoading(false);
     }
   }, [
-    // capturedImage,
-    // setGender,
+    capturedImage,
+    setGender,
     setFaceShape,
     // navigate,
-    // setIsLoading,
-    // setContextError,
-    // setRecommendations,
+    setIsLoading,
+    setContextError,
+    setRecommendations,
   ]);
 
   useEffect(() => {

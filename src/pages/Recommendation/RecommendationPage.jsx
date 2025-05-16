@@ -57,7 +57,7 @@ const RecommendationPage = () => {
             sx={{ maxWidth: "600px", mx: "auto" }}
           >
             Chúng tôi sẽ giúp bạn tìm ra mẫu kính hoàn hảo dựa trên hình dáng
-            khuôn mặt và phong cách cá nhân. Hãy chọn một trong hai phương thức
+            khuôn mặt.<br/> Hãy chọn một trong hai phương thức
             dưới đây để bắt đầu.
           </Typography>
         </Box>
