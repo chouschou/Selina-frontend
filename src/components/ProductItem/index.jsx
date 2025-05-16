@@ -16,25 +16,50 @@ import { getProductColorsById } from "../../services/product/getProductColorsByI
 import { toast } from "react-toastify";
 import hexToColorName from "../../services/hexToColorName";
 
+const translateShape = (shape) => {
+  switch (shape.toLowerCase()) {
+    case 'round':
+      return 'tròn';
+    case 'square':
+      return 'vuông';
+    case 'oval':
+      return 'bầu dục';
+    case 'rectangle':
+      return 'chữ nhật';
+    case 'heart':
+      return 'trái tim';
+    case 'cat eye':
+    case 'cateye':
+      return 'mắt mèo';
+    case 'hexagon':
+      return 'lục giác';
+    case 'geometric':
+      return 'hình học';
+    default:
+      return shape; // fallback nếu chưa có bản dịch
+  }
+};
+
 const ProductItem = ({ product, onClick }) => {
   // const { image, originalPrice, salePrice, description, colors, rating } = product
-  const { colors, setColors } = useState(['#000000']);
+  const [colors, setColors] = useState(['#000000']);
   console.log("--product--", product);
   useEffect(() => {
     const fetchColors = async () => {
       try {
-        const colors = await getProductColorsById(product.ID).colors;
+        const colors = await getProductColorsById(product.ID);
         // const { data, colors } = await getProductColorsById(product.ID);
         // setColorDetails(data);
-        setColors(colors);
+        console.log("colors---", colors.colors);
+        setColors(colors.colors);
       } catch (err) {
         toast.error(err);
       }
     };
 
     fetchColors();
-  }, [product.ID]);
-  console.log("colors", colors);
+  }, [product.ID, setColors]);
+  console.log("colors====", colors);
   return (
     <Card className="product-item" onClick={onClick}>
       <Box className="product-image-container">
@@ -80,7 +105,7 @@ const ProductItem = ({ product, onClick }) => {
           }}
         >
           {/* {product.Description} */}
-          {product.Category} {product.Material}
+            {`${product.Category}  ${translateShape(product.Shape).toLowerCase()} ${product.Material.toLowerCase()}`}
         </Typography>
 
         <Box className="product-actions">
