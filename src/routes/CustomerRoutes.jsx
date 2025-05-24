@@ -11,6 +11,7 @@ import RecommendationPage from "../pages/Recommendation/RecommendationPage";
 import QuizSelection from "../pages/Recommendation/QuizSelection";
 import ResultsPage from "../pages/Recommendation/ResultsPage";
 import CameraDetection from "../pages/Recommendation/CameraDetection";
+import VirtualTryOn from "../components/VirtualTryOn/VirtualTryOn";
 
 // const CustomerRoutes = () => [
 //   <Route key="login" path="/login" element={<LogIn />} />,
@@ -41,6 +42,9 @@ const CustomerRoutes = () => (
     <Route path="/quiz" element={<QuizSelection />} />
     <Route path="/camera-detection" element={<CameraDetection />} />
     <Route path="/results" element={<ResultsPage />} />
+    <Route path="/virtual-try-on" element={<VirtualTryOn/>} />
+    {/* <Route path="/glass-try-on" element={<GlassTryOn/>} />
+    <Route path="/glass-AR" element={<GlassesAR/>} /> */}
   </>
 );
 

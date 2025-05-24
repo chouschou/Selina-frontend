@@ -2,39 +2,38 @@ import { useState, useRef, useEffect } from "react"
 import { Box, Typography, IconButton, Avatar, TextField, InputAdornment } from "@mui/material"
 import CloseIcon from "@mui/icons-material/Close"
 import SendIcon from "@mui/icons-material/Send"
+import { io } from "socket.io-client" //socket client
 import "./ChatModal.scss"
 
-const ChatModal = ({ open, onClose }) => {
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      sender: "agent",
-      text: "Chào bạn, bạn muốn giúp gì ko ạ?",
-      time: "14:00, 22/03/2025",
-    },
-  ])
+const socket = io("http://localhost:3000") // URL backend WebSocket
+
+const ChatModal = ({ open, onClose, conversationId, senderId }) => {
+  const [messages, setMessages] = useState([])
   const [newMessage, setNewMessage] = useState("")
   const messagesEndRef = useRef(null)
   const contentRef = useRef(null)
 
-  // Auto-scroll to bottom when messages change
+  // Join conversation khi component mount
   useEffect(() => {
-    if (open) {
-      scrollToBottom()
+    if (open && conversationId) {
+      socket.emit("joinConversation", conversationId)
     }
-  }, [messages, open])
+  }, [open, conversationId])
 
-  // Focus input field when modal opens
+  // Lắng nghe tin nhắn từ server
   useEffect(() => {
-    if (open) {
-      setTimeout(() => {
-        const inputElement = document.querySelector(".chat-input input")
-        if (inputElement) {
-          inputElement.focus()
-        }
-      }, 100)
+    socket.on("newMessage", (message) => {
+      setMessages((prev) => [...prev, message])
+    })
+
+    return () => {
+      socket.off("newMessage")
     }
-  }, [open])
+  }, [])
+
+  useEffect(() => {
+    if (open) scrollToBottom()
+  }, [messages, open])
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -44,31 +43,14 @@ const ChatModal = ({ open, onClose }) => {
     e.preventDefault()
     if (newMessage.trim() === "") return
 
-    const currentTime = new Date()
-    const formattedTime = `${currentTime.getHours()}:${String(currentTime.getMinutes()).padStart(2, "0")}, ${String(
-      currentTime.getDate(),
-    ).padStart(2, "0")}/${String(currentTime.getMonth() + 1).padStart(2, "0")}/${currentTime.getFullYear()}`
-
-    // Add user message
-    const userMessage = {
-      id: messages.length + 1,
-      sender: "user",
-      text: newMessage,
-      time: formattedTime,
+    const messageData = {
+      conversationId,
+      senderId,
+      content: newMessage,
     }
-    setMessages([...messages, userMessage])
-    setNewMessage("")
 
-    // Simulate agent response after a short delay
-    setTimeout(() => {
-      const agentResponse = {
-        id: messages.length + 2,
-        sender: "agent",
-        text: "Cảm ơn bạn đã liên hệ. Nhân viên tư vấn sẽ phản hồi trong thời gian sớm nhất.",
-        time: formattedTime,
-      }
-      setMessages((prevMessages) => [...prevMessages, agentResponse])
-    }, 1000)
+    socket.emit("sendMessage", messageData)
+    setNewMessage("")
   }
 
   if (!open) return null
@@ -79,10 +61,7 @@ const ChatModal = ({ open, onClose }) => {
         <Box className="chat-header">
           <Box className="header-content">
             <Box className="brand-logo">
-              <Typography variant="h6" className="brand-name">
-                Selina
-                {/* <span className="logo-icon">👓</span> */}
-              </Typography>
+              <Typography variant="h6" className="brand-name">Selina</Typography>
             </Box>
             <IconButton onClick={onClose} className="close-button">
               <CloseIcon />
@@ -92,18 +71,20 @@ const ChatModal = ({ open, onClose }) => {
 
         <Box className="chat-content" ref={contentRef}>
           <Box className="messages-container">
-            {messages.map((message) => (
+            {messages.map((message, index) => (
               <Box
-                key={message.id}
-                className={`message-wrapper ${message.sender === "user" ? "user-message" : "agent-message"}`}
+                key={index}
+                className={`message-wrapper ${message.senderId === senderId ? "user-message" : "agent-message"}`}
               >
-                {message.sender === "agent" && <Avatar src="/avatar-agent.jpg" alt="Agent" className="agent-avatar" />}
+                {message.senderId !== senderId && (
+                  <Avatar src="/avatar-agent.jpg" alt="Agent" className="agent-avatar" />
+                )}
                 <Box className="message-bubble">
                   <Typography variant="body2" className="message-text">
-                    {message.text}
+                    {message.content}
                   </Typography>
                   <Typography variant="caption" className="message-time">
-                    {message.time}
+                    {new Date(message.sendAt).toLocaleString()}
                   </Typography>
                 </Box>
               </Box>

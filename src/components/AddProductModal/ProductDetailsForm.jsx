@@ -44,7 +44,7 @@ const ProductDetailsForm = forwardRef((props, ref) => {
       discount: "",
       quantity: "",
       image: ["images/glass1.png", "images/glass2.png"],
-      model3D: "/3Dimages/uploads_files_3685558_11-20.glb",
+      model3D: "/3Dimages/glass.glb",
     },
   ]);
 
