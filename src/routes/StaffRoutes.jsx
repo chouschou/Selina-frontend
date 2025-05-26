@@ -1,6 +1,5 @@
 import { Route } from "react-router-dom";
 import OrderManage from "../pages/OrderManage";
-import MessageNotificationModal from "../pages/MessageSystem/MessageNotificationModal";
 import ProtectedRoute from "./ProtectedRoute";
 
 const StaffRoutes = () => (
@@ -13,14 +12,14 @@ const StaffRoutes = () => (
         </ProtectedRoute>
       }
     />
-    <Route
+    {/* <Route
       path="/message"
       element={
         <ProtectedRoute allowedRoles={["employee"]}>
           <MessageNotificationModal />
         </ProtectedRoute>
       }
-    />
+    /> */}
   </>
 );
 

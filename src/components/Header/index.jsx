@@ -21,6 +21,7 @@ import { useContext, useState } from "react";
 import avatar2 from "../../assets/images/avatar2.png";
 import { toast } from "react-toastify";
 import { AuthContext } from "../../contexts/AuthContext/AuthContext";
+import MessageNotificationModal from "../../pages/MessageSystem/MessageNotificationModal";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -29,6 +30,7 @@ const Header = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   const { role, isLoggedIn } = useContext(AuthContext);
+  const [openModalMessage, setOpenModalMessage] = useState(false);
 
   const user = {
     name: "Nguyễn Lý Na",
@@ -40,6 +42,8 @@ const Header = () => {
   const handleAccountClick = (event) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
 
+  const handleOpenModalMessage = () => setOpenModalMessage(true);
+  const closeModalMessage = () => setOpenModalMessage(false);
   const handleMyAccountClick = () => {
     handleClose();
     navigate("/profile");
@@ -95,7 +99,7 @@ const Header = () => {
             >
               <IconButton
                 aria-label="messages"
-                onClick={() => navigate("/message")}
+                onClick={handleOpenModalMessage}
               >
                 <Badge badgeContent={unreadMessages} color="error">
                   <MessageIcon />
@@ -162,6 +166,10 @@ const Header = () => {
                   Nhân viên 1
                 </Typography>
               </Stack>
+
+              {openModalMessage && (
+                <MessageNotificationModal onClose={closeModalMessage} />
+              )}
             </Box>
           ) : (
             // CUSTOMER VIEW
@@ -275,6 +283,7 @@ const Header = () => {
                   </Button>
                 </Stack>
               )}
+
             </>
           )}
         </Toolbar>

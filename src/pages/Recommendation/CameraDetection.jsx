@@ -131,10 +131,10 @@ const CameraDetection = () => {
 
     const result = await response.json();
     console.log("Kết quả từ AI:", result);
-    setShapeFace(result.prediction);
-    setFaceShape(result.prediction);
+    setShapeFace(result.prediction.toLowerCase());
+    setFaceShape(result.prediction.toLowerCase());
     setGender(result.gender);
-    console.log("shapeFace:", result.prediction);
+    console.log("shapeFace:", result.prediction.toLowerCase());
   };
 
   const captureImage = useCallback(() => {
@@ -191,17 +191,22 @@ const CameraDetection = () => {
       //   setRecommendations(filteredGlasses);
       //   navigate("/results");
 
-      console.log("shapeFace", shapeFace);
-      
-      const recommendedShapes = recommendationMap[shapeFace.toLowerCase()];
+        console.log("vô nè");
+      if (shapeFace) {
+        console.log("shapeFace", shapeFace);
+        const recommendedShapes = recommendationMap[shapeFace];
+        console.log("recommendedShapes", recommendedShapes);
+        if (recommendedShapes) {
+          const filteredGlasses = await getProductsByShapes(recommendedShapes);
+          console.log("filteredGlasses", filteredGlasses);
 
-      console.log("recommendedShapes", recommendedShapes);
-
-      const filteredGlasses = await getProductsByShapes(recommendedShapes);
-      console.log("filteredGlasses", filteredGlasses);
-
-      setRecommendations(filteredGlasses);
-      navigate("/results");
+          setRecommendations(filteredGlasses);
+          navigate("/results");
+        }
+      }
+      else{
+        console.log("shapeFace", shapeFace);
+      }
     } catch (err) {
       console.error(err);
       setError("Có lỗi xảy ra khi xử lý hình ảnh. Vui lòng thử lại.");
@@ -216,11 +221,13 @@ const CameraDetection = () => {
     setIsLoading,
     setContextError,
     setRecommendations,
+    shapeFace
   ]);
 
   useEffect(() => {
     if (capturedImage && !isCapturing) {
       processImage();
+      console.log("có vô:--")
     }
   }, [capturedImage, isCapturing, processImage]);
 

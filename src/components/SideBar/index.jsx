@@ -12,6 +12,7 @@ import {
   LocalShipping as LocalShippingIcon,
   BarChart as BarChartIcon,
   Logout as LogoutIcon,
+  Store as StoreIcon
 } from "@mui/icons-material";
 
 import "./Sidebar.scss";
@@ -40,6 +41,11 @@ const menu = [
     id: "statistics",
     text: "Thống kê",
     icon: BarChartIcon,
+  },
+  {
+    id: "account-store",
+    text: "Tài khoản cửa hàng",
+    icon: StoreIcon,
   },
 ];
 

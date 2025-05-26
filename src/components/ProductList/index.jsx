@@ -52,8 +52,9 @@ const ProductList = ({ title, products, numberProductPerPage = 4 }) => {
         </IconButton>
 
         <Grid container spacing={3} className="products-grid">
-          {currentProducts.map((product) => (
-            <Grid item xs={12} sm={6} md={4} key={product.id}>
+          {currentProducts.map((product, index) => (
+            // <Grid item xs={12} sm={6} md={4} key={product.id}>
+             <Grid item xs={12} sm={6} md={4} key={index}>
               <ProductItem product={product} onClick={()=>navigate("/detail")}/>
             </Grid>
           ))}
