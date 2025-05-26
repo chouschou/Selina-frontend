@@ -42,8 +42,9 @@ const LogIn = () => {
       const response = await login(email, password);
 
       const role = response.user.Role.Name;
-
-      loginContext(role); // dùng context để cập nhật React
+      const user = response.user;
+      console.log("user log in -", user)
+      loginContext(role, user); // dùng context để cập nhật React
       toast.success("Đăng nhập thành công!");
 
       // 👉 Điều hướng theo vai trò

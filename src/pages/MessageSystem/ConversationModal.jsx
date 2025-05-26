@@ -1,86 +1,86 @@
-import React, { useState, useEffect, useRef } from "react"
+import React, { useState, useEffect, useRef } from "react";
 // import { X, Send, User } from 'lucide-react'
-import CloseIcon from "@mui/icons-material/Close"
-import SendIcon from "@mui/icons-material/Send"
-import AccountCircleIcon from "@mui/icons-material/AccountCircle"
-import SearchIcon from "@mui/icons-material/Search"
+import CloseIcon from "@mui/icons-material/Close";
+import SendIcon from "@mui/icons-material/Send";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import SearchIcon from "@mui/icons-material/Search";
 
-import { mockConversations, mockMessages } from "../../data/mockMessages"
-import "./MessageSystem.scss"
-import MessageList from "./MessageList"
+import { mockConversations, mockMessages } from "../../data/mockMessages";
+import "./MessageSystem.scss";
+import MessageList from "./MessageList";
 
 const ConversationModal = ({ message, onClose }) => {
-  const [newMessage, setNewMessage] = useState("")
-  const [conversation, setConversation] = useState([])
-  const messagesEndRef = useRef(null)
+  const [newMessage, setNewMessage] = useState("");
+  const [conversation, setConversation] = useState([]);
+  const messagesEndRef = useRef(null);
 
-  const [activeTab, setActiveTab] = useState("all")
-  const [searchQuery, setSearchQuery] = useState("")
+  const [activeTab, setActiveTab] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const handleTabChange = (tab) => {
-    setActiveTab(tab)
-  }
+    setActiveTab(tab);
+  };
 
   const handleSearch = (e) => {
-    setSearchQuery(e.target.value)
-  }
+    setSearchQuery(e.target.value);
+  };
 
   const filteredMessages = mockMessages.filter((message) => {
     // Filter by search query
     const matchesSearch =
       message.contact.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      message.lastMessage.toLowerCase().includes(searchQuery.toLowerCase())
+      message.lastMessage.toLowerCase().includes(searchQuery.toLowerCase());
 
     // Filter by tab
     const matchesTab =
-      activeTab === "all" || (activeTab === "unread" && !message.isRead)
+      activeTab === "all" || (activeTab === "unread" && !message.isRead);
 
-    return matchesSearch && matchesTab
-  })
+    return matchesSearch && matchesTab;
+  });
   // Find the conversation for this contact
   useEffect(() => {
     const contactConversation = mockConversations.find(
       (convo) => convo.contactId === message.contact.id
-    )
+    );
 
     if (contactConversation) {
-      setConversation(contactConversation.messages)
+      setConversation(contactConversation.messages);
     }
-  }, [message])
+  }, [message]);
 
   // Auto scroll to bottom of messages
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [conversation])
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [conversation]);
 
   const handleSendMessage = (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    if (newMessage.trim() === "") return
+    if (newMessage.trim() === "") return;
 
     const newMsg = {
       id: Date.now().toString(),
       text: newMessage,
       timestamp: new Date().toISOString(),
       sender: "me",
-    }
+    };
 
-    setConversation([...conversation, newMsg])
-    setNewMessage("")
-  }
+    setConversation([...conversation, newMsg]);
+    setNewMessage("");
+  };
 
   // Format timestamp for messages
   const formatMessageTime = (timestamp) => {
-    const date = new Date(timestamp)
-    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-  }
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  };
 
   // Filter messages for the sidebar
-//   const filteredMessages = mockMessages.filter(
-//     (msg) =>
-//       msg.contact.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-//       msg.lastMessage.toLowerCase().includes(searchQuery.toLowerCase())
-//   )
+  //   const filteredMessages = mockMessages.filter(
+  //     (msg) =>
+  //       msg.contact.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  //       msg.lastMessage.toLowerCase().includes(searchQuery.toLowerCase())
+  //   )
 
   return (
     <>
@@ -89,9 +89,9 @@ const ConversationModal = ({ message, onClose }) => {
         <div className="conversation-sidebar">
           <div className="sidebar-header">
             <h2>Tin nhắn</h2>
-            <button className="close-button" onClick={onClose}>
+            {/* <button className="close-button" onClick={onClose}>
               <CloseIcon size={20} />
-            </button>
+            </button> */}
           </div>
 
           {/* <div className="search-container">
@@ -118,13 +118,17 @@ const ConversationModal = ({ message, onClose }) => {
 
           <div className="tabs-conservation">
             <button
-              className={`tab-conservation ${activeTab === "all" ? "active" : ""}`}
+              className={`tab-conservation ${
+                activeTab === "all" ? "active" : ""
+              }`}
               onClick={() => handleTabChange("all")}
             >
               Tất cả
             </button>
             <button
-              className={`tab-conservation ${activeTab === "unread" ? "active" : ""}`}
+              className={`tab-conservation ${
+                activeTab === "unread" ? "active" : ""
+              }`}
               onClick={() => handleTabChange("unread")}
             >
               Chưa đọc
@@ -136,16 +140,16 @@ const ConversationModal = ({ message, onClose }) => {
             activeMessageId={message.id}
             onMessageClick={(newMessage) => {
               // Update the URL without refreshing the page
-              window.history.pushState({}, "", `?message=${newMessage.id}`)
+              window.history.pushState({}, "", `?message=${newMessage.id}`);
               // Update the active conversation
-              message = newMessage
+              message = newMessage;
               const contactConversation = mockConversations.find(
                 (convo) => convo.contactId === newMessage.contact.id
-              )
+              );
               if (contactConversation) {
-                setConversation(contactConversation.messages)
+                setConversation(contactConversation.messages);
               } else {
-                setConversation([])
+                setConversation([]);
               }
             }}
           />
@@ -168,6 +172,9 @@ const ConversationModal = ({ message, onClose }) => {
               </div>
               <h2>{message.contact.name}</h2>
             </div>
+            <button className="close-button" onClick={onClose}>
+              <CloseIcon size={20} />
+            </button>
           </div>
 
           <div className="conversation-messages">
@@ -206,7 +213,7 @@ const ConversationModal = ({ message, onClose }) => {
         </div>
       </div>
     </>
-  )
-}
+  );
+};
 
-export default ConversationModal
+export default ConversationModal;

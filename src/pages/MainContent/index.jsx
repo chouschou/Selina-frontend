@@ -53,6 +53,15 @@ function StatisticsContent() {
     <Statistics/>
   );
 }
+function AccountStoreContent() {
+  return (
+    <Box className="content-section">
+      <h2>Quản lý tài khoản cửa hàng</h2>
+      <p>Thay dổi mật khẩu tài khoản cửa hàng.</p>
+    </Box>
+    // <Statistics/>
+  );
+}
 
 function MainContent({ activeMenuItem }) {
   return (
@@ -61,6 +70,7 @@ function MainContent({ activeMenuItem }) {
       {activeMenuItem === "vouchers" && <VouchersContent />}
       {activeMenuItem === "shipping" && <ShippingContent />}
       {activeMenuItem === "statistics" && <StatisticsContent />}
+      {activeMenuItem === "account-store" && <AccountStoreContent />}
     </Box>
   );
 }

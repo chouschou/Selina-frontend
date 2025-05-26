@@ -1,59 +1,204 @@
-import { useState, useRef, useEffect } from "react"
-import { Box, Typography, IconButton, Avatar, TextField, InputAdornment } from "@mui/material"
-import CloseIcon from "@mui/icons-material/Close"
-import SendIcon from "@mui/icons-material/Send"
-import { io } from "socket.io-client" //socket client
-import "./ChatModal.scss"
+import { useState, useRef, useEffect, useContext } from "react";
+import {
+  Box,
+  Typography,
+  IconButton,
+  Avatar,
+  TextField,
+  InputAdornment,
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import SendIcon from "@mui/icons-material/Send";
+import { io } from "socket.io-client"; //socket client
+import "./ChatModal.scss";
+import { AuthContext } from "../../contexts/AuthContext/AuthContext";
+import { getUserInfoByID } from "../../services/user/getUserInfoByID";
+import MessageItem from "./MessageItem";
 
-const socket = io("http://localhost:3000") // URL backend WebSocket
+const socket = io("http://localhost:3000"); // URL backend WebSocket
 
-const ChatModal = ({ open, onClose, conversationId, senderId }) => {
-  const [messages, setMessages] = useState([])
-  const [newMessage, setNewMessage] = useState("")
-  const messagesEndRef = useRef(null)
-  const contentRef = useRef(null)
+const ChatModal = ({ open, onClose, onUnreadMessageStatus }) => {
+  const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState("");
+  const [conversationId, setConversationId] = useState(null);
+  const [customerId, setCustomerId] = useState(null);
+  const messagesEndRef = useRef(null);
+  const contentRef = useRef(null);
+  const { isLoggedIn, account } = useContext(AuthContext);
+  const [selectedMessageId, setSelectedMessageId] = useState(null);
+  const [editContent, setEditContent] = useState("");
+
+  useEffect(() => {
+    if (open && conversationId && account?.ID) {
+      socket.emit("mark_messages_read", {
+        conversationId: conversationId,
+        readerId: account.ID,
+      });
+      onUnreadMessageStatus(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, conversationId, account, messages.length]);
+
+  useEffect(() => {
+    const handleHistory = (history) => {
+      setMessages(history);
+      onUnreadMessageStatus(false);
+    };
+
+    socket.on("conversation_history", handleHistory);
+    return () => {
+      socket.off("conversation_history", handleHistory);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      const fetchUserInfo = async () => {
+        const response = await getUserInfoByID(account.ID, "customer");
+        setCustomerId(response.ID);
+      };
+      fetchUserInfo();
+    }
+  }, [isLoggedIn, account]);
+  useEffect(() => {
+    if (isLoggedIn) {
+      socket.emit("count_unread_messages", {
+        idUser: customerId,
+        accountId: account.ID,
+        role: "customer",
+      });
+      socket.on("unread_messages_count", (count) => {
+        console.log("unread_messages_count", count);
+        if (count > 0) {
+          onUnreadMessageStatus(true);
+        } else {
+          onUnreadMessageStatus(false);
+        }
+      });
+      return () => {
+        socket.off("unread_messages_count");
+      };
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoggedIn, account, customerId, messages]);
 
   // Join conversation khi component mount
   useEffect(() => {
-    if (open && conversationId) {
-      socket.emit("joinConversation", conversationId)
+    if (isLoggedIn) {
+      socket.emit("get_conversation", {
+        customerId: customerId,
+        storeId: 1,
+      });
+      socket.on("receive_conversation", (conversation) => {
+        console.log("Đã lấy được conversation:", conversation);
+        setConversationId(conversation.ID);
+      });
+
+      console.log("conversation id:", conversationId);
+
+      return () => {
+        socket.off("receive_conversation");
+      };
     }
-  }, [open, conversationId])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [account]);
+  useEffect(() => {
+    if (isLoggedIn) {
+      if (open && account) {
+        socket.emit("get_conversation_history", conversationId);
+        socket.emit("join_conversation", { conversationId });
+      }
+
+      // socket.on("conversation_history", (history) => {
+      //   setMessages(history);
+      // });
+
+      // return () => {
+      //   socket.off("conversation_history");
+      // };
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, conversationId]);
 
   // Lắng nghe tin nhắn từ server
   useEffect(() => {
-    socket.on("newMessage", (message) => {
-      setMessages((prev) => [...prev, message])
-    })
+    socket.on("receive_message", (message) => {
+      setMessages((prev) => [...prev, message]);
+    });
 
     return () => {
-      socket.off("newMessage")
-    }
-  }, [])
+      socket.off("receive_message");
+    };
+  }, []);
 
   useEffect(() => {
-    if (open) scrollToBottom()
-  }, [messages, open])
+    if (open) {
+      scrollToBottom();
+    }
+  }, [messages, open]);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    socket.on("message_edited", (updatedMessage) => {
+      setMessages((prev) =>
+        prev.map((msg) => (msg.ID === updatedMessage.ID ? updatedMessage : msg))
+      );
+      if (selectedMessageId === updatedMessage.ID) {
+        setSelectedMessageId(null);
+        setEditContent("");
+      }
+    });
+
+    socket.on("edit_message_failed", (err) => {
+      alert("Không thể chỉnh sửa tin nhắn: " + err);
+    });
+
+    return () => {
+      socket.off("message_edited");
+      socket.off("edit_message_failed");
+    };
+  }, [selectedMessageId]);
 
   const handleSendMessage = (e) => {
-    e.preventDefault()
-    if (newMessage.trim() === "") return
+    e.preventDefault();
+    if (newMessage.trim() === "") return;
 
     const messageData = {
-      conversationId,
-      senderId,
+      customerId: customerId,
       content: newMessage,
-    }
+      senderId: account.ID,
+    };
 
-    socket.emit("sendMessage", messageData)
-    setNewMessage("")
-  }
+    socket.emit("send_message", messageData);
+    setNewMessage("");
+  };
 
-  if (!open) return null
+  const isEditable = (sendAt) => {
+    const sentTime = new Date(sendAt);
+    const now = new Date();
+    const diffMs = now.getTime() - sentTime.getTime();
+    return diffMs <= 5 * 60 * 1000;
+  };
+
+  const handleEditMessage = (id, content) => {
+    setSelectedMessageId(id);
+    setEditContent(content);
+  };
+
+  const handleSaveEditedMessage = () => {
+    socket.emit("edit_message", {
+      messageId: selectedMessageId,
+      newContent: editContent,
+      editorId: account.ID,
+    });
+  };
+
+  if (!open) return null;
+
+  console.log("messages---", messages);
 
   return (
     <Box className="chat-modal">
@@ -61,7 +206,14 @@ const ChatModal = ({ open, onClose, conversationId, senderId }) => {
         <Box className="chat-header">
           <Box className="header-content">
             <Box className="brand-logo">
-              <Typography variant="h6" className="brand-name">Selina</Typography>
+              <Avatar
+                src="/images/imgStore.png"
+                alt="store"
+                className="store-avatar"
+              />
+              <Typography variant="h6" className="brand-name">
+                Selina
+              </Typography>
             </Box>
             <IconButton onClick={onClose} className="close-button">
               <CloseIcon />
@@ -71,29 +223,36 @@ const ChatModal = ({ open, onClose, conversationId, senderId }) => {
 
         <Box className="chat-content" ref={contentRef}>
           <Box className="messages-container">
-            {messages.map((message, index) => (
-              <Box
-                key={index}
-                className={`message-wrapper ${message.senderId === senderId ? "user-message" : "agent-message"}`}
-              >
-                {message.senderId !== senderId && (
-                  <Avatar src="/avatar-agent.jpg" alt="Agent" className="agent-avatar" />
-                )}
-                <Box className="message-bubble">
-                  <Typography variant="body2" className="message-text">
-                    {message.content}
-                  </Typography>
-                  <Typography variant="caption" className="message-time">
-                    {new Date(message.sendAt).toLocaleString()}
-                  </Typography>
-                </Box>
-              </Box>
-            ))}
+            {messages.map((message, index) => {
+              const isOwn = message.Sender_ID === account?.ID;
+              const editable = isOwn && isEditable(message.SendAt);
+              const isEditing = selectedMessageId === message.ID;
+
+              return (
+                <MessageItem
+                  key={index}
+                  message={message}
+                  isOwn={isOwn}
+                  editable={editable}
+                  isEditing={isEditing}
+                  editContent={editContent}
+                  setEditContent={setEditContent}
+                  handleEditMessage={handleEditMessage}
+                  handleSaveEditedMessage={handleSaveEditedMessage}
+                  setSelectedMessageId={setSelectedMessageId}
+                ></MessageItem>
+              );
+            })}
+
             <div ref={messagesEndRef} />
           </Box>
         </Box>
 
-        <Box component="form" className="chat-input-container" onSubmit={handleSendMessage}>
+        <Box
+          component="form"
+          className="chat-input-container"
+          onSubmit={handleSendMessage}
+        >
           <TextField
             fullWidth
             variant="outlined"
@@ -104,7 +263,11 @@ const ChatModal = ({ open, onClose, conversationId, senderId }) => {
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton type="submit" className="send-button" disabled={newMessage.trim() === ""}>
+                  <IconButton
+                    type="submit"
+                    className="send-button"
+                    disabled={newMessage.trim() === ""}
+                  >
                     <SendIcon />
                   </IconButton>
                 </InputAdornment>
@@ -114,7 +277,7 @@ const ChatModal = ({ open, onClose, conversationId, senderId }) => {
         </Box>
       </Box>
     </Box>
-  )
-}
+  );
+};
 
-export default ChatModal
+export default ChatModal;
