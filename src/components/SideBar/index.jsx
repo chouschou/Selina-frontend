@@ -15,7 +15,7 @@ import {
   Store as StoreIcon
 } from "@mui/icons-material";
 
-import "./Sidebar.scss";
+import "./SideBar.scss";
 import { useContext } from "react";
 import { AuthContext } from "../../contexts/AuthContext/AuthContext";
 import { toast } from "react-toastify";
