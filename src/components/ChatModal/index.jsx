@@ -14,7 +14,7 @@ import { AuthContext } from "../../contexts/AuthContext/AuthContext";
 import { getUserInfoByID } from "../../services/user/getUserInfoByID";
 import MessageItem from "./MessageItem";
 
-import socket from "../../utils/Socket";
+import socket from "../../utils/socket";
 import { toast } from "react-toastify";
 
 const ChatModal = ({ open, onClose, onUnreadMessageStatus }) => {

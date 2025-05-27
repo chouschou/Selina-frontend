@@ -6,7 +6,7 @@ import ConversationModal from "./ConversationModal";
 import "./MessageSystem.scss";
 import { AuthContext } from "../../contexts/AuthContext/AuthContext";
 import { getUserInfoByID } from "../../services/user/getUserInfoByID";
-import socket from "../../utils/Socket";
+import socket from "../../utils/socket";
 
 const MessageNotificationModal = ({ onClose, unreadInfor, conversations }) => {
   const [activeTab, setActiveTab] = useState("all");

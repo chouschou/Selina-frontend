@@ -6,7 +6,7 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import SearchIcon from "@mui/icons-material/Search";
 import "./MessageSystem.scss";
 import MessageList from "./MessageList";
-import socket from "../../utils/Socket";
+import socket from "../../utils/socket";
 import { Box, IconButton, TextField } from "@mui/material";
 
 const ConversationModal = ({

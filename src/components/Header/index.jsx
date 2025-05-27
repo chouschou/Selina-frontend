@@ -22,7 +22,7 @@ import avatar2 from "../../assets/images/avatar2.png";
 import { toast } from "react-toastify";
 import { AuthContext } from "../../contexts/AuthContext/AuthContext";
 import MessageNotificationModal from "../../pages/MessageSystem/MessageNotificationModal";
-import socket from "../../utils/Socket";
+import socket from "../../utils/socket";
 import { getUserInfoByID } from "../../services/user/getUserInfoByID";
 
 const Header = () => {
