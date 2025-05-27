@@ -43,7 +43,7 @@ const MessageItem = ({
       className={`message-wrapper ${isOwn ? "user-message" : "store-message"}`}
     >
       <Box className="message-bubble-wrapper">
-        {message.IsEdited && <span className="note-edited">Đã chỉnh sửa</span>}
+        {message.IsEdited && <Box className={`note-edited ${isOwn ? "right" : "left"}`}>Đã chỉnh sửa</Box>}
         <Box className="message-bubble">
           {isEditing ? (
             <>
@@ -66,7 +66,8 @@ const MessageItem = ({
               </Box>
             </>
           ) : (
-            <>
+            <Box className="message-bubble-wrapper">
+            
               <Typography variant="body2" className="message-text">
                 {message.Content}
               </Typography>
@@ -82,7 +83,7 @@ const MessageItem = ({
                   ✏️
                 </IconButton>
               )}
-            </>
+            </Box>
           )}
         </Box>
       </Box>
