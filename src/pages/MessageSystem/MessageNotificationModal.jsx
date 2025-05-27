@@ -1,15 +1,27 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
 import MessageList from "./MessageList";
 import ConversationModal from "./ConversationModal";
-import { mockMessages } from "../../data/mockMessages";
 import "./MessageSystem.scss";
+import { AuthContext } from "../../contexts/AuthContext/AuthContext";
+import { getUserInfoByID } from "../../services/user/getUserInfoByID";
+import socket from "../../utils/socket";
 
-const MessageNotificationModal = ({ onClose }) => {
+const MessageNotificationModal = ({ onClose, unreadInfor, conversations }) => {
   const [activeTab, setActiveTab] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMessage, setSelectedMessage] = useState(null);
+  // const [conversations, setConversations] = useState([]);
+  const { account } = useContext(AuthContext);
+  const [storeAccount, setStoreAccount] = useState({});
+  // const [unreadInfor, setUnreadInfor] = useState(null);
+
+  const getStoreAccount = async () => {
+    const response = await getUserInfoByID(account?.ID, "store");
+    console.log("+++store account:", response);
+    setStoreAccount(response);
+  };
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
@@ -19,22 +31,75 @@ const MessageNotificationModal = ({ onClose }) => {
     setSearchQuery(e.target.value);
   };
 
-  const filteredMessages = mockMessages.filter((message) => {
+  // useEffect(() => {
+  //   if (isLoggedIn) {
+  //     socket.emit("count_unread_messages", {
+  //       idUser: storeAccount?.ID,
+  //       accountId: account.ID,
+  //       role: "store",
+  //     });
+  //     socket.on("unread_messages_count", (unread_messages) => {
+  //       console.log("unread_messages_count", unread_messages);
+  //       setUnreadInfor(unread_messages);
+
+  //       // status = unread_messages.perConversation.find(
+  //       //   (item) => item.ConversationId === conversationId
+  //       // ).unreadCount;
+  //     });
+
+  //     return () => {
+  //       status;
+  //       socket.off("unread_messages_count");
+  //     };
+  //   }
+  // }, [isLoggedIn, storeAccount?.ID, account?.ID]);
+
+ 
+
+  const filteredMessages = conversations?.filter((message) => {
     // Filter by search query
     const matchesSearch =
-      message.contact.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      message.lastMessage.toLowerCase().includes(searchQuery.toLowerCase());
+      message.Customer.Name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      message.Messages.at(-1)
+        .Content.toLowerCase()
+        .includes(searchQuery.toLowerCase());
 
     // Filter by tab
     const matchesTab =
-      activeTab === "all" || (activeTab === "unread" && !message.isRead);
+      activeTab === "all" ||
+      (activeTab === "unread" &&
+        unreadInfor.perConversation.find(
+          (item) => item.conversationId === message.ID
+        )?.unreadCount > 0);
 
     return matchesSearch && matchesTab;
   });
 
   const handleMessageClick = (message) => {
     setSelectedMessage(message);
+
+    socket.emit("mark_messages_read", {
+      conversationId: message.ID,
+      readerId: account.ID,
+    });
+    // Lắng nghe khi có tin nhắn mới hoặc cập nhật
+    socket.on("message_changed", () => {
+      socket.emit("get_store_conversations", { storeId: storeAccount.ID });
+    });
+
+    return () => {
+      socket.off("message_changed");
+    };
   };
+
+  useEffect(() => {
+    if (account?.ID) {
+      getStoreAccount();
+    }
+  }, [account?.ID]);
+
+  
+  console.log("-----Conversations:", conversations);
 
   return (
     <>
@@ -78,13 +143,21 @@ const MessageNotificationModal = ({ onClose }) => {
             <MessageList
               messages={filteredMessages}
               onMessageClick={handleMessageClick}
+              unreadInfor={unreadInfor}
             />
           </div>
         </>
       )}
 
       {selectedMessage && (
-        <ConversationModal message={selectedMessage} onClose={onClose} />
+        <ConversationModal
+          message={selectedMessage}
+          onClose={onClose}
+          conversations={conversations}
+          unreadInfor={unreadInfor}
+          idStore={storeAccount?.ID}
+          idAccount={account?.ID}
+        />
       )}
     </>
   );

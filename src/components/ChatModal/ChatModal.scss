@@ -84,15 +84,24 @@
 
       .note-edited {
         font-size: 0.7rem;
-        color: #6c757d;
-        margin-right: 8px;
-        margin-bottom: 2px;
-        align-self: flex-end;
+        color: #ff8045;
+        margin: 2px 8px;
+        width: 100%;
+
+        &.right {
+          text-align: right;
+        }
+
+        &.left {
+          padding-left: 12px;
+          text-align: left;
+        }
       }
 
       .edit-icon {
         position: absolute;
-        top: 20px;
+        // top: 20px;
+        bottom: 24px;
         left: -30px;
         opacity: 0.8;
         font-size: 16px;

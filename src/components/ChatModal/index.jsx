@@ -9,13 +9,13 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import SendIcon from "@mui/icons-material/Send";
-import { io } from "socket.io-client"; //socket client
 import "./ChatModal.scss";
 import { AuthContext } from "../../contexts/AuthContext/AuthContext";
 import { getUserInfoByID } from "../../services/user/getUserInfoByID";
 import MessageItem from "./MessageItem";
 
-const socket = io("http://localhost:3000"); // URL backend WebSocket
+import socket from "../../utils/socket";
+import { toast } from "react-toastify";
 
 const ChatModal = ({ open, onClose, onUnreadMessageStatus }) => {
   const [messages, setMessages] = useState([]);
@@ -54,12 +54,13 @@ const ChatModal = ({ open, onClose, onUnreadMessageStatus }) => {
   useEffect(() => {
     if (isLoggedIn) {
       const fetchUserInfo = async () => {
-        const response = await getUserInfoByID(account.ID, "customer");
-        setCustomerId(response.ID);
+        const response = await getUserInfoByID(account?.ID, "customer");
+        console.log("+++customer account:", response);
+        setCustomerId(response?.ID);
       };
       fetchUserInfo();
     }
-  }, [isLoggedIn, account]);
+  }, [isLoggedIn, account?.ID]);
   useEffect(() => {
     if (isLoggedIn) {
       socket.emit("count_unread_messages", {
@@ -85,13 +86,14 @@ const ChatModal = ({ open, onClose, onUnreadMessageStatus }) => {
   // Join conversation khi component mount
   useEffect(() => {
     if (isLoggedIn) {
+      console.log("+++customer id:", customerId);
       socket.emit("get_conversation", {
         customerId: customerId,
         storeId: 1,
       });
       socket.on("receive_conversation", (conversation) => {
         console.log("Đã lấy được conversation:", conversation);
-        setConversationId(conversation.ID);
+        setConversationId(conversation?.ID);
       });
 
       console.log("conversation id:", conversationId);
@@ -101,10 +103,12 @@ const ChatModal = ({ open, onClose, onUnreadMessageStatus }) => {
       };
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account]);
+  }, [account, customerId]);
   useEffect(() => {
     if (isLoggedIn) {
-      if (open && account) {
+      console.log("có vooooooooo");
+      if (open && account && conversationId) {
+        console.log("Joining conversation:-------------------", conversationId);
         socket.emit("get_conversation_history", conversationId);
         socket.emit("join_conversation", { conversationId });
       }
@@ -123,7 +127,13 @@ const ChatModal = ({ open, onClose, onUnreadMessageStatus }) => {
   // Lắng nghe tin nhắn từ server
   useEffect(() => {
     socket.on("receive_message", (message) => {
+      console.log("Got message from server:", message);
       setMessages((prev) => [...prev, message]);
+
+      // Cập nhật conversationId từ tin nhắn
+      if (message.Conversation?.ID) {
+        setConversationId(message.Conversation.ID);
+      }
     });
 
     return () => {
@@ -153,7 +163,7 @@ const ChatModal = ({ open, onClose, onUnreadMessageStatus }) => {
     });
 
     socket.on("edit_message_failed", (err) => {
-      alert("Không thể chỉnh sửa tin nhắn: " + err);
+      toast("Không thể chỉnh sửa tin nhắn: " + err);
     });
 
     return () => {
@@ -174,6 +184,7 @@ const ChatModal = ({ open, onClose, onUnreadMessageStatus }) => {
 
     socket.emit("send_message", messageData);
     setNewMessage("");
+    setConversationId(messageData.conversationId);
   };
 
   const isEditable = (sendAt) => {

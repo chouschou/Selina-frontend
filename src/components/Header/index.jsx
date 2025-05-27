@@ -17,19 +17,22 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import MessageIcon from "@mui/icons-material/Message";
 import { useNavigate } from "react-router-dom";
 import "./Header.scss";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import avatar2 from "../../assets/images/avatar2.png";
 import { toast } from "react-toastify";
 import { AuthContext } from "../../contexts/AuthContext/AuthContext";
 import MessageNotificationModal from "../../pages/MessageSystem/MessageNotificationModal";
+import socket from "../../utils/socket";
+import { getUserInfoByID } from "../../services/user/getUserInfoByID";
 
 const Header = () => {
   const navigate = useNavigate();
   const cartCount = 1;
-  const unreadMessages = 3; // giả lập số lượng tin nhắn chưa đọc
+  // const unreadMessages = 3; // giả lập số lượng tin nhắn chưa đọc
+
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
-  const { role, isLoggedIn } = useContext(AuthContext);
+  const { role, isLoggedIn, account } = useContext(AuthContext);
   const [openModalMessage, setOpenModalMessage] = useState(false);
 
   const user = {
@@ -38,6 +41,71 @@ const Header = () => {
     avatar: "/avatar.jpg",
   };
 
+  const [storeAccount, setStoreAccount] = useState({});
+  const [unreadInfor, setUnreadInfor] = useState(null);
+  const [conversations, setConversations] = useState([]);
+
+  const getStoreAccount = async () => {
+    const response = await getUserInfoByID(account?.ID, "store");
+    console.log("+++store account:", response);
+    setStoreAccount(response);
+  };
+
+  useEffect(() => {
+    if (account?.ID && account?.Role.Name === "employee") {
+      getStoreAccount();
+    }
+  }, [account?.ID]);
+
+  useEffect(() => {
+    if (isLoggedIn && account?.Role.Name === "employee") {
+      socket.emit("count_unread_messages", {
+        idUser: storeAccount?.ID,
+        accountId: account.ID,
+        role: "store",
+      });
+      socket.on("unread_messages_count", (unread_messages) => {
+        console.log("unread_messages_count", unread_messages);
+        setUnreadInfor(unread_messages);
+
+        // status = unread_messages.perConversation.find(
+        //   (item) => item.ConversationId === conversationId
+        // ).unreadCount;
+      });
+
+      return () => {
+        status;
+        socket.off("unread_messages_count");
+      };
+    }
+  }, [isLoggedIn, storeAccount?.ID, account?.ID, conversations]);
+
+
+  useEffect(() => {
+    console.log("-----store account:", storeAccount);
+    if (storeAccount?.ID) {
+      socket.emit("get_store_conversations", { storeId: storeAccount.ID });
+
+      const handleConversations = (conversations) => {
+        setConversations(conversations);
+        console.log("--Conversations:", conversations);
+      };
+
+      socket.on("store_conversations", handleConversations);
+
+      // Lắng nghe khi có tin nhắn mới hoặc cập nhật
+      socket.on("message_changed", () => {
+        socket.emit("get_store_conversations", { storeId: storeAccount.ID });
+      });
+
+      return () => {
+        socket.off("store_conversations", handleConversations);
+        socket.off("message_changed");
+      };
+    }
+  }, [storeAccount]);
+
+  console.log("unreadInfor changed in header:-----------", unreadInfor);
   const handleCartClick = () => navigate("/cart");
   const handleAccountClick = (event) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
@@ -101,7 +169,10 @@ const Header = () => {
                 aria-label="messages"
                 onClick={handleOpenModalMessage}
               >
-                <Badge badgeContent={unreadMessages} color="error">
+                <Badge
+                  badgeContent={unreadInfor?.totalUnreadCount}
+                  color="error"
+                >
                   <MessageIcon />
                 </Badge>
               </IconButton>
@@ -168,7 +239,11 @@ const Header = () => {
               </Stack>
 
               {openModalMessage && (
-                <MessageNotificationModal onClose={closeModalMessage} />
+                <MessageNotificationModal
+                  onClose={closeModalMessage}
+                  unreadInfor={unreadInfor}
+                  conversations={conversations}
+                />
               )}
             </Box>
           ) : (
@@ -283,7 +358,6 @@ const Header = () => {
                   </Button>
                 </Stack>
               )}
-
             </>
           )}
         </Toolbar>
