@@ -5,14 +5,14 @@ const TabBar = ({ activeTab, onTabChange }) => {
   return (
     <div className="tab-bar">
       <button
-        className={`tab-button ${activeTab === 'frames' ? 'active' : ''}`}
-        onClick={() => onTabChange('frames')}
+        className={`tab-button ${activeTab === 'Gọng kính' ? 'active' : ''}`}
+        onClick={() => onTabChange('Gọng kính')}
       >
         Gọng kính
       </button>
       <button
-        className={`tab-button ${activeTab === 'lenses' ? 'active' : ''}`}
-        onClick={() => onTabChange('lenses')}
+        className={`tab-button ${activeTab === 'Kính mát' ? 'active' : ''}`}
+        onClick={() => onTabChange('Kính mát')}
       >
         Kính mắt
       </button>

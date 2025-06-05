@@ -1,137 +1,302 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react";
+import { Table, Button, Tag, Image } from "antd";
+import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import TabBar from "../../components/TabBar";
+import "./ProductManagement.scss";
+import AddProductModal from "../../components/AddProductModal";
+import { getProductsByCategory } from "../../services/product/getProductsByCategory";
 import {
-  Box,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  IconButton,
-} from "@mui/material"
-import { Edit as EditIcon, Delete as DeleteIcon } from "@mui/icons-material"
-import TabBar from "../../components/TabBar"
-import "./ProductManagement.scss"
-import glass1 from "../../assets/images/glass1.png"
-import AddProductModal from "../../components/AddProductModal"
+  generateProductName,
+  formatCurrencyVND,
+  translateShapeToVietnamese,
+} from "../../services/formatToShow";
+import UpdateProductModal from "../../components/UpdateProductModal/UpdateProductModal";
+import { deleteProduct } from "../../services/product/deleteProduct";
+import DeleteButtonWithCheck from "../../components/DeleteProduct/DeleteButtonWithCheck";
+import ConfirmDeleteModal from "../../components/ConfirmDeleteModal/ConfirmDeleteModal";
 
 const ProductManagement = () => {
-  const [activeTab, setActiveTab] = useState("frames")
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [activeTab, setActiveTab] = useState("Gọng kính");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [products, setProducts] = useState([]);
+  const [idx, setidx] = useState(0);
+  const [selectedProductId, setSelectedProductId] = useState(null);
+  const [deletingVariantId, setDeletingVariantId] = useState(null);
+
+  useEffect(() => {
+    setidx(Math.floor(products.length / 100000));
+  }, [products.length]);
 
   const handleTabChange = (tab) => {
-    setActiveTab(tab)
-  }
-  const sampleProducts = [
-    {
-      id: 1,
-      name: "Gọng kính A123",
-      image: glass1,
-      material: "Cotton",
-      quantity: 100,
-      price: 250000,
-      discount: "10%",
-    },
-    {
-      id: 2,
-      name: "Gọng kính B123",
-      image: "",
-      material: "Silk",
-      quantity: 50,
-      price: 550000,
-      discount: "15%",
-    },
-  ]
+    setActiveTab(tab);
+  };
+
   const handleOpenModal = () => {
-    setIsModalOpen(true)
-  }
+    setIsModalOpen(true);
+  };
+
+  const handleOpenUpdateModal = () => {
+    setIsUpdateModalOpen(true);
+  };
 
   const handleCloseModal = () => {
-    setIsModalOpen(false)
-  }
+    setIsModalOpen(false);
+  };
+
+  const handleCloseUpdateModal = () => {
+    setIsUpdateModalOpen(false);
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      await deleteProduct(deletingVariantId);
+      setDeletingVariantId(null);
+      fetchProductsByCategory();
+    } catch (error) {
+      console.error("Lỗi khi xóa:", error);
+    }
+  };
+
+  const fetchProductsByCategory = async () => {
+    const response = await getProductsByCategory(activeTab);
+    setProducts(response);
+  };
+
+  useEffect(() => {
+    fetchProductsByCategory();
+  }, [activeTab]);
+
+  const dataSource = products.flatMap((product, index) => {
+    return product.GlassColors.map((variant, i) => ({
+      key: `${product.ID}-${variant.ID}`,
+      index: index + 1,
+      productId: product.ID,
+      isFirstRow: i === 0,
+      rowSpan: product.GlassColors.length,
+      image: variant.Images?.[0] || "",
+      name: generateProductName(activeTab, idx, product.ID),
+      shape: translateShapeToVietnamese(product.Shape),
+      material: product.Material,
+      color: variant.Color,
+      quantity: variant.Quantity,
+      price: variant.Price,
+      discount: variant.Discount,
+      status: variant.Status,
+      variantId: variant.ID,
+    }));
+  });
+
+  const shapeFilters = [
+    ...new Set(products.map((p) => translateShapeToVietnamese(p.Shape))),
+  ].map((shape) => ({
+    text: shape,
+    value: shape,
+  }));
+
+  const materialFilters = [...new Set(products.map((p) => p.Material))].map(
+    (m) => ({
+      text: m,
+      value: m,
+    })
+  );
+
+  const statusFilters = [
+    { text: "Đang bán", value: "active" },
+    { text: "Ngừng bán", value: "inactive" },
+  ];
+
+  const columns = [
+    {
+      title: "STT",
+      dataIndex: "index",
+      align: "center",
+      render: (_, row) => (row.isFirstRow ? row.index : null),
+      onCell: (row) => ({
+        rowSpan: row.isFirstRow ? row.rowSpan : 0,
+      }),
+    },
+    {
+      title: "Hình ảnh",
+      dataIndex: "image",
+      align: "center",
+      render: (image, row) => {
+        if (!row.isFirstRow || !image) return null;
+
+        return (
+          <Image
+            src={image}
+            width={100}
+            height={50}
+            style={{ objectFit: "cover" }}
+          />
+        );
+      },
+      onCell: (row) => ({
+        rowSpan: row.isFirstRow ? row.rowSpan : 0,
+      }),
+    },
+    {
+      title: "Tên sản phẩm",
+      dataIndex: "name",
+      align: "center",
+      sorter: (a, b) => a.name.localeCompare(b.name),
+      render: (name, row) => (row.isFirstRow ? name : null),
+      onCell: (row) => ({
+        rowSpan: row.isFirstRow ? row.rowSpan : 0,
+      }),
+    },
+    {
+      title: "Hình dáng",
+      dataIndex: "shape",
+      align: "center",
+      filters: shapeFilters,
+      onFilter: (value, record) => record.shape === value,
+      render: (shape, row) => (row.isFirstRow ? shape : null),
+      onCell: (row) => ({
+        rowSpan: row.isFirstRow ? row.rowSpan : 0,
+      }),
+    },
+    {
+      title: "Chất liệu",
+      dataIndex: "material",
+      align: "center",
+      filters: materialFilters,
+      onFilter: (value, record) => record.material === value,
+      render: (material, row) => (row.isFirstRow ? material : null),
+      onCell: (row) => ({
+        rowSpan: row.isFirstRow ? row.rowSpan : 0,
+      }),
+    },
+    {
+      title: "Màu sắc",
+      dataIndex: "color",
+      align: "center",
+      render: (color) => (
+        <div
+          style={{
+            width: 20,
+            height: 20,
+            backgroundColor: color,
+            border: "1px solid #ccc",
+            margin: "auto",
+          }}
+        />
+      ),
+    },
+    {
+      title: "Số lượng",
+      dataIndex: "quantity",
+      align: "center",
+      sorter: (a, b) => a.quantity - b.quantity,
+    },
+    {
+      title: "Số tiền",
+      dataIndex: "price",
+      align: "center",
+      sorter: (a, b) => a.price - b.price,
+      render: (price) => formatCurrencyVND(price),
+    },
+    {
+      title: "Giảm giá",
+      dataIndex: "discount",
+      align: "center",
+      render: (discount) => `${discount}%`,
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "status",
+      align: "center",
+      filters: statusFilters,
+      onFilter: (value, record) => record.status === value,
+      render: (status) =>
+        status === "active" ? (
+          <Tag color="green">Đang bán</Tag>
+        ) : (
+          <Tag color="orange">Ngừng bán</Tag>
+        ),
+    },
+    {
+      title: "Xóa",
+      dataIndex: "delete",
+      align: "center",
+      render: (_, row) => (
+        <DeleteButtonWithCheck
+          variantId={row.variantId}
+          onClick={() => setDeletingVariantId(row.variantId)}
+        />
+      ),
+    },
+    {
+      title: "Sửa",
+      dataIndex: "edit",
+      align: "center",
+      render: (_, row) =>
+        row.isFirstRow ? (
+          <Button
+            type="primary"
+            icon={<EditOutlined />}
+            size="small"
+            onClick={() => {
+              setSelectedProductId(row.productId);
+              handleOpenUpdateModal();
+            }}
+          />
+        ) : null,
+      onCell: (row) => ({
+        rowSpan: row.isFirstRow ? row.rowSpan : 0,
+      }),
+    },
+  ];
+
   return (
     <div className="product-management">
       <div className="header">
         <h1>Quản lý sản phẩm</h1>
-        <button className="add-product-btn"  onClick={handleOpenModal}>Thêm sản phẩm</button>
+        <Button type="primary" onClick={handleOpenModal}>
+          Thêm sản phẩm
+        </Button>
       </div>
 
       <TabBar activeTab={activeTab} onTabChange={handleTabChange} />
 
-      {/* <div className="product-table">
-        <table>
-          <thead>
-            <tr>
-              <th>STT</th>
-              <th>Hình dạng</th>
-              <th>Chất liệu</th>
-              <th>Số lượng</th>
-              <th>Số tiền</th>
-              <th>Giảm giá</th>
-              <th>Sửa</th>
-              <th>Xóa</th>
-            </tr>
-          </thead>
-          <tbody>
-            
-          </tbody>
-        </table>
-      </div> */}
-      <TableContainer
-        component={Paper}
-        elevation={0}
-        className="table-container"
-      >
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell align="center">STT</TableCell>
-              <TableCell align="center">Hình ảnh</TableCell>
-              <TableCell align="center">Tên sản phẩm</TableCell>
-              <TableCell align="center">Chất liệu</TableCell>
-              <TableCell align="center">Số lượng</TableCell>
-              <TableCell align="center">Số tiền</TableCell>
-              <TableCell align="center">Giảm giá</TableCell>
-              <TableCell align="center">Sửa</TableCell>
-              <TableCell align="center">Xóa</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {sampleProducts.map((product, index) => (
-              <TableRow key={product.id}>
-                <TableCell align="center">{index + 1}</TableCell>
-                <TableCell align="center">
-                  <Box className="product-image-placeholder"></Box>
-                </TableCell>
-                <TableCell align="center">{product.name}</TableCell>
-                <TableCell align="center">{product.material}</TableCell>
-                <TableCell align="center">{product.quantity}</TableCell>
-                <TableCell align="center">
-                  {product.price.toLocaleString()} ₫
-                </TableCell>
-                <TableCell align="center">{product.discount}</TableCell>
-                <TableCell align="center">
-                  <IconButton color="primary" size="small">
-                    <EditIcon className="edit-icon" />
-                  </IconButton>
-                </TableCell>
-                <TableCell align="center">
-                  <IconButton color="error" size="small">
-                    <DeleteIcon className="delete-icon" />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <Table
+        columns={columns}
+        dataSource={dataSource}
+        bordered
+        pagination={{ pageSize: 10 }}
+        scroll={{ x: "max-content" }}
+        locale={{
+          emptyText: "Không có dữ liệu",
+          filterReset: "Đặt lại",
+          filterConfirm: "OK",
+        }}
+        rowClassName={(_, index) => (index % 2 === 0 ? "even-row" : "")}
+      />
+
       <AddProductModal
         open={isModalOpen}
         onClose={handleCloseModal}
+        onSuccess={fetchProductsByCategory}
+      />
+
+      <UpdateProductModal
+        open={isUpdateModalOpen}
+        onClose={handleCloseUpdateModal}
+        productId={selectedProductId}
+        onSuccess={fetchProductsByCategory}
+      />
+
+      <ConfirmDeleteModal
+        open={!!deletingVariantId}
+        onCancel={() => setDeletingVariantId(null)}
+        onConfirm={handleDeleteConfirm}
+        title="Cảnh báo"
+        description="Bạn có chắc muốn xóa loại sản phẩm này không?"
+        subDescription="Sau khi xóa bạn sẽ không thể khôi phục lại!"
       />
     </div>
-  )
-}
+  );
+};
 
-export default ProductManagement
+export default ProductManagement;

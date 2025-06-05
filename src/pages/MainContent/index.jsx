@@ -15,21 +15,14 @@ import ProductManagement from "../ProductManagement";
 import VoucherManage from "../VoucherManage";
 import ShipFeeManage from "../ShipFeeManage";
 import Statistics from "../Statistics";
+import ChangeStorePassword from "../../components/ChangeStorePassword";
 
 function ProductsTable() {
   return <ProductManagement />;
 }
 
 function VouchersContent() {
-  return (
-    <>
-      <Box className="content-section">
-        <h2>Voucher giảm giá</h2>
-        <p>Quản lý và tạo các voucher khuyến mãi mới.</p>
-      </Box>
-      <VoucherManage />
-    </>
-  );
+  return <VoucherManage />;
 }
 
 function ShippingContent() {
@@ -50,7 +43,7 @@ function StatisticsContent() {
     //   <h2>Thống kê</h2>
     //   <p>Xem số liệu thống kê về doanh thu và lượt bán.</p>
     // </Box>
-    <Statistics/>
+    <Statistics />
   );
 }
 function AccountStoreContent() {
@@ -58,6 +51,7 @@ function AccountStoreContent() {
     <Box className="content-section">
       <h2>Quản lý tài khoản cửa hàng</h2>
       <p>Thay dổi mật khẩu tài khoản cửa hàng.</p>
+      <ChangeStorePassword></ChangeStorePassword>
     </Box>
     // <Statistics/>
   );

@@ -27,13 +27,16 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import ModelUploader from "./ModalUploader";
 import ImageUploader from "./ImageUploader";
-import "./AddProductModal.scss";
+import "./UpdateProductModal.scss";
 import { toast } from "react-toastify";
 import { Grid } from "@mui/system";
 import { translateShapeToVietnamese } from "../../services/formatToShow";
+import { getUsedColors } from "../../services/product/getUsedColors";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 const ProductDetailsForm = forwardRef((props, ref) => {
+  const { initialData } = props;
+  console.log("initialData:", initialData);
   const colorOptions = [
     { name: "Xám", hex: "#808080" },
     { name: "Đen", hex: "#000000" },
@@ -62,6 +65,17 @@ const ProductDetailsForm = forwardRef((props, ref) => {
     "aviator",
     "other",
   ];
+  const materialOptions = ["Nhựa", "Kim loại", "Titanium"];
+
+  const [selectedType, setSelectedType] = useState("");
+  const [selectedShape, setSelectedShape] = useState("");
+  const [selectedMaterial, setSelectedMaterial] = useState("");
+  const [ageGroup, setAgeGroup] = useState("");
+  const [description, setDescription] = useState("");
+  const maxCharacters = 500;
+  const [errors, setErrors] = useState({});
+  const [usedColors, setUsedColors] = useState([]);
+  const [editable, setEditable] = useState(true);
 
   const [variations, setVariations] = useState([
     {
@@ -76,6 +90,55 @@ const ProductDetailsForm = forwardRef((props, ref) => {
       status: "active",
     },
   ]);
+
+  const getDisplayNumber = (value) =>
+    value === "" || value === null || value === undefined ? "" : Number(value);
+
+  useEffect(() => {
+    if (initialData) {
+      setSelectedType(initialData.Category || "");
+      setSelectedShape(initialData.Shape?.toLowerCase() || "");
+      setSelectedMaterial(initialData.Material || "");
+      setAgeGroup(initialData.Age || "");
+      setDescription(initialData.Description);
+    }
+    if (initialData?.GlassColors) {
+      const mappedVariations = initialData?.GlassColors.map((item) => ({
+        color: item.Color || "",
+        price: item.Price || "",
+        discount: item.Discount || "",
+        quantity: item.Quantity || "",
+        image: item.Images || [],
+        modelVirtualTryOn: item.ModelVirtualTryOn || "",
+        modelVirtualTryOnPreview: item.ModelVirtualTryOn || "",
+        model3D: item.Image3DPath || "",
+        status: item.Status || "active",
+        id: item.ID,
+      }));
+
+      setVariations(mappedVariations);
+    }
+  }, [initialData]);
+
+  useEffect(() => {
+    const fetchUsedColors = async () => {
+      try {
+        const response = await getUsedColors(initialData?.ID);
+        setUsedColors(response);
+      } catch (error) {
+        console.error("Lỗi khi lấy màu đã sử dụng:", error);
+      }
+    };
+
+    if (initialData?.ID) {
+      fetchUsedColors();
+    }
+  }, [initialData?.ID]);
+  useEffect(() => {
+    const editableValue = usedColors.length === 0;
+    setEditable(editableValue);
+    console.log("setEditable to:", editableValue, "usedColors:", usedColors);
+  }, [usedColors]);
 
   const handleVariationChange = (index, field, value) => {
     const newVariations = [...variations];
@@ -128,13 +191,6 @@ const ProductDetailsForm = forwardRef((props, ref) => {
       },
     ]);
   };
-  const [selectedType, setSelectedType] = useState("");
-  const [selectedShape, setSelectedShape] = useState("");
-  const [selectedMaterial, setSelectedMaterial] = useState("");
-  const [ageGroup, setAgeGroup] = useState("");
-  const [description, setdescription] = useState("");
-  const maxCharacters = 500;
-  const [errors, setErrors] = useState({});
 
   const validateForm = () => {
     const newErrors = {};
@@ -206,7 +262,7 @@ const ProductDetailsForm = forwardRef((props, ref) => {
 
   const handleDescriptionChange = (event) => {
     const newDescription = event.target.value.slice(0, maxCharacters);
-    setdescription(newDescription);
+    setDescription(newDescription);
     // onReviewChange(product.id, { rating, description: newdescription, images })
 
     // Clear error nếu có
@@ -294,30 +350,15 @@ const ProductDetailsForm = forwardRef((props, ref) => {
 
   return (
     <Box>
-      {/* Product Name */}
-      {/* <Box className="col-span-full" sx={{ mb: 2 }}>
-        <TextField
-          label="Tên sản phẩm"
-          required
-          fullWidth
-          variant="outlined"
-          InputLabelProps={{
-            sx: {
-              color: "#bc5700",
-            },
-          }}
-        />
-      </Box> */}
-
       <Box display="flex" gap={2} mb={2}>
         <Box flex={1}>
           <FormControl
             component="fieldset"
             fullWidth
             margin="normal"
-            // sx={{ mb: 2 }}
             sx={{ marginTop: 0 }}
             error={!!errors[`selectedType`]}
+            disabled={!editable}
           >
             <FormLabel component="legend" style={{ color: "#bc5700" }}>
               Phân loại <span style={{ color: "red" }}>*</span>
@@ -383,13 +424,13 @@ const ProductDetailsForm = forwardRef((props, ref) => {
             >
               <FormControlLabel
                 value="Người lớn"
-                control={<Radio />}
+                control={<Radio disabled={!editable}/>}
                 label="Người lớn"
                 sx={{ marginRight: "40px" }}
               />
               <FormControlLabel
                 value="Trẻ em"
-                control={<Radio />}
+                control={<Radio disabled={!editable}/>}
                 label="Trẻ em"
               />
             </RadioGroup>
@@ -412,6 +453,7 @@ const ProductDetailsForm = forwardRef((props, ref) => {
               label="Hình dáng"
               name={`selectedShape`}
               value={selectedShape}
+              disabled={!editable}
               onChange={(e) => {
                 setSelectedShape(e.target.value);
                 const errorKey = "selectedShape";
@@ -448,6 +490,7 @@ const ProductDetailsForm = forwardRef((props, ref) => {
               label="Chất liệu"
               name={`selectedMaterial`}
               value={selectedMaterial}
+              disabled={!editable}
               onChange={(e) => {
                 setSelectedMaterial(e.target.value);
                 // Clear lỗi nếu có
@@ -461,9 +504,11 @@ const ProductDetailsForm = forwardRef((props, ref) => {
               }}
             >
               <MenuItem value="">Chọn chất liệu</MenuItem>
-              <MenuItem value="Nhựa">Nhựa</MenuItem>
-              <MenuItem value="Kim loại">Kim loại</MenuItem>
-              <MenuItem value="Titanium">Titanium</MenuItem>
+              {materialOptions.map((value) => (
+                <MenuItem key={value} value={value}>
+                  {value}
+                </MenuItem>
+              ))}
             </Select>
             <FormHelperText>{errors.selectedMaterial}</FormHelperText>
           </FormControl>
@@ -495,7 +540,7 @@ const ProductDetailsForm = forwardRef((props, ref) => {
 
         <Box className="character-count">
           <Typography variant="caption">
-            {description.length}/{maxCharacters}
+            {description?.length}/{maxCharacters}
           </Typography>
         </Box>
       </Box>
@@ -504,7 +549,7 @@ const ProductDetailsForm = forwardRef((props, ref) => {
       </Typography>
 
       {variations.map((variation, index) => (
-        <Box display="flex" alignItems="center" key={index}>
+        <Box display="flex" alignItems="center">
           <Box flexGrow={1}>
             <Accordion
               expanded={expanded === index}
@@ -537,7 +582,6 @@ const ProductDetailsForm = forwardRef((props, ref) => {
               </AccordionSummary>
 
               <AccordionDetails>
-                {/* Color */}
                 <FormControl
                   fullWidth
                   variant="outlined"
@@ -552,6 +596,7 @@ const ProductDetailsForm = forwardRef((props, ref) => {
                     onChange={(e) =>
                       handleVariationChange(index, "color", e.target.value)
                     }
+                    disabled={usedColors.includes(variation.color)}
                     renderValue={(selected) => {
                       const selectedColor = colorOptions.find(
                         (c) => c.hex === selected
@@ -569,21 +614,34 @@ const ProductDetailsForm = forwardRef((props, ref) => {
                             }}
                           />
                           <Typography variant="body2">
-                            {selectedColor ? selectedColor.name : selected}
+                            {selectedColor ? selectedColor.name : selected}{" "}
+                            {usedColors.includes(variation.color) && (
+                              <Typography
+                                component="span"
+                                variant="body2"
+                                color="error"
+                              >
+                                (đã có đơn đặt)
+                              </Typography>
+                            )}
                           </Typography>
                         </Box>
                       );
                     }}
                   >
                     {colorOptions.map((color) => {
-                      const isSelected = variations.some(
-                        (v, i) => v.color === color.hex && i !== index
-                      );
+                      const isSelected =
+                        variations.some(
+                          (v, i) => v.color === color.hex && i !== index
+                        ) || usedColors.includes(color.hex);
+
+                      const isUsedInOrder = usedColors.includes(color.hex);
+
                       return (
                         <MenuItem
                           key={color.hex}
                           value={color.hex}
-                          disabled={isSelected}
+                          disabled={isSelected || isUsedInOrder}
                         >
                           <Box display="flex" alignItems="center">
                             <Box
@@ -596,7 +654,18 @@ const ProductDetailsForm = forwardRef((props, ref) => {
                                 mr: 1,
                               }}
                             />
-                            {color.name}
+                            <Typography variant="body2">
+                              {color.name}{" "}
+                              {isUsedInOrder && (
+                                <Typography
+                                  component="span"
+                                  variant="body2"
+                                  color="error"
+                                >
+                                  (đã có đơn đặt)
+                                </Typography>
+                              )}
+                            </Typography>
                           </Box>
                         </MenuItem>
                       );
@@ -604,7 +673,6 @@ const ProductDetailsForm = forwardRef((props, ref) => {
                   </Select>
                   <FormHelperText>{errors[`color-${index}`]}</FormHelperText>
                 </FormControl>
-
                 <Box display="flex" gap={2} mb={2}>
                   <Box flex={1}>
                     <TextField
@@ -622,7 +690,7 @@ const ProductDetailsForm = forwardRef((props, ref) => {
                       name={`price-${index}`}
                       error={!!errors[`price-${index}`]}
                       helperText={errors[`price-${index}`] || ""}
-                      value={variation.price}
+                      value={getDisplayNumber(variation.price)}
                       onChange={(e) =>
                         handleVariationChange(index, "price", e.target.value)
                       }
@@ -650,7 +718,7 @@ const ProductDetailsForm = forwardRef((props, ref) => {
                       name={`discount-${index}`}
                       error={!!errors[`discount-${index}`]}
                       helperText={errors[`discount-${index}`] || ""}
-                      value={variation.discount}
+                      value={getDisplayNumber(variation.discount)}
                       onChange={(e) =>
                         handleVariationChange(index, "discount", e.target.value)
                       }
@@ -662,7 +730,6 @@ const ProductDetailsForm = forwardRef((props, ref) => {
                     />
                   </Box>
                 </Box>
-
                 <Box display="flex" gap={2} mb={2}>
                   <Box flex={1}>
                     <TextField
@@ -720,8 +787,6 @@ const ProductDetailsForm = forwardRef((props, ref) => {
                     </RadioGroup>
                   </Box>
                 </Box>
-
-                {/* Image upload */}
                 <ImageUploader
                   images={variation.image || []}
                   onChange={(newImages) =>
@@ -732,7 +797,7 @@ const ProductDetailsForm = forwardRef((props, ref) => {
                   helperText={errors[`image-${index}`]}
                 />
                 <Box mt={2}></Box>
-                {/* Mô hình thử kính ảo */}
+                Mô hình thử kính ảo
                 <Typography variant="body2" color="textSecondary" gutterBottom>
                   Thêm mô hình thử kính ảo{" "}
                   <span style={{ color: "red", marginTop: "10px" }}>*</span>
@@ -746,7 +811,6 @@ const ProductDetailsForm = forwardRef((props, ref) => {
                   borderRadius={2}
                   mb={2}
                 >
-                  {/* Bên trái: ảnh mẫu + hướng dẫn */}
                   <Box
                     display="flex"
                     flexDirection="column"
@@ -811,10 +875,8 @@ const ProductDetailsForm = forwardRef((props, ref) => {
                     </Button>
                   </Box>
                 </Box>
-
-                {/* 3D model upload */}
                 <ModelUploader
-                  value={variation.model3D}
+                  value={variation.model3D || ""}
                   onChange={(file) => handleFileChange(index, "model3D", file)}
                 />
               </AccordionDetails>
@@ -825,6 +887,7 @@ const ProductDetailsForm = forwardRef((props, ref) => {
             onClick={() => handleDeleteVariation(index)}
             color="error"
             sx={{ ml: 1 }}
+            disabled={usedColors.includes(variation.color)}
           >
             <DeleteIcon />
           </IconButton>

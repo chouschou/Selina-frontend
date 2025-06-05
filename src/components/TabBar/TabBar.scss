@@ -17,16 +17,16 @@
       
       &:hover {
         background-color: rgba(76, 175, 80, 0.05);
-        color: #4CAF50;
+        color: #3CB371;
       }
       
       &.active {
-        background-color: #4CAF50;
+        background-color: #43a07c;
         color: white;
         font-weight: 500;
         
         &:hover {
-          background-color: #43a047;
+          background-color: #43a07c;
         }
       }
     }

@@ -9,6 +9,7 @@ import { Box, Button, IconButton, Typography } from "@mui/material";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, useGLTF } from "@react-three/drei";
 import { toast } from "react-toastify";
+import { ErrorBoundary } from "../ErrorBoundary";
 
 // Component tải mô hình GLB
 const GltfModel = ({ url }) => {
@@ -45,7 +46,7 @@ const ModelUploader = ({ onChange, value }) => {
 
       // const modelUrl = URL.createObjectURL(file);
       // setModel({ file, url: modelUrl });
-       setModel(file);
+      setModel(file);
       if (onChange) onChange(file); // Gửi file ra ngoài nếu có onChange
     }
   };
@@ -108,7 +109,7 @@ const ModelUploader = ({ onChange, value }) => {
           }}
         >
           <Box sx={{ height: 300, backgroundColor: "grey.100" }}>
-            <Canvas camera={{ position: [0, 0, 5], fov: 50 }}>
+            {/* <Canvas camera={{ position: [0, 0, 5], fov: 50 }}>
               <ambientLight intensity={0.7} />
               <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
               <pointLight position={[-10, -10, -10]} />
@@ -120,7 +121,22 @@ const ModelUploader = ({ onChange, value }) => {
                 autoRotate={true}
                 autoRotateSpeed={1}
               />
-            </Canvas>
+            </Canvas> */}
+            <ErrorBoundary modelUrl={model.url}>
+              <Canvas camera={{ position: [0, 0, 5], fov: 50 }}>
+                <ambientLight intensity={0.7} />
+                <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
+                <pointLight position={[-10, -10, -10]} />
+                <Suspense fallback={null}>
+                  <GltfModel url={model.url} />
+                </Suspense>
+                <OrbitControls
+                  enableZoom={true}
+                  autoRotate={true}
+                  autoRotateSpeed={1}
+                />
+              </Canvas>
+            </ErrorBoundary>
           </Box>
           <Box
             sx={{
