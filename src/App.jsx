@@ -154,15 +154,55 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+// import { ThemeProvider, createTheme } from "@mui/material/styles";
+// import CssBaseline from "@mui/material/CssBaseline";
+// import { BrowserRouter as Router } from "react-router-dom";
+
+// import "./App.css";
+// import AppContent from "./pages/AppContent";
+// import { GlassesProvider } from "./pages/Recommendation/GlassesContext";
+
+// const theme = createTheme({
+//   palette: {
+//     primary: { main: "#1FAB89" },
+//     secondary: { main: "#FF3366" },
+//     success: { main: "#1FAB89" },
+//   },
+//   typography: { fontFamily: "Roboto, Arial, sans-serif" },
+//   components: {
+//     MuiButton: { styleOverrides: { root: { textTransform: "none" } } },
+//     MuiOutlinedInput: { styleOverrides: { root: { borderRadius: 8 } } },
+//   },
+// });
+
+// function App() {
+//   return (
+//     <ThemeProvider theme={theme}>
+//       <CssBaseline />
+//       <GlassesProvider>
+//         <Router>
+//           <AppContent />
+//         </Router>
+//       </GlassesProvider>
+//     </ThemeProvider>
+//   );
+// }
+
+// export default App;
+
+
+// =============================================================================
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import { BrowserRouter as Router } from "react-router-dom";
+import { ConfigProvider } from "antd";
+import viVN from "antd/locale/vi_VN"; // dùng tiếng Việt
 
 import "./App.css";
 import AppContent from "./pages/AppContent";
 import { GlassesProvider } from "./pages/Recommendation/GlassesContext";
 
-const theme = createTheme({
+const muiTheme = createTheme({
   palette: {
     primary: { main: "#1FAB89" },
     secondary: { main: "#FF3366" },
@@ -177,11 +217,26 @@ const theme = createTheme({
 
 function App() {
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={muiTheme}>
       <CssBaseline />
       <GlassesProvider>
         <Router>
-          <AppContent />
+          <ConfigProvider
+            locale={viVN}
+            theme={{
+              token: {
+                colorPrimary: "#1FAB89", // xanh lá cây
+              },
+              components: {
+                Table: {
+                  // Tùy chọn: Đổi màu dòng selected, hover
+                  headerBg: "#f5f5f5",
+                },
+              },
+            }}
+          >
+            <AppContent />
+          </ConfigProvider>
         </Router>
       </GlassesProvider>
     </ThemeProvider>

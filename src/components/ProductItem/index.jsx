@@ -65,8 +65,8 @@ const ProductItem = ({ product, onClick }) => {
       <Box className="product-image-container">
         <CardMedia
           component="img"
-          image={product.GlassColors[0]?.Images?.[0] || "images/glass.png"}
-          alt={product.Description}
+          image={product?.GlassColors[0]?.Images?.[0] || "images/glass.png"}
+          alt={product?.Description}
           className="product-image"
         />
         <IconButton className="cart-button">

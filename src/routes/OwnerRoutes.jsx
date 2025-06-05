@@ -16,7 +16,7 @@ const OwnerRoutes = ({ activeMenuItem, setActiveMenuItem }) => (
             setActiveMenuItem={setActiveMenuItem}
           />
           <Box className="main-section">
-            <HeaderOwner />
+            {/* <HeaderOwner /> */}
             <MainContent activeMenuItem={activeMenuItem} />
           </Box>
         </Box>

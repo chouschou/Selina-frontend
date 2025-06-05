@@ -1,17 +1,17 @@
-import { useState } from 'react'
-import { 
-  Box, 
-  Button, 
+import { useState } from "react";
+import {
+  Box,
+  Button,
   Grid,
   Card,
   Typography,
   IconButton,
   Menu,
-  MenuItem
-} from '@mui/material'
-import { Add as AddIcon, MoreVert as MoreVertIcon } from '@mui/icons-material'
-import AddVoucherModal from '../../components/AddVoucherModal'
-import './VoucherManage.scss'
+  MenuItem,
+} from "@mui/material";
+import { Add as AddIcon, MoreVert as MoreVertIcon } from "@mui/icons-material";
+import AddVoucherModal from "../../components/AddVoucherModal";
+import "./VoucherManage.scss";
 
 const sampleVouchers = [
   {
@@ -19,22 +19,22 @@ const sampleVouchers = [
     discount: 50,
     used: 2,
     total: 5,
-    startDate: '0h00, 10/09/2024',
-    endDate: '23h59, 10/09/2024'
+    startDate: "0h00, 10/09/2024",
+    endDate: "23h59, 10/09/2024",
   },
   // More sample vouchers...
-]
+];
 
 function VoucherCard({ voucher }) {
-  const [anchorEl, setAnchorEl] = useState(null)
+  const [anchorEl, setAnchorEl] = useState(null);
 
   const handleMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget)
-  }
+    setAnchorEl(event.currentTarget);
+  };
 
   const handleMenuClose = () => {
-    setAnchorEl(null)
-  }
+    setAnchorEl(null);
+  };
 
   return (
     <Card className="voucher-card">
@@ -52,10 +52,7 @@ function VoucherCard({ voucher }) {
           </Typography>
         </Box>
       </Box>
-      <IconButton 
-        className="more-button"
-        onClick={handleMenuOpen}
-      >
+      <IconButton className="more-button" onClick={handleMenuOpen}>
         <MoreVertIcon />
       </IconButton>
       <Menu
@@ -67,23 +64,32 @@ function VoucherCard({ voucher }) {
         <MenuItem onClick={handleMenuClose}>Xóa</MenuItem>
       </Menu>
     </Card>
-  )
+  );
 }
 
 function VoucherManage() {
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleOpenModal = () => {
-    setIsModalOpen(true)
-  }
+    setIsModalOpen(true);
+  };
 
   const handleCloseModal = () => {
-    setIsModalOpen(false)
-  }
+    setIsModalOpen(false);
+  };
 
   return (
     <Box className="voucher-content-container">
-      <Box className="header-actions">
+      <div className="header">
+        <div>
+          <h1>Quản lý voucher</h1>
+          <p>Quản lý và tạo các voucher khuyến mãi mới.</p>
+        </div>
+        <button className="add-product-btn" onClick={handleOpenModal}>
+          Thêm voucher
+        </button>
+      </div>
+      {/* <Box className="header-actions">
         <Button
           variant="contained"
           color="primary"
@@ -93,7 +99,7 @@ function VoucherManage() {
         >
           Thêm voucher
         </Button>
-      </Box>
+      </Box> */}
 
       <Grid container spacing={3} className="voucher-grid">
         {sampleVouchers.map((voucher) => (
@@ -103,12 +109,9 @@ function VoucherManage() {
         ))}
       </Grid>
 
-      <AddVoucherModal 
-        open={isModalOpen}
-        onClose={handleCloseModal}
-      />
+      <AddVoucherModal open={isModalOpen} onClose={handleCloseModal} />
     </Box>
-  )
+  );
 }
 
-export default VoucherManage
+export default VoucherManage;

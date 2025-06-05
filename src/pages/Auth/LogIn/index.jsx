@@ -41,9 +41,14 @@ const LogIn = () => {
     try {
       const response = await login(email, password);
 
+      // localStorage.setItem("accessToken", response.access_token);
+      localStorage.setItem("accessToken", response.access_token);
+      localStorage.setItem("refreshToken", response.refresh_token);
+
       const role = response.user.Role.Name;
       const user = response.user;
-      console.log("user log in -", user)
+
+      console.log("user log in -", user);
       loginContext(role, user); // dùng context để cập nhật React
       toast.success("Đăng nhập thành công!");
 
