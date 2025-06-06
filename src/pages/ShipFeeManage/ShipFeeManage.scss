@@ -93,4 +93,31 @@
       }
     }
   }
+
+  .form-actions {
+    margin-top: 16px;
+    display: flex;
+    text-align: right;
+    justify-content: end;
+    gap: 16px;
+
+    .btn-cancel,
+    .btn-save {
+      padding: 8px 16px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      border-radius: 4px;
+    }
+
+    .btn-cancel {
+      background-color: #eee;
+      color: #333;
+    }
+
+    .btn-save {
+      background-color: #43a070;
+      color: white !important;
+    }
+  }
 }
