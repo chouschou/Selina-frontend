@@ -174,9 +174,9 @@ const AddProductModal = ({ open, onClose, onSuccess }) => {
           type="submit"
           sx={{ color: "#fff" }}
           disabled={isSubmitting}
-          startIcon={
-            isSubmitting ? <CircularProgress size={20} color="inherit" /> : null
-          }
+          // startIcon={
+          //   isSubmitting ? <CircularProgress size={20} color="inherit" /> : null
+          // }
         >
           {isSubmitting ? "Đang lưu..." : "Lưu"}
         </Button>

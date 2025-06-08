@@ -1,95 +1,119 @@
-import React from 'react';
-import { Box, Typography, Stepper, Step, StepLabel, StepConnector } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import CheckIcon from '@mui/icons-material/Check';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import LocalShippingIcon from '@mui/icons-material/LocalShipping';
-import TaskAltIcon from '@mui/icons-material/TaskAlt';
-import DoDisturbIcon from '@mui/icons-material/DoDisturb';
+import React from "react";
+import {
+  Box,
+  Typography,
+  Stepper,
+  Step,
+  StepLabel,
+  StepConnector,
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
+import CheckIcon from "@mui/icons-material/Check";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import LocalShippingIcon from "@mui/icons-material/LocalShipping";
+import TaskAltIcon from "@mui/icons-material/TaskAlt";
+import DoDisturbIcon from "@mui/icons-material/DoDisturb";
 import "./OrderManage.scss";
+import { formatDateTimeVN } from "../../services/formatDatetimeVN";
 
 const statusSteps = [
-  { 
-    label: 'Chờ xác nhận', 
+  {
+    label: "Chưa xác nhận",
     icon: <AccessTimeIcon />,
-    value: 'waiting' 
+    value: "waiting",
   },
-  { 
-    label: 'Đã xác nhận', 
+  {
+    label: "Đã xác nhận",
     icon: <CheckIcon />,
-    value: 'confirmed' 
+    value: "confirmed",
   },
-  { 
-    label: 'Đang giao hàng', 
+  {
+    label: "Đang giao hàng",
     icon: <LocalShippingIcon />,
-    value: 'shipping' 
+    value: "shipping",
   },
-  { 
-    label: 'Hoàn thành', 
+  {
+    label: "Hoàn thành",
     icon: <TaskAltIcon />,
-    value: 'completed' 
-  }
+    value: "completed",
+  },
 ];
 
 // Custom styled connector for the stepper
 const CustomConnector = styled(StepConnector)(() => ({
-  '& .MuiStepConnector-line': {
-    borderColor: '#e0e0e0',
+  "& .MuiStepConnector-line": {
+    borderColor: "#e0e0e0",
     borderTopWidth: 2,
   },
-  '&.Mui-active': {
-    '& .MuiStepConnector-line': {
-      borderColor: '#007c7c',
+  "&.Mui-active": {
+    "& .MuiStepConnector-line": {
+      borderColor: "#007c7c",
     },
   },
-  '&.Mui-completed': {
-    '& .MuiStepConnector-line': {
-      borderColor: '#007c7c',
+  "&.Mui-completed": {
+    "& .MuiStepConnector-line": {
+      borderColor: "#007c7c",
     },
   },
 }));
 
 // Custom styled step label
 const CustomStepLabel = styled(StepLabel)(() => ({
-  '& .MuiStepLabel-label': {
-    color: '#9e9e9e',
-    fontSize: '0.9rem',
-    marginTop: '8px',
-    '&.Mui-active': {
-      color: '#007c7c',
+  "& .MuiStepLabel-label": {
+    color: "#9e9e9e",
+    fontSize: "0.9rem",
+    marginTop: "8px",
+    "&.Mui-active": {
+      color: "#007c7c",
       fontWeight: 600,
     },
-    '&.Mui-completed': {
-      color: '#007c7c',
+    "&.Mui-completed": {
+      color: "#007c7c",
     },
   },
-  '& .MuiStepLabel-iconContainer': {
-    color: '#bdbdbd',
-    '&.Mui-active': {
-      color: '#007c7c',
+  "& .MuiStepLabel-iconContainer": {
+    color: "#bdbdbd",
+    "&.Mui-active": {
+      color: "#007c7c",
     },
-    '&.Mui-completed': {
-      color: '#007c7c',
+    "&.Mui-completed": {
+      color: "#007c7c",
     },
   },
 }));
 
-const OrderStatusTimeline = ({ status }) => {
-  // If the order is cancelled, show a different view
-  if (status === 'cancelled') {
+const OrderStatusTimeline = ({ status, orderStatus }) => {
+  // Tìm bước hiện tại
+  const activeStep = statusSteps.findIndex((step) => step.value === status);
+
+  // Tạo ánh xạ status => time
+  const statusTimeMap = {};
+  orderStatus?.forEach((s) => {
+    statusTimeMap[s.Status] = formatDateTimeVN(s.CreateAt);
+  });
+  // Nếu đơn hàng bị hủy
+  if (status === "canceled") {
     return (
       <Box className="cancelled-status-container">
-        <DoDisturbIcon sx={{ color: '#e53935', fontSize: '2rem' }} />
-        <Typography variant="h6" sx={{ color: '#e53935', fontWeight: 600, marginTop: '8px' }}>
+        <DoDisturbIcon sx={{ color: "#e53935", fontSize: "2rem" }} />
+        <Typography
+          variant="h6"
+          sx={{ color: "#e53935", fontWeight: 600, marginTop: "8px" }}
+        >
           Đã hủy
         </Typography>
+        {statusTimeMap["canceled"] && (
+          <Typography
+            variant="caption"
+            sx={{ color: "#757575", mt: 0.5, display: "block" }}
+          >
+            {statusTimeMap["canceled"]}
+          </Typography>
+        )}
       </Box>
     );
   }
 
-  // Find the active step index
-  const activeStep = statusSteps.findIndex(step => step.value === status);
-  
   return (
     <Box className="order-status-timeline">
       <Stepper activeStep={activeStep} connector={<CustomConnector />}>
@@ -99,17 +123,31 @@ const OrderStatusTimeline = ({ status }) => {
               StepIconComponent={() => (
                 <Box
                   sx={{
-                    color: index <= activeStep ? '#007c7c' : '#bdbdbd',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    color: index <= activeStep ? "#007c7c" : "#bdbdbd",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
                 >
                   {step.icon}
                 </Box>
               )}
             >
-              {step.label}
+              <Typography
+                variant="body2"
+                fontWeight={500}
+                sx={{ marginTop: 0 }}
+              >
+                {step.label}
+              </Typography>
+              {statusTimeMap[step.value] && (
+                <Typography
+                  variant="caption"
+                  sx={{ color: "#757575", mt: 0.5, display: "block" }}
+                >
+                  {statusTimeMap[step.value]}
+                </Typography>
+              )}
             </CustomStepLabel>
           </Step>
         ))}
