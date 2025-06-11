@@ -6,6 +6,7 @@ import "./HomePage.scss";
 import model2Removebg from "../../assets/images/model2-removebg.png";
 import glass_nobg from "../../assets/images/glass_nobg.png";
 import { getProductsByCategory } from "../../services/product/getProductsByCategory";
+import ConstructionIcon from "@mui/icons-material/Construction";
 
 const HomePage = () => {
   const [activeFilter, setActiveFilter] = useState("all");
@@ -15,7 +16,7 @@ const HomePage = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await getProductsByCategory("Kính mát");
+        const response = await getProductsByCategory("Gọng kính");
         setProductsList(response); // Nếu API trả về mảng sản phẩm
         console.log("Products List:", response);
       } catch (error) {
@@ -42,7 +43,7 @@ const HomePage = () => {
           Price: "150000.00",
           Discount: "15.00",
           Image3DPath: "path_to_3d_image_2",
-          Images: [''],
+          Images: [""],
         },
       ],
     },
@@ -61,7 +62,7 @@ const HomePage = () => {
           Price: "150000.00",
           Discount: "15.00",
           Image3DPath: "path_to_3d_image_2",
-          Images: [''],
+          Images: [""],
         },
       ],
     },
@@ -124,9 +125,9 @@ const HomePage = () => {
           </Button>
           <Button
             className={`filter-button ${
-              activeFilter === "gender" ? "active" : ""
+              activeFilter === "age" ? "active" : ""
             }`}
-            onClick={() => handleFilterChange("gender")}
+            onClick={() => handleFilterChange("age")}
           >
             <span className="filter-icon">👫</span> Giới tính
           </Button>
@@ -144,7 +145,8 @@ const HomePage = () => {
             }`}
             onClick={() => handleFilterChange("age")}
           >
-            <span className="filter-icon">👴</span> Độ tuổi
+            <ConstructionIcon sx={{ fontSize: 18, marginRight: "6px" }} />
+            Chất liệu
           </Button>
         </Box>
       </Container>

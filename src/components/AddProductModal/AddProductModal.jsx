@@ -54,9 +54,9 @@ const AddProductModal = ({ open, onClose, onSuccess }) => {
       return; // lỗi, không submit
     }
 
+      console.log("data", data);
     setIsSubmitting(true);
     try {
-      console.log("data", data);
       const formData = new FormData();
 
       formData.append("Category", data.Category);

@@ -58,7 +58,9 @@ const LogIn = () => {
       } else if (role === "owner") {
         navigate("/owner");
       } else {
-        navigate("/");
+        const redirectUrl = localStorage.getItem("redirectAfterLogin") || "/";
+        localStorage.removeItem("redirectAfterLogin");
+        navigate(redirectUrl);
       }
     } catch (err) {
       if (err === "Incorrect password") {

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   Container,
   Grid,
@@ -17,14 +17,32 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import Header from "../../components/Header";
 import "./Order.scss";
+import { AuthContext } from "../../contexts/AuthContext/AuthContext";
+import { getDeliveryAddressByAccount } from "../../services/accountDelivery/getDeliveryAddressByAccountId";
+import DeliveryAddressModal from "../../components/DeliveryAddressModal";
+import { checkDeliveryUsed } from "../../services/accountDelivery/checkDeliveryUsedInOrder";
+import {
+  formatCurrencyVND,
+  generateProductName,
+  translateShapeToVietnamese,
+} from "../../services/formatToShow";
+import { useLocation } from "react-router-dom";
 
 const Order = () => {
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  //   const [address, setAddress] = useState("123 Điện Biên Phủ, TP. Đà Nẵng")
-  const address = "123 Điện Biên Phủ, TP. Đà Nẵng";
+  const location = useLocation();
+  const items = location.state?.items ?? [];
+  console.log("Items:", items);
+
+  const [selectedAddress, setSelectedAddress] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [showShippingPolicy, setShowShippingPolicy] = useState(true);
+  const { isLoggedIn, account } = useContext(AuthContext);
+  const [deliveryAddresses, setDeliveryAddresses] = useState([]);
+  const [isOpenModalSelectAddress, setIsOpenModalSelectAddress] =
+    useState(false);
+  const onCloseModalSelectAddress = () => {
+    setIsOpenModalSelectAddress(false);
+  };
 
   // Sample order data (would normally come from cart or product detail)
   const orderItem = {
@@ -44,16 +62,35 @@ const Order = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     // Handle order submission
-    console.log("Order submitted", {
-      name,
-      phone,
-      address,
-      paymentMethod,
-      orderItem,
-    });
+
     // Redirect to confirmation page or show success message
   };
 
+  const fetchAllDeliveryAddress = async () => {
+    const response = await getDeliveryAddressByAccount(account.ID);
+
+    // Gọi checkUsed cho từng địa chỉ
+    const dataWithUsed = await Promise.all(
+      response.map(async (item) => {
+        try {
+          const usedRes = await checkDeliveryUsed(item.ID);
+          return { ...item, isUsedInOrder: usedRes === true };
+        } catch (error) {
+          console.error(`Failed to check if address ${item.ID} is used`, error);
+          return { ...item, isUsedInOrder: false }; // fallback nếu lỗi
+        }
+      })
+    );
+
+    setDeliveryAddresses(dataWithUsed);
+    setSelectedAddress(dataWithUsed.find((ad) => ad.IsDefault === true) || "");
+  };
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      fetchAllDeliveryAddress();
+    }
+  }, [isLoggedIn, account.ID]);
   return (
     <div className="order-page">
       <Header />
@@ -64,45 +101,6 @@ const Order = () => {
             {/* Customer Information */}
             <Grid item xs={12} md={6}>
               <Box className="customer-info-section">
-                <Typography variant="h6" className="section-title">
-                  THÔNG TIN KHÁCH HÀNG
-                </Typography>
-
-                <Box className="form-field">
-                  <TextField
-                    fullWidth
-                    label="Họ và tên"
-                    variant="outlined"
-                    required
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    InputLabelProps={{
-                      className: "required-label",
-                    }}
-                  />
-                </Box>
-
-                <Box className="form-field">
-                  <TextField
-                    fullWidth
-                    label="Số điện thoại"
-                    variant="outlined"
-                    required
-                    value={phone}
-                    inputProps={{ maxLength: 10 }}
-                    error={phone && !/^0\d{9}$/.test(phone)}
-                    helperText={
-                      phone && !/^0\d{9}$/.test(phone)
-                        ? "Số điện thoại không hợp lệ"
-                        : ""
-                    }
-                    onChange={(e) => setPhone(e.target.value)}
-                    InputLabelProps={{
-                      className: "required-label",
-                    }}
-                  />
-                </Box>
-
                 <Typography
                   variant="h6"
                   className="section-title address-title"
@@ -111,22 +109,53 @@ const Order = () => {
                 </Typography>
 
                 <Box className="address-container">
-                  <Box className="address-info">
-                    <LocationOnIcon className="location-icon" />
-                    <Typography variant="body1">{address}</Typography>
+                  <Box>
+                    <Box className="address-info">
+                      <LocationOnIcon className="location-icon" />
+                      <Typography variant="body1">
+                        {selectedAddress?.DeliveryAddress?.Address}
+                      </Typography>
+                    </Box>
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        marginTop: "10px",
+                        marginLeft: "30px",
+                        // color: "#9a3e19",
+                        fontWeight: 500,
+                      }}
+                    >
+                      Người nhận: {selectedAddress?.DeliveryAddress?.Name} -{" "}
+                      {selectedAddress?.DeliveryAddress?.PhoneNumber}
+                    </Typography>
                   </Box>
                   <Box className="address-actions">
-                    <Button
-                      variant="outlined"
-                      size="small"
-                      className="default-button"
-                    >
-                      Mặc định
-                    </Button>
+                    {selectedAddress?.IsDefault && (
+                      <Button
+                        size="small"
+                        // className="default-button"
+                        disabled
+                        sx={{
+                          color: "#fff",
+                          backgroundColor: "#d46c3c",
+                          borderColor: "#d46c3c",
+                          "&.Mui-disabled": {
+                            color: "#fff",
+                            backgroundColor: "#d46c3c",
+                            borderColor: "#d46c3c",
+                            opacity: 1,
+                          },
+                        }}
+                      >
+                        Mặc định
+                      </Button>
+                    )}
+
                     <Button
                       variant="text"
                       size="small"
                       className="change-button"
+                      onClick={() => setIsOpenModalSelectAddress(true)}
                     >
                       Thay đổi
                     </Button>
@@ -183,39 +212,92 @@ const Order = () => {
                   ĐƠN HÀNG
                 </Typography>
 
-                <Box className="order-item">
-                  <Box className="item-image-container">
-                    <img
-                      src={orderItem.image || "/placeholder.svg"}
-                      alt={orderItem.name}
-                      className="item-image"
-                    />
+                <Box className="cart-item-list">
+                  <Box className="cart-header">
+                    <Typography className="product-header">Sản phẩm</Typography>
+                    <Typography className="category-header">
+                      Phân loại
+                    </Typography>
+                    <Typography className="color-header">Màu</Typography>
+                    <Typography className="price-header">Đơn giá</Typography>
+                    <Typography className="quantity-header">
+                      Số lượng
+                    </Typography>
                   </Box>
-                  <Box className="item-details">
-                    <Typography variant="subtitle1" className="item-name">
-                      {orderItem.name}
-                    </Typography>
-                    <Typography variant="body2" className="item-category">
-                      Phân loại: {orderItem.category}
-                    </Typography>
+                  <Box className="cart-items">
+                    {items.map((item) => (
+                      <Box className="cart-item">
+                        <Box className="product-info">
+                          <img
+                            src={item?.glassColor?.Image}
+                            alt={item?.glassColor?.Glass?.Category}
+                            className="product-image"
+                          />
+                          <Typography variant="body1" className="product-name">
+                            {generateProductName(
+                              item?.glassColor?.Glass?.Category,
+                              0,
+                              item?.glassColor?.Glass?.ID
+                            )}
+                            {item.glassColor.Quantity < 10 && (
+                              <p className="remain-quantity">
+                                Còn {item.glassColor.Quantity} sản phẩm
+                              </p>
+                            )}
+                          </Typography>
+                        </Box>
+
+                        <Box className="category-info">
+                          <Typography variant="body2">
+                            {item?.glassColor?.Glass?.Category}{" "}
+                            {item?.glassColor?.Glass?.Material.toLowerCase()}{" "}
+                            {translateShapeToVietnamese(
+                              item?.glassColor?.Glass?.Shape
+                            ).toLowerCase()}
+                          </Typography>
+                        </Box>
+                        <Box className="color-info">
+                          <div
+                            style={{
+                              width: 20,
+                              height: 20,
+                              backgroundColor: item.glassColor.Color,
+                              border: "1px solid #ccc",
+                              margin: "auto",
+                            }}
+                          />
+                        </Box>
+
+                        <Box className="price-info">
+                          {Number(item?.glassColor?.Discount) !== 0 && (
+                            <Typography
+                              variant="body2"
+                              className="original-price"
+                            >
+                              {formatCurrencyVND(item?.glassColor?.Price)}
+                            </Typography>
+                          )}
+                          <Typography variant="body1" className="current-price">
+                            {formatCurrencyVND(
+                              item?.glassColor?.Price -
+                                (item?.glassColor?.Price *
+                                  item?.glassColor?.Discount) /
+                                  100
+                            )}
+                          </Typography>
+                        </Box>
+
+                        <Box className="quantity-controls">
+                          <Typography className="quantity-value">
+                            {item?.quantity}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    ))}
                   </Box>
                 </Box>
 
                 <Box className="order-details">
-                  <Box className="detail-row">
-                    <Typography variant="body1">Đơn giá</Typography>
-                    <Typography variant="body1" className="price">
-                      {orderItem.price.toLocaleString()} đ
-                    </Typography>
-                  </Box>
-
-                  <Box className="detail-row">
-                    <Typography variant="body1">Số lượng</Typography>
-                    <Typography variant="body1">
-                      {orderItem.quantity}
-                    </Typography>
-                  </Box>
-
                   <Divider className="detail-divider" />
 
                   <Box className="detail-row">
@@ -283,6 +365,18 @@ const Order = () => {
           </Grid>
         </form>
       </Container>
+
+      <DeliveryAddressModal
+        isOpen={isOpenModalSelectAddress}
+        onClose={onCloseModalSelectAddress}
+        selectedAddress={selectedAddress}
+        setSelectedAddress={setSelectedAddress}
+        deliveryAddresses={deliveryAddresses}
+        fetchAllDeliveryAddress={fetchAllDeliveryAddress}
+        onSuccessDelete={() => {
+          setIsOpenModalSelectAddress(true);
+        }}
+      ></DeliveryAddressModal>
     </div>
   );
 };

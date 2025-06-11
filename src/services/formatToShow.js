@@ -1,8 +1,15 @@
 // Tạo tên sản phẩm
 export function generateProductName(category, index, id) {
-  const letter = String.fromCharCode(65 + index); // 65 là mã ASCII của 'A'
+  // const letter = String.fromCharCode(65 + index); // 65 là mã ASCII của 'A'
   const paddedID = id.toString().padStart(5, "0");
-  return `${category}  ${letter}${paddedID}`;
+  // return `${category}  ${letter}${paddedID}`;
+  return `${category}  GKS${paddedID}`;
+}
+
+export function generateProductCategoryName(category, material, shape) {
+  const materialPart = material ? ` ${material.toLowerCase()}` : "";
+  const shapePart = shape ? ` ${translateShapeToVietnamese(shape).toLowerCase()}` : "";
+  return `${category}${materialPart}${shapePart}`;  
 }
 
 // Định dạng tiền VND
@@ -60,6 +67,7 @@ const COLOR_MAP = [
   { name: "Trắng", hex: "#FFFFFF" },
   { name: "Cam", hex: "#FFA500" },
   { name: "Bạc", hex: "#C0C0C0" },
+  { name: "Khác", hex: "Khác" },
 ];
 
 export const getColorNameFromHex = (hex) => {

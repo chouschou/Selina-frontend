@@ -11,7 +11,7 @@
   &:hover {
     transform: translateY(-5px);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    cursor: pointer;
+    
   }
 
   .product-image-container {
@@ -45,6 +45,10 @@
   .product-content {
     padding: 16px;
 
+    &:hover{
+      cursor: pointer;
+    }
+
     .price-container {
       display: flex;
       align-items: center;
@@ -75,7 +79,6 @@
     }
 
     .product-description {
-      margin-bottom: 16px;
       color: #555;
     }
 
@@ -93,7 +96,7 @@
           height: 20px;
           border-radius: 50%;
           cursor: pointer;
-          border: 1px solid #A0522D;
+          border: 1px solid #717171;
           box-shadow: #1fab89;
 
           &.white {
@@ -128,4 +131,3 @@
     }
   }
 }
-
