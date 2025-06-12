@@ -27,6 +27,16 @@ import {
   translateShapeToVietnamese,
 } from "../../services/formatToShow";
 import { useLocation } from "react-router-dom";
+import { getLongitudeLatitude } from "../../services/getLongitudeLatitude";
+import { getAllShipFees } from "../../services/shipfee/getAllShipFees";
+import { getDistance } from "../../services/getDistance";
+import { VoucherModal } from "../../components/VoucherModal/VoucherModal";
+import { getVoucherByAccountId } from "../../services/voucher/getVoucherByAccountId";
+import { getAllVouchers } from "../../services/voucher/getAllVouchers";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import { toast } from "react-toastify";
+import { createOrder } from "../../services/order/createOrder";
+import { vnpayPayment } from "../../services/payment/vnpayPayment";
 
 const Order = () => {
   const location = useLocation();
@@ -40,28 +50,217 @@ const Order = () => {
   const [deliveryAddresses, setDeliveryAddresses] = useState([]);
   const [isOpenModalSelectAddress, setIsOpenModalSelectAddress] =
     useState(false);
+  const [shippingFeeStore, setShippingFeeStore] = useState(0);
   const onCloseModalSelectAddress = () => {
     setIsOpenModalSelectAddress(false);
   };
 
-  // Sample order data (would normally come from cart or product detail)
-  const orderItem = {
-    id: 1,
-    image: "/glasses-main.jpg",
-    name: "Gọng kính tròn, kim loại",
-    category: "Màu đen",
-    price: 120000,
-    quantity: 3,
+  const [shippingFee, setShippingFee] = useState(0);
+  const [orderDiscount, setOrderDiscount] = useState(0);
+  const totalProductPrice = items.reduce((total, item) => {
+    const basePrice = item?.glassColor?.Price || 0;
+    const productDiscount = item?.glassColor?.Discount || 0;
+    const discountedPrice = basePrice - (basePrice * productDiscount) / 100;
+    return total + discountedPrice * item.quantity;
+  }, 0);
+  const totalAmount = totalProductPrice + shippingFee - orderDiscount;
+
+  useEffect(() => {
+    const fetchShippingFeeStore = async () => {
+      const response = await getAllShipFees();
+      setShippingFeeStore(response[0]);
+    };
+
+    fetchShippingFeeStore();
+  }, []);
+
+  useEffect(() => {
+    const fetchShippingFee = async () => {
+      if (isLoggedIn && selectedAddress?.DeliveryAddress?.Province) {
+        const distance = await getDistanceOfTwoProvinces(); // đơn vị: km
+
+        if (distance !== null && shippingFeeStore) {
+          const baseFee = parseFloat(shippingFeeStore.BasicFee || "0"); // phí cơ bản
+          const baseDistance = parseFloat(
+            shippingFeeStore.BasicDistance || "0"
+          ); // km miễn phí đầu
+          const surcharge = parseFloat(shippingFeeStore.Surcharge || "0"); // phụ thu mỗi đơn vị
+          const surchargeUnit = parseFloat(
+            (shippingFeeStore.SurchargeUnit || "1").replace(/[^\d.]/g, "")
+          ); // loại bỏ chữ " km", chỉ lấy số
+
+          let fee = baseFee;
+
+          if (distance > baseDistance) {
+            const extraDistance = distance - baseDistance;
+            fee += (extraDistance * surcharge) / surchargeUnit;
+          }
+
+          setShippingFee(Math.ceil(fee)); // Làm tròn cho gọn
+        }
+      }
+    };
+
+    fetchShippingFee();
+  }, [selectedAddress, isLoggedIn, shippingFeeStore]);
+
+  const getDistanceOfTwoProvinces = async () => {
+    try {
+      const dep = await getLongitudeLatitude(
+        selectedAddress?.DeliveryAddress?.Province
+      );
+      console.log("selectedAddress:", selectedAddress, "-dep:", dep);
+      const des = await getLongitudeLatitude(shippingFeeStore?.StoreLocation);
+      console.log("shippingFeeStore:", shippingFeeStore, "-des:", des);
+
+      if (!dep?.length || !des?.length) return;
+
+      const distance = await getDistance(
+        parseFloat(des[0].lon).toFixed(5),
+        parseFloat(des[0].lat).toFixed(5),
+        parseFloat(dep[0].lon).toFixed(5),
+        parseFloat(dep[0].lat).toFixed(5)
+      );
+
+      console.log("khoảng cách:", distance);
+      return distance; // đơn vị: km
+    } catch (error) {
+      console.log("Lỗi khi lấy khoảng cách:", error);
+    }
   };
 
-  const shippingFee = 30000;
-  const discount = 0;
-  const totalAmount =
-    orderItem.price * orderItem.quantity + shippingFee - discount;
+  // --xử lý voucher--
+  const [openVoucherModal, setOpenVoucherModal] = useState(false);
+  const [selectedVoucher, setSelectedVoucher] = useState(null); //giá trị account voucher
+  const [accountVouchers, setAccountVouchers] = useState([]);
+  const [unusedVouchers, setUnusedVouchers] = useState([]);
+  const [otherVouchers, setOtherVouchers] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const handleOpenVouchers = () => setOpenVoucherModal(true);
+  const handleCloseVouchers = () => setOpenVoucherModal(false);
+  useEffect(() => {
+    fetchAccountVouchers();
+  }, [isLoggedIn, account?.ID]);
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    if (openVoucherModal) {
+      fetchOtherVouchers();
+    }
+  }, [accountVouchers, openVoucherModal]);
+
+  const fetchAccountVouchers = async () => {
+    if (isLoggedIn && account?.ID) {
+      try {
+        const response = await getVoucherByAccountId(account.ID);
+        setAccountVouchers(response.data);
+        const unusedVouchers = response.data.filter(
+          (item) => item.Status === false
+        );
+        console.log("Unused Vouchers:", unusedVouchers);
+        setUnusedVouchers(unusedVouchers);
+      } catch (error) {
+        console.error("Failed to fetch account vouchers", error);
+      }
+    }
+  };
+
+  const fetchOtherVouchers = async () => {
+    const response = await getAllVouchers();
+    console.log("All Vouchers:", response);
+    setOtherVouchers(
+      response.filter(
+        (voucher) =>
+          voucher.RemainingQuantity > 0 &&
+          !accountVouchers.some(
+            (accVoucher) => accVoucher?.Voucher.ID === voucher?.ID
+          )
+      )
+    );
+  };
+
+  const handleApplyVoucher = (voucher) => {
+    //voucher: account voucher
+    setSelectedVoucher(voucher);
+    // Cập nhật giảm giá dựa trên voucher
+    if (totalProductPrice >= voucher?.Voucher.MinOrderValue) {
+      const discountAmount =
+        (totalProductPrice * voucher.Voucher.VoucherPercentage) / 100;
+      if (discountAmount > voucher.Voucher.MaxDiscount) {
+        setOrderDiscount(voucher.Voucher.MaxDiscount);
+      } else {
+        setOrderDiscount(discountAmount);
+      }
+    }
+  };
+
+  const handleSubmitOrder = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     // Handle order submission
+    if (!selectedAddress) {
+      toast.error("Vui lòng chọn địa chỉ nhận hàng.");
+    } else if (paymentMethod === "online") {
+      // toast.error("Chức năng thanh toán trực tuyến hiện chưa được hỗ trợ.");
+      try {
+        const orderData = {
+          DeliveryAddressId: selectedAddress?.DeliveryAddress?.ID,
+          Total: totalAmount,
+          ShippingFee: shippingFee,
+          VoucherDiscount: orderDiscount,
+          Status: "waiting",
+          TransactionCode: null,
+          AccountVoucherId: selectedVoucher?.ID || null,
+          OrderDetails: items.map((item) => ({
+            GlassColorId: item.glassColor.ID,
+            Quantity: item.quantity,
+            Price: parseFloat(item.glassColor.Price),
+            Discount: parseFloat(item.glassColor.Discount),
+          })),
+        };
+
+        console.log("Order Data:", orderData);
+        const orderRes = await createOrder(orderData);
+        const vnpayResponse = await vnpayPayment(orderRes);
+
+        window.location.href = vnpayResponse.data.url; // Redirect to VNPay payment page
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error creating order for VNPay:", error);
+        toast.error(
+          "Đặt hàng thành công! Lỗi thanh toán VNPay. Vui lòng thanh toán lại sau."
+        );
+        //đi đến trang thành công  và cho thanh toán lại sau
+      }
+    } else if (paymentMethod === "cod") {
+      try {
+        const orderData = {
+          DeliveryAddressId: selectedAddress?.DeliveryAddress?.ID,
+          Total: totalAmount,
+          ShippingFee: shippingFee,
+          VoucherDiscount: orderDiscount,
+          Status: "waiting",
+          TransactionCode: null,
+          AccountVoucherId: selectedVoucher?.ID || null,
+          OrderDetails: items.map((item) => ({
+            GlassColorId: item.glassColor.ID,
+            Quantity: item.quantity,
+            Price: parseFloat(item.glassColor.Price),
+            Discount: parseFloat(item.glassColor.Discount),
+          })),
+        };
+
+        console.log("Order Data:", orderData);
+        await createOrder(orderData);
+        toast.success(
+          "Đặt hàng thành công! Vui lòng kiểm tra email để xác nhận."
+        );
+        setIsLoading(false);
+        //đi đến trang thành công hoặc hiển thị thông báo thành công
+      } catch (error) {
+        console.error("Error submitting order:", error);
+        toast.error("Đặt hàng thất bại. Vui lòng thử lại sau.");
+      }
+    }
 
     // Redirect to confirmation page or show success message
   };
@@ -90,13 +289,13 @@ const Order = () => {
     if (isLoggedIn) {
       fetchAllDeliveryAddress();
     }
-  }, [isLoggedIn, account.ID]);
+  }, [isLoggedIn, account?.ID]);
   return (
     <div className="order-page">
       <Header />
 
       <Container className="order-container">
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmitOrder}>
           <Grid container className="order-grid-container">
             {/* Customer Information */}
             <Grid item xs={12} md={6}>
@@ -297,33 +496,95 @@ const Order = () => {
                   </Box>
                 </Box>
 
-                <Box className="order-details">
+                <Box className="order-details" sx={{ marginTop: "20px" }}>
+                  <Box className="detail-row">
+                    <Typography
+                      variant="body1"
+                      sx={{ color: "#931c1c", fontWeight: 500 }}
+                    >
+                      Áp mã giảm giá
+                    </Typography>
+
+                    {selectedVoucher ? (
+                      totalProductPrice >=
+                      selectedVoucher?.Voucher.MinOrderValue ? (
+                        <Typography
+                          // className="price"
+                          sx={{
+                            color: "#931c1c",
+                            display: "flex",
+                            alignItems: "center",
+                          }}
+                        >
+                          - {formatCurrencyVND(orderDiscount)}{" "}
+                          <ChevronRightIcon
+                            fontSize="small"
+                            sx={{
+                              cursor: "pointer",
+                              "&:hover": {
+                                color: "#198067",
+                              },
+                            }}
+                            onClick={handleOpenVouchers}
+                          />
+                        </Typography>
+                      ) : (
+                        <Typography sx={{ color: "#931c1c",  display: "flex",
+                            alignItems: "center", }}>
+                          Không đủ điều kiện áp dụng voucher
+                          <ChevronRightIcon
+                            fontSize="small"
+                            sx={{
+                              cursor: "pointer",
+                              "&:hover": {
+                                color: "#198067",
+                              },
+                            }}
+                            onClick={handleOpenVouchers}
+                          />
+                        </Typography>
+                      )
+                    ) : (
+                      <Button className="price" onClick={handleOpenVouchers}>
+                        Chọn voucher
+                      </Button>
+                    )}
+                  </Box>
+
                   <Divider className="detail-divider" />
+
+                  <Box className="detail-row">
+                    <Typography variant="body1">Tổng tiền hàng</Typography>
+                    <Typography variant="body1" className="price">
+                      {formatCurrencyVND(totalProductPrice)}
+                    </Typography>
+                  </Box>
 
                   <Box className="detail-row">
                     <Typography variant="body1">Chi phí vận chuyển</Typography>
                     <Typography variant="body1" className="price">
-                      {shippingFee.toLocaleString()} đ
+                      {formatCurrencyVND(shippingFee)}
                     </Typography>
                   </Box>
 
                   <Box className="detail-row">
                     <Typography variant="body1">Voucher giảm giá</Typography>
                     <Typography variant="body1" className="discount">
-                      - {discount.toLocaleString()} đ
+                      - {formatCurrencyVND(orderDiscount)}
                     </Typography>
                   </Box>
 
                   <Divider className="detail-divider" />
 
                   <Box className="detail-row total-row">
-                    <Typography variant="subtitle1">Tổng số tiền</Typography>
+                    <Typography
+                      variant="subtitle1"
+                      sx={{ fontWeight: 600, color: "#2eb889" }}
+                    >
+                      Tổng số tiền cần thanh toán
+                    </Typography>
                     <Typography variant="h6" className="total-price">
-                      {totalAmount.toLocaleString()} đ
-                      {/* {orderItem.price.toLocaleString("vi-VN", {
-                        style: "currency",
-                        currency: "VND",
-                      })} */}
+                      {formatCurrencyVND(totalAmount)}
                     </Typography>
                   </Box>
                 </Box>
@@ -357,6 +618,8 @@ const Order = () => {
                   type="submit"
                   variant="contained"
                   className="place-order-button"
+                  onClick={handleSubmitOrder}
+                  disabled={isLoading}
                 >
                   Đặt hàng
                 </Button>
@@ -377,6 +640,16 @@ const Order = () => {
           setIsOpenModalSelectAddress(true);
         }}
       ></DeliveryAddressModal>
+
+      <VoucherModal
+        open={openVoucherModal}
+        onClose={handleCloseVouchers}
+        onSelect={handleApplyVoucher}
+        fetchAccountVouchers={fetchAccountVouchers}
+        fetchOtherVouchers={fetchOtherVouchers}
+        accountVouchers={unusedVouchers}
+        availableVouchers={otherVouchers}
+      />
     </div>
   );
 };

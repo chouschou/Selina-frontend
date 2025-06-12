@@ -16,11 +16,13 @@ import { updateQuantityCart } from "../../services/cart/updateQuantityCart";
 import { toast } from "react-toastify";
 import { deleteCart } from "../../services/cart/deleteCart";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../../contexts/AuthContext/AuthContext";
 
 const Cart = () => {
   const { carts, refreshCart } = useContext(CartContext);
   const [cartItems, setCartItems] = useState([]);
   const navigate = useNavigate();
+  const {isLoggedIn} = useContext(AuthContext);
 
   useEffect(() => {
     if (carts && carts.length > 0) {
@@ -124,6 +126,22 @@ const Cart = () => {
     navigate(`/detail/${glassColorId}`);
   }
 
+  console.log("selectedItems:", selectedItems);
+  const handleBuyNow = () => {
+    console.log("isLoggedIn:", isLoggedIn);
+    if (!isLoggedIn) {
+      localStorage.setItem("redirectAfterLogin", window.location.pathname);
+      navigate("/login");
+      return;
+    } else {
+      navigate("/order", {
+        state: {
+          items: selectedItems,
+        },
+      });
+    }
+  };
+
   return (
     <div className="cart-page">
       <Header />
@@ -194,6 +212,7 @@ const Cart = () => {
                 variant="contained"
                 className="checkout-button"
                 disabled={selectedItems.length === 0}
+                onClick={handleBuyNow}
               >
                 Mua hàng
               </Button>

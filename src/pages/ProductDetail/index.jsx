@@ -162,34 +162,40 @@ const ProductDetail = () => {
     // const queryString = new URLSearchParams({
     //   items: itemIds.join(","),
     // }).toString();
-    navigate("/order", {
-      state: {
-        items: [
-          {
-            glassColor: {
-              ID: selectedColor,
-              Glass: {
-                ID: product?.ID,
-                Category: product?.Category,
-                Shape: product?.Shape,
-                Material: product?.Material,
-                Description: product?.Description,
-                Age: product?.Age,
+    if (!isLoggedIn) {
+      localStorage.setItem("redirectAfterLogin", window.location.pathname);
+      navigate("/login");
+      return;
+    } else {
+      navigate("/order", {
+        state: {
+          items: [
+            {
+              glassColor: {
+                ID: selectedColor,
+                Glass: {
+                  ID: product?.ID,
+                  Category: product?.Category,
+                  Shape: product?.Shape,
+                  Material: product?.Material,
+                  Description: product?.Description,
+                  Age: product?.Age,
+                },
+                Color: selectedColorDetail?.Color,
+                Quantity: 30,
+                Price: selectedColorDetail?.Price,
+                Discount: selectedColorDetail?.Discount,
+                ModelVirtualTryOn: selectedColorDetail?.ModelVirtualTryOn,
+                Image3DPath: selectedColorDetail?.Image3DPath,
+                Status: selectedColorDetail?.Status,
+                Image: selectedColorDetail?.Images || "images/no_image.png",
               },
-              Color: selectedColorDetail?.Color,
-              Quantity: 30,
-              Price: selectedColorDetail?.Price,
-              Discount: selectedColorDetail?.Discount,
-              ModelVirtualTryOn: selectedColorDetail?.ModelVirtualTryOn,
-              Image3DPath: selectedColorDetail?.Image3DPath,
-              Status: selectedColorDetail?.Status,
-              Image: selectedColorDetail?.Images || "images/no_image.png",
+              quantity: quantity,
             },
-            quantity: quantity,
-          },
-        ],
-      },
-    });
+          ],
+        },
+      });
+    }
   };
   const handleAddCart = async () => {
     if (!isLoggedIn) {
