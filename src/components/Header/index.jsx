@@ -24,10 +24,15 @@ import { AuthContext } from "../../contexts/AuthContext/AuthContext";
 import MessageNotificationModal from "../../pages/MessageSystem/MessageNotificationModal";
 import socket from "../../utils/socket";
 import { getUserInfoByID } from "../../services/user/getUserInfoByID";
+import {
+  CartProvider,
+} from "../../contexts/CartContext/CartProvider";
+import { CartContext } from "../../contexts/CartContext/CartContext";
+import { CartIconRefContext } from "../../contexts/CartContext/CartIconRefContext";
 
 const Header = () => {
   const navigate = useNavigate();
-  const cartCount = 1;
+  // const cartCount = 1;
   // const unreadMessages = 3; // giả lập số lượng tin nhắn chưa đọc
 
   const [anchorEl, setAnchorEl] = useState(null);
@@ -79,7 +84,6 @@ const Header = () => {
       };
     }
   }, [isLoggedIn, storeAccount?.ID, account?.ID, conversations]);
-
 
   useEffect(() => {
     console.log("-----store account:", storeAccount);
@@ -133,6 +137,10 @@ const Header = () => {
     toast.success("Đăng xuất thành công!");
     navigate("/");
   };
+
+  // ----xử lý cart---
+  const { cartIconRef } = useContext(CartIconRefContext);
+  const { totalItems } = useContext(CartContext);
 
   return (
     <AppBar
@@ -258,8 +266,8 @@ const Header = () => {
 
               {isLoggedIn ? (
                 <Box className="icons-container">
-                  <IconButton aria-label="cart" onClick={handleCartClick}>
-                    <Badge badgeContent={cartCount} color="success">
+                  <IconButton  ref={cartIconRef} aria-label="cart" onClick={handleCartClick}>
+                    <Badge badgeContent={totalItems} color="success">
                       <ShoppingCartIcon />
                     </Badge>
                   </IconButton>

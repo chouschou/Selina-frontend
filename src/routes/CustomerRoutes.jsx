@@ -33,7 +33,7 @@ const CustomerRoutes = () => (
     <Route path="/login" element={<LogIn />} />
     <Route path="/register" element={<RegisterForm />} />
     <Route path="/" element={<HomePage />} />
-    <Route path="/detail" element={<ProductDetail />} />
+    <Route path="/detail/:id" element={<ProductDetail />} />
     <Route path="/cart" element={<Cart />} />
     <Route path="/order" element={<Order />} />
     <Route path="/my-orders" element={<MyOrders />} />
@@ -42,7 +42,7 @@ const CustomerRoutes = () => (
     <Route path="/quiz" element={<QuizSelection />} />
     <Route path="/camera-detection" element={<CameraDetection />} />
     <Route path="/results" element={<ResultsPage />} />
-    <Route path="/virtual-try-on" element={<VirtualTryOn/>} />
+    <Route path="/virtual-try-on" element={<VirtualTryOn />} />
     {/* <Route path="/glass-try-on" element={<GlassTryOn/>} />
     <Route path="/glass-AR" element={<GlassesAR/>} /> */}
   </>

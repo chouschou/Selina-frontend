@@ -1,0 +1,74 @@
+.voucher-modal {
+  .voucher-grid {
+    justify-items: center;
+    align-items: center;
+    display: flow !important;
+
+    // padding: 0 20px;
+    .voucher-card {
+      background: linear-gradient(45deg, #ff767c 0%, #fad0c4 99%, #fad0c4 100%);
+      border-radius: 16px;
+      padding: 16px 24px;
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      min-width: 320px;
+      margin-top: 15px;
+      &::before {
+        content: "";
+        position: absolute;
+        left: -10px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 20px;
+        height: 20px;
+        background-color: #f5f5f5;
+        border-radius: 50%;
+      }
+
+      &::after {
+        content: "";
+        position: absolute;
+        right: -10px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 20px;
+        height: 20px;
+        background-color: #f5f5f5;
+        border-radius: 50%;
+      }
+
+      .voucher-content {
+        flex-grow: 1;
+      }
+
+      .discount {
+        font-size: 24px;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 8px;
+      }
+
+      .voucher-details {
+        .usage {
+          font-size: 14px;
+          color: rgba(255, 255, 255, 0.9);
+          margin-bottom: 4px;
+        }
+
+        .validity,
+        .expiry {
+          font-size: 12px;
+          color: rgba(255, 255, 255, 0.8);
+          margin-bottom: 2px;
+        }
+      }
+
+      .more-button {
+        color: white;
+        padding: 4px;
+      }
+    }
+  }
+}

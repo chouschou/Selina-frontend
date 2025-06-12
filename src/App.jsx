@@ -190,7 +190,6 @@
 
 // export default App;
 
-
 // =============================================================================
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -201,6 +200,8 @@ import viVN from "antd/locale/vi_VN"; // dùng tiếng Việt
 import "./App.css";
 import AppContent from "./pages/AppContent";
 import { GlassesProvider } from "./pages/Recommendation/GlassesContext";
+import { CartProvider } from "./contexts/CartContext/CartProvider";
+import { CartIconRefProvider } from "./contexts/CartContext/CartIconRefContext";
 
 const muiTheme = createTheme({
   palette: {
@@ -220,24 +221,27 @@ function App() {
     <ThemeProvider theme={muiTheme}>
       <CssBaseline />
       <GlassesProvider>
-        <Router>
-          <ConfigProvider
-            locale={viVN}
-            theme={{
-              token: {
-                colorPrimary: "#1FAB89", // xanh lá cây
-              },
-              components: {
-                Table: {
-                  // Tùy chọn: Đổi màu dòng selected, hover
-                  headerBg: "#f5f5f5",
-                },
-              },
-            }}
-          >
-            <AppContent />
-          </ConfigProvider>
-        </Router>
+        <CartProvider>
+          <CartIconRefProvider>
+            <Router>
+              <ConfigProvider
+                locale={viVN}
+                theme={{
+                  token: {
+                    colorPrimary: "#1FAB89",
+                  },
+                  components: {
+                    Table: {
+                      headerBg: "#f5f5f5",
+                    },
+                  },
+                }}
+              >
+                <AppContent />
+              </ConfigProvider>
+            </Router>
+          </CartIconRefProvider>
+        </CartProvider>
       </GlassesProvider>
     </ThemeProvider>
   );

@@ -14,7 +14,7 @@ const TabBar = ({ activeTab, onTabChange }) => {
         className={`tab-button ${activeTab === 'Kính mát' ? 'active' : ''}`}
         onClick={() => onTabChange('Kính mát')}
       >
-        Kính mắt
+        Kính mát
       </button>
     </div>
   )

@@ -48,12 +48,11 @@ function StatisticsContent() {
 }
 function AccountStoreContent() {
   return (
-    <Box className="content-section">
-      <h2>Quản lý tài khoản cửa hàng</h2>
-      <p>Thay dổi mật khẩu tài khoản cửa hàng.</p>
-      <ChangeStorePassword></ChangeStorePassword>
-    </Box>
-    // <Statistics/>
+    // <Box className="content-section">
+    //   <h2>Quản lý tài khoản cửa hàng</h2>
+    //   <p>Thay dổi mật khẩu tài khoản cửa hàng.</p>
+    // </Box>
+    <ChangeStorePassword></ChangeStorePassword>
   );
 }
 

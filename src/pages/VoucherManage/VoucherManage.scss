@@ -20,7 +20,7 @@
 
     .add-product-btn {
       padding: 8px 16px;
-      background-color: #4caf50;
+      background-color: #43a070;
       color: white;
       border: none;
       border-radius: 6px;
@@ -30,7 +30,7 @@
       transition: background-color 0.2s;
 
       &:hover {
-        background-color: #43a047;
+        background-color: #43a070;
       }
     }
   }
@@ -55,13 +55,14 @@
 
   .voucher-grid {
     .voucher-card {
-      background: linear-gradient(45deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
+      background: linear-gradient(45deg, #ff767c 0%, #fad0c4 99%, #fad0c4 100%);
       border-radius: 16px;
-      padding: 16px;
+      padding: 16px 24px;
       position: relative;
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
+      min-width: 250px;
 
       &::before {
         content: "";

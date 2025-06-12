@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Container,
@@ -16,111 +16,38 @@ import {
   MenuItem,
   TextField,
   InputAdornment,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Stack,
   Chip,
   FormControl,
   InputLabel,
   Select,
-  Divider,
-} from "@mui/material"
-import SearchIcon from "@mui/icons-material/Search"
-import FilterListIcon from "@mui/icons-material/FilterList"
-import MoreVertIcon from "@mui/icons-material/MoreVert"
-import SaveIcon from "@mui/icons-material/Save"
-import CheckCircleIcon from "@mui/icons-material/CheckCircle"
-import LocalShippingIcon from "@mui/icons-material/LocalShipping"
-import HighlightOffIcon from "@mui/icons-material/HighlightOff"
-import CheckIcon from "@mui/icons-material/Check"
-import AccessTimeIcon from "@mui/icons-material/AccessTime"
-import TaskAltIcon from "@mui/icons-material/TaskAlt"
-import OrderStatusTimeline from "./OrderStatusTimeline"
-import "./OrderManage.scss"
+  Popover,
+} from "@mui/material";
+import SearchIcon from "@mui/icons-material/Search";
+import FilterListIcon from "@mui/icons-material/FilterList";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import LocalShippingIcon from "@mui/icons-material/LocalShipping";
+import HighlightOffIcon from "@mui/icons-material/HighlightOff";
+import CheckIcon from "@mui/icons-material/Check";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import TaskAltIcon from "@mui/icons-material/TaskAlt";
+import "./OrderManage.scss";
+import { formatCurrency, formatOrderID } from "../../services/formatToShow";
+import UpdateStatusOrder from "./UpdateStatusOrder";
+import DetailOrder from "./DetailOrder";
 
-// Sample order data
-const mockOrders = [
-  {
-    id: "1",
-    orderId: "ORD001",
-    customerName: "Kiều Minh Anh",
-    orderDate: "12:00, 13/03/2025",
-    total: 220000,
-    status: "waiting",
-    isPaid: true,
-  },
-  {
-    id: "2",
-    orderId: "ORD002",
-    customerName: "Trần Văn Bình",
-    orderDate: "15:30, 13/03/2025",
-    total: 350000,
-    status: "confirmed",
-    isPaid: true,
-  },
-  {
-    id: "3",
-    orderId: "ORD003",
-    customerName: "Nguyễn Thị Cúc",
-    orderDate: "09:45, 14/03/2025",
-    total: 180000,
-    status: "shipping",
-    isPaid: true,
-  },
-  {
-    id: "4",
-    orderId: "ORD004",
-    customerName: "Lê Duy Dũng",
-    orderDate: "16:20, 14/03/2025",
-    total: 420000,
-    status: "completed",
-    isPaid: true,
-  },
-  {
-    id: "5",
-    orderId: "ORD005",
-    customerName: "Phạm Thị Hoa",
-    orderDate: "11:10, 15/03/2025",
-    total: 190000,
-    status: "cancelled",
-    isPaid: false,
-  },
-  {
-    id: "6",
-    orderId: "ORD006",
-    customerName: "Phạm Thị Minh",
-    orderDate: "11:10, 12/03/2025",
-    total: 290000,
-    status: "cancelled",
-    isPaid: false,
-  },
-]
-
-// Sample order items for detail view
-const mockOrderItems = [
-  {
-    id: "1",
-    product: "Gọng kính cận R5603",
-    price: 120000,
-    quantity: 1,
-    total: 120000,
-  },
-  {
-    id: "2",
-    product: "Tròng kính cận",
-    price: 100000,
-    quantity: 1,
-    total: 100000,
-  },
-]
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import dayjs from "dayjs";
+import { getAllOrders } from "../../services/order/getAllOrders";
+import { updateStatusRefund } from "../../services/order/updateStatusRefund";
+import { toast } from "react-toastify";
+import { updateStatus } from "../../services/order/updateStatus";
+import { order } from "@mui/system";
 
 // Order status data for formatting
 const statusData = {
   waiting: {
-    label: "Chờ xác nhận",
+    label: "Chưa xác nhận",
     color: "warning",
     icon: <AccessTimeIcon fontSize="small" />,
   },
@@ -139,96 +66,148 @@ const statusData = {
     color: "success",
     icon: <TaskAltIcon fontSize="small" />,
   },
-  cancelled: {
+  canceled: {
     label: "Đã hủy",
     color: "error",
     icon: <HighlightOffIcon fontSize="small" />,
   },
-}
+  returned: {
+    label: "Đã trả hàng",
+    color: "error",
+    icon: <HighlightOffIcon fontSize="small" />,
+  },
+  refunded: {
+    label: "Đã hoàn tiền",
+    color: "info",
+    icon: <HighlightOffIcon fontSize="small" />,
+  },
+  unrefunded: {
+    label: "Chưa hoàn tiền",
+    color: "warn",
+    icon: <HighlightOffIcon fontSize="small" />,
+  },
+};
 
 const OrderManage = () => {
-  const [orders, setOrders] = useState(mockOrders)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  //   const [dateFilter, setDateFilter] = useState('all')
-  const [selectedOrder, setSelectedOrder] = useState(null)
-  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false)
-  const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false)
-  const [newStatus, setNewStatus] = useState("")
+  // const [orders, setOrders] = useState(mockOrders);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
+  const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
+  const [newStatus, setNewStatus] = useState("");
 
-  const [page, setPage] = useState(0)
-  const rowsPerPage = 10
-  const [sortAsc, setSortAsc] = useState(true)
+  const [anchorElTimeFilter, setAnchorElTimeFilter] = useState(null);
+  const [selectedMonth, setSelectedMonth] = useState(null);
+  const [displayedMonthText, setDisplayedMonthText] = useState("");
+  const [timeFilter, setTimeFilter] = useState("all");
 
-  // Action menu
-  const [anchorEl, setAnchorEl] = useState(null)
-  const [menuOrderId, setMenuOrderId] = useState(null)
-  const isMenuOpen = Boolean(anchorEl)
+  const [page, setPage] = useState(0);
+  const rowsPerPage = 10;
+  const sortAsc = false;
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [menuOrderId, setMenuOrderId] = useState(null);
+  const isMenuOpen = Boolean(anchorEl);
 
-  // Handle menu open
+  const [allOrders, setAllOrders] = useState([]);
+
+  const handleTimeFilterClick = (event) => {
+    setAnchorElTimeFilter(event.currentTarget);
+  };
+
+  const handleTimeFilterClose = () => {
+    setAnchorElTimeFilter(null);
+  };
+
+  const handleTextMonthInput = (e) => {
+    const value = e.target.value;
+    setDisplayedMonthText(value);
+    const regex = /^(0[1-9]|1[0-2])\/\d{4}$/;
+    if (regex.test(value)) {
+      const [mm, yyyy] = value.split("/");
+      const parsed = dayjs(`${yyyy}-${mm}-01`);
+      setSelectedMonth(parsed);
+      setTimeFilter(`${yyyy}-${mm}`);
+    } else if (value === "") {
+      setSelectedMonth(null);
+      setTimeFilter("all");
+    }
+  };
+
   const handleMenuOpen = (event, orderId) => {
-    setAnchorEl(event.currentTarget)
-    setMenuOrderId(orderId)
-  }
+    setAnchorEl(event.currentTarget);
+    setMenuOrderId(orderId);
+  };
 
-  // Handle menu close
   const handleMenuClose = () => {
-    setAnchorEl(null)
-    setMenuOrderId(null)
-  }
+    setAnchorEl(null);
+    setMenuOrderId(null);
+  };
 
-  // Filter orders based on search term and filters
-  const filteredOrders = orders.filter((order) => {
-    const matchesSearch =
-      order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.orderId.toLowerCase().includes(searchTerm.toLowerCase())
+  const currentOrder = allOrders.find((o) => o.id === menuOrderId);
 
-    const matchesStatusFilter =
-      statusFilter === "all" || order.status === statusFilter
+  const isUpdatable =
+    currentOrder &&
+    currentOrder.status !== "completed" &&
+    currentOrder.status !== "shipping" &&
+    (!["canceled", "returned"].includes(currentOrder.status) ||
+      currentOrder.isPaid);
 
-    return matchesSearch && matchesStatusFilter
-  })
+  const checkRefundable = (order) =>
+    order && ["canceled", "returned"].includes(order.status) && order.isPaid;
 
-  // View order details
+  const isRefundable =
+    checkRefundable(currentOrder) || checkRefundable(selectedOrder);
+
   const handleViewDetails = (order) => {
-    setSelectedOrder(order)
-    setIsDetailDialogOpen(true)
-    handleMenuClose()
-  }
+    setSelectedOrder(order);
+    setIsDetailDialogOpen(true);
+    handleMenuClose();
+  };
 
-  // Open status change dialog
-  const handleChangeStatus = () => {
-    const order = orders.find((o) => o.id === menuOrderId)
-    if (order) {
-      setSelectedOrder(order)
-      setNewStatus(order.status)
-      setIsStatusDialogOpen(true)
+  const handleChangeStatus = async () => {
+    if (isRefundable) {
+      // const idOrderStatus = order
+      try {
+        await updateStatusRefund(currentOrder?.id ?? selectedOrder?.id, {
+          RefundAt: new Date().toISOString(),
+        });
+        toast.success("Xác nhận đã hoàn tiền thành công!");
+        fetchAllOrders();
+      } catch (error) {
+        toast.error("Lỗi xác nhận đã hoàn tiền!", error);
+      }
+    } else {
+      setIsDetailDialogOpen(false);
+      setSelectedOrder(currentOrder);
+      // setNewStatus(currentOrder.status);
+      setIsStatusDialogOpen(true);
     }
-    handleMenuClose()
-  }
 
-  // Update order status
-  const handleUpdateStatus = () => {
+    handleMenuClose();
+  };
+
+  const handleUpdateStatus = async () => {
     if (selectedOrder && newStatus) {
-      setOrders(
-        orders.map((order) =>
-          order.id === selectedOrder.id
-            ? { ...order, status: newStatus }
-            : order
-        )
-      )
-      setIsStatusDialogOpen(false)
+      setIsStatusDialogOpen(false);
+      try {
+        await updateStatus(selectedOrder.id, {
+          Status: newStatus,
+          TransactionCode: null,
+        });
+        fetchAllOrders();
+
+        toast.success("Cập nhật trạng thái thành công!");
+      } catch (error) {
+        toast.error("Lỗi cập nhật trạng thái", error);
+      }
+
+      setNewStatus("");
     }
-  }
+  };
 
-  // Format currency
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("vi-VN").format(amount) + " đ"
-  }
-
-  // Get chip color for status
   const getStatusChip = (status) => {
-    const statusInfo = statusData[status]
+    const statusInfo = statusData[status];
     return (
       <Chip
         icon={statusInfo.icon}
@@ -237,27 +216,67 @@ const OrderManage = () => {
         size="small"
         variant="outlined"
       />
-    )
-  }
+    );
+  };
+
+  const filteredOrders = allOrders.filter((order) => {
+    const matchesSearch =
+      order.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      formatOrderID(order.id, order.orderDate)
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+
+    const matchesStatusFilter =
+      statusFilter === "all" ||
+      order.status === statusFilter ||
+      (statusFilter === "refunded" &&
+        checkRefundable(order) &&
+        order.isRefunded === true) ||
+      (statusFilter === "unrefunded" &&
+        checkRefundable(order) &&
+        order.isRefunded === false);
+
+    // Lấy phần ngày từ "12:00, 13/09/2025"
+    const dateParts = order.orderDate.split(", ");
+    const dateStr = dateParts.length === 2 ? dateParts[1] : ""; // "13/09/2025"
+    const [day, month, year] = dateStr.split("/");
+    const orderMonthYear = `${year}-${month.padStart(2, "0")}`;
+
+    const matchesTimeFilter =
+      timeFilter === "all" || orderMonthYear === timeFilter;
+
+    return matchesSearch && matchesStatusFilter && matchesTimeFilter;
+  });
 
   const sortedOrders = filteredOrders.sort((a, b) => {
     const timeA = new Date(
       a.orderDate.split(", ")[1].split("/").reverse().join("/") +
         " " +
         a.orderDate.split(", ")[0]
-    )
+    );
     const timeB = new Date(
       b.orderDate.split(", ")[1].split("/").reverse().join("/") +
         " " +
         b.orderDate.split(", ")[0]
-    )
-    return sortAsc ? timeA - timeB : timeB - timeA
-  })
+    );
+    return sortAsc ? timeA - timeB : timeB - timeA;
+  });
 
-  const paginatedOrders = filteredOrders.slice(
+  const paginatedOrders = sortedOrders.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
-  )
+  );
+
+  const fetchAllOrders = async () => {
+    const response = await getAllOrders();
+    setAllOrders(response);
+  };
+
+  useEffect(() => {
+    fetchAllOrders();
+  }, []);
+
+  console.log("orders---:", allOrders);
 
   return (
     <Container maxWidth="lg" className="order-manage-container">
@@ -295,29 +314,60 @@ const OrderManage = () => {
               label="Trạng thái"
             >
               <MenuItem value="all">Tất cả</MenuItem>
-              <MenuItem value="waiting">Chờ xác nhận</MenuItem>
+              <MenuItem value="waiting">Chưa xác nhận</MenuItem>
               <MenuItem value="confirmed">Đã xác nhận</MenuItem>
               <MenuItem value="shipping">Đang giao hàng</MenuItem>
               <MenuItem value="completed">Hoàn thành</MenuItem>
-              <MenuItem value="cancelled">Đã hủy</MenuItem>
+              <MenuItem value="canceled">Đã hủy</MenuItem>
+              <MenuItem value="returned">Đã trả hàng</MenuItem>
+              <MenuItem value="refunded">Đã hoàn tiền</MenuItem>
+              <MenuItem value="unrefunded">Chưa hoàn tiền</MenuItem>
             </Select>
           </FormControl>
         </Box>
       </Paper>
 
       <TableContainer component={Paper} className="orders-table-container">
-        <Table aria-label="orders table">
+        <Table>
           <TableHead>
             <TableRow>
               <TableCell>STT</TableCell>
               <TableCell>Mã đơn hàng</TableCell>
               <TableCell>
-                Thời gian đặt{" "}
-                <IconButton size="small" onClick={() => setSortAsc(!sortAsc)}>
+                Thời gian đặt
+                <IconButton size="small" onClick={handleTimeFilterClick}>
                   <FilterListIcon fontSize="small" />
                 </IconButton>
-              </TableCell>
+                <Popover
+                  open={Boolean(anchorElTimeFilter)}
+                  anchorEl={anchorElTimeFilter}
+                  onClose={handleTimeFilterClose}
+                  anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                >
+                  <Box p={2} display="flex" flexDirection="column" gap={2}>
+                    <TextField
+                      label="Tháng đặt (MM/YYYY)"
+                      value={displayedMonthText}
+                      onChange={handleTextMonthInput}
+                      size="small"
+                      placeholder="MM/YYYY"
+                    />
 
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      onClick={() => {
+                        setSelectedMonth(null);
+                        setTimeFilter("all");
+                        setDisplayedMonthText("");
+                        handleTimeFilterClose();
+                      }}
+                    >
+                      Bỏ lọc thời gian
+                    </Button>
+                  </Box>
+                </Popover>
+              </TableCell>
               <TableCell>Khách hàng</TableCell>
               <TableCell>Tổng tiền</TableCell>
               <TableCell>Thanh toán</TableCell>
@@ -330,7 +380,9 @@ const OrderManage = () => {
               paginatedOrders.map((order, index) => (
                 <TableRow key={order.orderId}>
                   <TableCell>{index + 1}</TableCell>
-                  <TableCell>{order.orderId}</TableCell>
+                  <TableCell>
+                    {formatOrderID(order.id, order.orderDate)}
+                  </TableCell>
                   <TableCell>{order.orderDate}</TableCell>
                   <TableCell>{order.customerName}</TableCell>
                   <TableCell>{formatCurrency(order.total)}</TableCell>
@@ -346,14 +398,20 @@ const OrderManage = () => {
                     ) : (
                       <Chip
                         icon={<HighlightOffIcon fontSize="small" />}
-                        label="Chưa thanh toán"
+                        label="Thanh toán khi nhận hàng"
                         color="default"
                         size="small"
                         variant="outlined"
                       />
                     )}
                   </TableCell>
-                  <TableCell>{getStatusChip(order.status)}</TableCell>
+                  <TableCell>
+                    {getStatusChip(order.status)}{" "}
+                    {checkRefundable(order) &&
+                      getStatusChip(
+                        order.isRefunded ? "refunded" : "unrefunded"
+                      )}
+                  </TableCell>
                   <TableCell>
                     <IconButton
                       size="small"
@@ -401,222 +459,45 @@ const OrderManage = () => {
         </Button>
       </Box>
 
-      {/* Action Menu */}
       <Menu anchorEl={anchorEl} open={isMenuOpen} onClose={handleMenuClose}>
         <MenuItem
           onClick={() => {
-            const order = orders.find((o) => o.id === menuOrderId)
-            if (order) handleViewDetails(order)
+            // const order = allOrders.find((o) => o.id === menuOrderId);
+            if (currentOrder) handleViewDetails(currentOrder);
           }}
         >
           Xem chi tiết
         </MenuItem>
-        <MenuItem onClick={handleChangeStatus}>Cập nhật trạng thái</MenuItem>
+        {isUpdatable && !currentOrder.isRefunded && (
+          <MenuItem onClick={handleChangeStatus}>
+            {isRefundable ? "Xác nhận đã hoàn tiền" : "Cập nhật trạng thái"}
+          </MenuItem>
+        )}
       </Menu>
 
-      {/* Order Detail Dialog */}
-      <Dialog
+      <DetailOrder
         open={isDetailDialogOpen}
         onClose={() => setIsDetailDialogOpen(false)}
-        maxWidth="md"
-        fullWidth
-      >
-        <DialogTitle>Chi tiết đơn hàng {selectedOrder?.orderId}</DialogTitle>
-        <DialogContent dividers>
-          {selectedOrder && (
-            <>
-              <Box className="order-detail-status-section">
-                <OrderStatusTimeline status={selectedOrder.status} />
-              </Box>
+        selectedOrder={selectedOrder}
+        // onRequestStatusUpdate={() => {
+        //   setIsDetailDialogOpen(false);
+        //   setNewStatus(selectedOrder?.status || "");
+        //   setIsStatusDialogOpen(true);
+        // }}
+        onRequestStatusUpdate={handleChangeStatus}
+        getStatusChip={getStatusChip}
+      />
 
-              <Box className="order-detail-info-section">
-                <Typography variant="subtitle1" fontWeight={600}>
-                  Thông tin đơn hàng
-                </Typography>
-                <Stack direction="row" spacing={2} mt={1}>
-                  <Box>
-                    <Typography variant="body2" color="text.secondary">
-                      Mã đơn hàng
-                    </Typography>
-                    <Typography variant="body1" fontWeight={500}>
-                      {selectedOrder.orderId}
-                    </Typography>
-                  </Box>
-                  <Box>
-                    <Typography variant="body2" color="text.secondary">
-                      Ngày đặt
-                    </Typography>
-                    <Typography variant="body1" fontWeight={500}>
-                      {selectedOrder.orderDate}
-                    </Typography>
-                  </Box>
-                  <Box>
-                    <Typography variant="body2" color="text.secondary">
-                      Trạng thái
-                    </Typography>
-                    <Box mt={0.5}>{getStatusChip(selectedOrder.status)}</Box>
-                  </Box>
-                  <Box>
-                    <Typography variant="body2" color="text.secondary">
-                      Thanh toán
-                    </Typography>
-                    <Box mt={0.5}>
-                      {selectedOrder.isPaid ? (
-                        <Chip
-                          icon={<CheckCircleIcon fontSize="small" />}
-                          label="Đã thanh toán"
-                          color="success"
-                          size="small"
-                          variant="outlined"
-                        />
-                      ) : (
-                        <Chip
-                          icon={<HighlightOffIcon fontSize="small" />}
-                          label="Chưa thanh toán"
-                          color="default"
-                          size="small"
-                          variant="outlined"
-                        />
-                      )}
-                    </Box>
-                  </Box>
-                </Stack>
-              </Box>
-
-              <Divider sx={{ my: 2 }} />
-
-              <Box className="customer-info-section">
-                <Typography variant="subtitle1" fontWeight={600}>
-                  Thông tin khách hàng
-                </Typography>
-                <Box mt={1}>
-                  <Typography variant="body2" color="text.secondary">
-                    Họ tên
-                  </Typography>
-                  <Typography variant="body1" fontWeight={500}>
-                    {selectedOrder.customerName}
-                  </Typography>
-                </Box>
-                <Box mt={1}>
-                  <Typography variant="body2" color="text.secondary">
-                    Địa chỉ giao hàng
-                  </Typography>
-                  <Typography variant="body1" fontWeight={500}>
-                    123 Đường ABC, Phường XYZ, Quận 1, TP.HCM
-                  </Typography>
-                </Box>
-                <Box mt={1}>
-                  <Typography variant="body2" color="text.secondary">
-                    Số điện thoại
-                  </Typography>
-                  <Typography variant="body1" fontWeight={500}>
-                    0912345678
-                  </Typography>
-                </Box>
-              </Box>
-
-              <Divider sx={{ my: 2 }} />
-
-              <Box className="order-items-section">
-                <Typography variant="subtitle1" fontWeight={600}>
-                  Sản phẩm
-                </Typography>
-                <TableContainer sx={{ mt: 1 }}>
-                  <Table size="small">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Sản phẩm</TableCell>
-                        <TableCell align="right">Đơn giá</TableCell>
-                        <TableCell align="right">Số lượng</TableCell>
-                        <TableCell align="right">Thành tiền</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {mockOrderItems.map((item) => (
-                        <TableRow key={item.id}>
-                          <TableCell>{item.product}</TableCell>
-                          <TableCell align="right">
-                            {formatCurrency(item.price)}
-                          </TableCell>
-                          <TableCell align="right">{item.quantity}</TableCell>
-                          <TableCell align="right">
-                            {formatCurrency(item.total)}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                      <TableRow>
-                        <TableCell colSpan={3} align="right">
-                          <Typography variant="subtitle2">
-                            Tổng cộng:
-                          </Typography>
-                        </TableCell>
-                        <TableCell align="right">
-                          <Typography variant="subtitle2" fontWeight={600}>
-                            {formatCurrency(selectedOrder.total)}
-                          </Typography>
-                        </TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </Box>
-            </>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setIsDetailDialogOpen(false)}>Đóng</Button>
-          <Button
-            variant="outlined"
-            color="primary"
-            startIcon={<SaveIcon />}
-            onClick={() => {
-              setIsDetailDialogOpen(false)
-              setIsStatusDialogOpen(true)
-            }}
-          >
-            Cập nhật trạng thái
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Update Status Dialog */}
-      <Dialog
+      <UpdateStatusOrder
         open={isStatusDialogOpen}
         onClose={() => setIsStatusDialogOpen(false)}
-      >
-        <DialogTitle>Cập nhật trạng thái đơn hàng</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Chọn trạng thái mới cho đơn hàng {selectedOrder?.orderId}
-          </DialogContentText>
-          <FormControl fullWidth margin="dense">
-            <InputLabel>Trạng thái</InputLabel>
-            <Select
-              value={newStatus}
-              onChange={(e) => setNewStatus(e.target.value)}
-              label="Trạng thái"
-            >
-              <MenuItem value="waiting">Chờ xác nhận</MenuItem>
-              <MenuItem value="confirmed">Đã xác nhận</MenuItem>
-              <MenuItem value="shipping">Đang giao hàng</MenuItem>
-              <MenuItem value="completed">Hoàn thành</MenuItem>
-              <MenuItem value="cancelled">Đã hủy</MenuItem>
-            </Select>
-          </FormControl>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setIsStatusDialogOpen(false)}>Hủy</Button>
-          <Button
-            onClick={handleUpdateStatus}
-            variant="contained"
-            color="primary"
-          >
-            Cập nhật
-          </Button>
-        </DialogActions>
-      </Dialog>
+        selectedOrder={selectedOrder}
+        newStatus={newStatus}
+        setNewStatus={setNewStatus}
+        handleUpdateStatus={handleUpdateStatus}
+      />
     </Container>
-  )
-}
+  );
+};
 
-export default OrderManage
+export default OrderManage;

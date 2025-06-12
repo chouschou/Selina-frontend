@@ -54,9 +54,9 @@ const AddProductModal = ({ open, onClose, onSuccess }) => {
       return; // lỗi, không submit
     }
 
+      console.log("data", data);
     setIsSubmitting(true);
     try {
-      console.log("data", data);
       const formData = new FormData();
 
       formData.append("Category", data.Category);
@@ -174,9 +174,9 @@ const AddProductModal = ({ open, onClose, onSuccess }) => {
           type="submit"
           sx={{ color: "#fff" }}
           disabled={isSubmitting}
-          startIcon={
-            isSubmitting ? <CircularProgress size={20} color="inherit" /> : null
-          }
+          // startIcon={
+          //   isSubmitting ? <CircularProgress size={20} color="inherit" /> : null
+          // }
         >
           {isSubmitting ? "Đang lưu..." : "Lưu"}
         </Button>

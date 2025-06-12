@@ -1,36 +1,36 @@
 import { Box, Typography, Avatar, Rating } from "@mui/material"
 import "./ReviewItem.scss"
+import { formatDateTimeVN } from "../../services/formatDatetimeVN"
 
 const ReviewItem = ({ review }) => {
-  const { user, rating, date, comment, images } = review
 
   return (
     <Box className="review-item">
       <Box className="review-header">
-        <Avatar src={user.avatar} alt={user.name} className="user-avatar" />
+        <Avatar src={review?.Customer.Avatar} alt={review.Customer.Name} className="user-avatar" />
         <Box className="user-info">
           <Typography variant="subtitle2" className="user-name">
-            {user.name}
+            {review.Customer.Name}
           </Typography>
           <Box className="rating-date">
-            <Rating value={rating} size="small" readOnly />
+            <Rating value={review.Value} size="small" readOnly />
             <Typography variant="caption" className="review-date">
-              {date}
+              {formatDateTimeVN(review.CreateAt)}
             </Typography>
           </Box>
         </Box>
       </Box>
 
       <Typography variant="body2" className="review-comment">
-        {comment}
+        {review.Comment}
       </Typography>
 
-      {images && images.length > 0 && (
+      {review.Images && review.Images.length > 0 && (
         <Box className="review-images">
-          {images.map((image, index) => (
+          {review.Images.map((image, index) => (
             <img
               key={index}
-              src={image || "/placeholder.svg"}
+              src={image.ImagePath || "/placeholder.svg"}
               alt={`Review image ${index + 1}`}
               className="review-image"
             />

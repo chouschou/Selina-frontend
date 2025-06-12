@@ -13,7 +13,7 @@ const ReviewList = ({ reviews }) => {
   // Filter reviews based on active tab
   const getFilteredReviews = () => {
     if (activeTab === 0) return reviews // All reviews
-    return reviews.filter((review) => review.rating === 6 - activeTab) // 5, 4, 3, 2, 1 stars
+    return reviews.filter((review) => review.Value === 6 - activeTab) // 5, 4, 3, 2, 1 stars
   }
 
   const filteredReviews = getFilteredReviews()
@@ -42,7 +42,7 @@ const ReviewList = ({ reviews }) => {
 
       <Box className="reviews-container">
         {filteredReviews.length > 0 ? (
-          filteredReviews.map((review) => <ReviewItem key={review.id} review={review} />)
+          filteredReviews.map((review) => <ReviewItem key={review.ID} review={review} />)
         ) : (
           <Typography className="no-reviews">Không có đánh giá nào trong mục này</Typography>
         )}

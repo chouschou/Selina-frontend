@@ -22,6 +22,8 @@ import {
   FormHelperText,
   FormLabel,
   IconButton,
+  FormGroup,
+  Checkbox,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
@@ -50,6 +52,7 @@ const ProductDetailsForm = forwardRef((props, ref) => {
     { name: "Trắng", hex: "#FFFFFF" },
     { name: "Cam", hex: "#FFA500" },
     { name: "Bạc", hex: "#C0C0C0" },
+    { name: "Khác", hex: "Khác" },
   ];
 
   const shapeOptions = [
@@ -66,11 +69,11 @@ const ProductDetailsForm = forwardRef((props, ref) => {
     "other",
   ];
   const materialOptions = ["Nhựa", "Kim loại", "Titanium"];
-
+  const ageOptions = ["Nam", "Nữ", "Trẻ em"];
   const [selectedType, setSelectedType] = useState("");
   const [selectedShape, setSelectedShape] = useState("");
   const [selectedMaterial, setSelectedMaterial] = useState("");
-  const [ageGroup, setAgeGroup] = useState("");
+  const [ageGroup, setAgeGroup] = useState([]);
   const [description, setDescription] = useState("");
   const maxCharacters = 500;
   const [errors, setErrors] = useState({});
@@ -99,7 +102,12 @@ const ProductDetailsForm = forwardRef((props, ref) => {
       setSelectedType(initialData.Category || "");
       setSelectedShape(initialData.Shape?.toLowerCase() || "");
       setSelectedMaterial(initialData.Material || "");
-      setAgeGroup(initialData.Age || "");
+      setAgeGroup(
+        initialData.Age
+          ? initialData.Age.split(",").map((item) => item.trim())
+          : []
+      );
+
       setDescription(initialData.Description);
     }
     if (initialData?.GlassColors) {
@@ -239,7 +247,7 @@ const ProductDetailsForm = forwardRef((props, ref) => {
       if (!firstInvalidField) firstInvalidField = "selectedMaterial";
     }
 
-    if (!ageGroup) {
+    if (ageGroup.length === 0) {
       newErrors["ageGroup"] = "Vui lòng chọn độ tuổi";
       firstInvalidField = "ageGroup";
     }
@@ -404,36 +412,37 @@ const ProductDetailsForm = forwardRef((props, ref) => {
               gutterBottom
               style={{ color: "#bc5700" }}
             >
-              Độ tuổi <span style={{ color: "red" }}>*</span>
+              Giới tính <span style={{ color: "red" }}>*</span>
             </Typography>
-            <RadioGroup
-              name={`ageGroup`}
-              value={ageGroup}
-              onChange={(e) => {
-                setAgeGroup(e.target.value);
-                // Clear lỗi nếu có
-                const errorKey = "ageGroup";
-                if (errors[errorKey]) {
-                  setErrors((prev) => {
-                    const { [errorKey]: _, ...rest } = prev;
-                    return rest;
-                  });
-                }
-              }}
-              row
-            >
-              <FormControlLabel
-                value="Người lớn"
-                control={<Radio disabled={!editable}/>}
-                label="Người lớn"
-                sx={{ marginRight: "40px" }}
-              />
-              <FormControlLabel
-                value="Trẻ em"
-                control={<Radio disabled={!editable}/>}
-                label="Trẻ em"
-              />
-            </RadioGroup>
+            <FormGroup row>
+              {ageOptions.map((option) => (
+                <FormControlLabel
+                  key={option}
+                  control={
+                    <Checkbox
+                      checked={ageGroup.includes(option)}
+                      onChange={(e) => {
+                        const newValue = e.target.checked
+                          ? [...ageGroup, option]
+                          : ageGroup.filter((item) => item !== option);
+                        setAgeGroup(newValue);
+
+                        // Clear lỗi nếu có
+                        const errorKey = "ageGroup";
+                        if (errors[errorKey]) {
+                          setErrors((prev) => {
+                            const { [errorKey]: _, ...rest } = prev;
+                            return rest;
+                          });
+                        }
+                      }}
+                    />
+                  }
+                  label={option}
+                  sx={{ marginRight: "40px" }}
+                />
+              ))}
+            </FormGroup>
             <FormHelperText sx={{ mb: 2 }}>{errors.ageGroup}</FormHelperText>
           </FormControl>
         </Box>

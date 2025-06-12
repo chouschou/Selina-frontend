@@ -14,6 +14,7 @@ import UpdateProductModal from "../../components/UpdateProductModal/UpdateProduc
 import { deleteProduct } from "../../services/product/deleteProduct";
 import DeleteButtonWithCheck from "../../components/DeleteProduct/DeleteButtonWithCheck";
 import ConfirmDeleteModal from "../../components/ConfirmDeleteModal/ConfirmDeleteModal";
+import { toast } from "react-toastify";
 
 const ProductManagement = () => {
   const [activeTab, setActiveTab] = useState("Gọng kính");
@@ -54,7 +55,7 @@ const ProductManagement = () => {
       setDeletingVariantId(null);
       fetchProductsByCategory();
     } catch (error) {
-      console.error("Lỗi khi xóa:", error);
+      toast.error("Lỗi khi xóa:", error);
     }
   };
 

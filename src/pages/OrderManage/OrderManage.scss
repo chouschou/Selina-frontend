@@ -1,10 +1,10 @@
 .order-manage-container {
-  padding-top: 90px;
+  padding-top: 100px;
   padding-bottom: 40px;
 
   .page-header {
     margin-bottom: 24px;
-    
+
     .page-title {
       font-weight: 600;
       color: #333;
@@ -23,41 +23,51 @@
       flex: 2;
     }
 
-    .status-filter, .date-filter {
+    .status-filter,
+    .date-filter {
       flex: 1;
     }
   }
 
   .orders-table-container {
     margin-bottom: 24px;
-    
+
     th {
       font-weight: 600;
       background-color: #f5f5f5;
     }
   }
+}
+// Order detail dialog styling
+.order-detail-status-section {
+  margin-bottom: 1px;
+}
 
-  // Order detail dialog styling
-  .order-detail-status-section {
-    margin-bottom: 24px;
-  }
+.order-detail-info-section,
+.customer-info-section,
+.order-items-section {
+  margin-bottom: 16px;
+}
 
-  .order-detail-info-section, 
-  .customer-info-section,
-  .order-items-section {
-    margin-bottom: 16px;
-  }
+// Status timeline
+.order-status-timeline {
+  padding: 24px 0;
+}
 
-  // Status timeline
-  .order-status-timeline {
-    padding: 24px 0;
-  }
+.cancelled-status-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 0;
+}
 
-  .cancelled-status-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 24px 0;
-  }
+.subtitle {
+  color: #893d2f;
+  background-color: aquamarine;
+  display: inline;
+}
+
+.stack-info-order-section {
+  gap: 20px;
 }

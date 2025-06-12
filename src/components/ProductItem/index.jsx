@@ -6,51 +6,42 @@ import {
   Button,
   Box,
   IconButton,
+  Checkbox,
+  FormControlLabel,
+  FormGroup,
 } from "@mui/material";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import StarIcon from "@mui/icons-material/Star";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import "./ProductItem.scss";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { getProductColorsById } from "../../services/product/getProductColorsById";
 import { toast } from "react-toastify";
 import hexToColorName from "../../services/hexToColorName";
-
-const translateShape = (shape) => {
-  switch (shape.toLowerCase()) {
-    case 'round':
-      return 'tròn';
-    case 'square':
-      return 'vuông';
-    case 'oval':
-      return 'bầu dục';
-    case 'rectangle':
-      return 'chữ nhật';
-    case 'heart':
-      return 'trái tim';
-    case 'cat eye':
-    case 'cateye':
-      return 'mắt mèo';
-    case 'hexagon':
-      return 'lục giác';
-    case 'geometric':
-      return 'hình học';
-    default:
-      return shape; // fallback nếu chưa có bản dịch
-  }
-};
+import {
+  formatCurrencyVND,
+  generateProductName,
+  translateShapeToVietnamese,
+} from "../../services/formatToShow";
+import { addCart } from "../../services/cart/addCart";
+import { updateQuantityCart } from "../../services/cart/updateQuantityCart";
+import { CartContext } from "../../contexts/CartContext/CartContext";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../../contexts/AuthContext/AuthContext";
+import { getRatingByColorId } from "../../services/rating/getRatingByColorId";
 
 const ProductItem = ({ product, onClick }) => {
   // const { image, originalPrice, salePrice, description, colors, rating } = product
-  const [colors, setColors] = useState(['#000000']);
-  console.log("--product--", product);
+  const [colors, setColors] = useState([]);
+  const ageOptions = ["Nam", "Nữ", "Trẻ em"];
+  const [rating, setRating] = useState(0);
+
   useEffect(() => {
     const fetchColors = async () => {
       try {
+        if (!product?.ID) return;
+
         const colors = await getProductColorsById(product.ID);
-        // const { data, colors } = await getProductColorsById(product.ID);
-        // setColorDetails(data);
-        console.log("colors---", colors.colors);
         setColors(colors.colors);
       } catch (err) {
         toast.error(err);
@@ -58,40 +49,107 @@ const ProductItem = ({ product, onClick }) => {
     };
 
     fetchColors();
-  }, [product.ID, setColors]);
+
+    const fetchRating = async () => {
+      try {
+        if (!product?.ID) return;
+
+        const rating = await getRatingByColorId(product?.GlassColors[0].ID);
+        setRating(rating.average);
+      } catch (err) {
+        toast.error(err);
+      }
+    } 
+    fetchRating();
+  }, [product?.ID]);
+
   console.log("colors====", colors);
+
+  const { carts, refreshCart } = useContext(CartContext);
+  const navigate = useNavigate();
+  const { isLoggedIn } = useContext(AuthContext);
+
+  const handleAddCart = async () => {
+    if (!isLoggedIn) {
+      localStorage.setItem("redirectAfterLogin", window.location.pathname);
+      navigate("/login");
+      return;
+    }
+    console.log("--product--", product);
+    const existingCartItem = carts.find(
+      (cart) => cart.glassColor?.ID === product?.GlassColors[0].ID
+    );
+
+    if (existingCartItem) {
+      // Đã có trong giỏ → cập nhật số lượng
+      const data = {
+        quantity: existingCartItem.quantity + 1,
+      };
+
+      try {
+        await updateQuantityCart(existingCartItem.id, data);
+        toast.success("Cập nhật số lượng trong giỏ hàng thành công!");
+        refreshCart();
+        // animateFlyToCart();
+      } catch (error) {
+        toast.error("Lỗi cập nhật giỏ hàng!", error.message || error);
+      }
+    } else {
+      // Chưa có → thêm mới
+      const data = {
+        glassColorId: product?.GlassColors[0].ID,
+        quantity: 1,
+      };
+
+      try {
+        await addCart(data);
+        toast.success("Thêm vào giỏ hàng thành công!");
+        // animateFlyToCart();
+        refreshCart();
+      } catch (error) {
+        toast.error("Lỗi thêm vào giỏ hàng!", error.message || error);
+      }
+    }
+  };
   return (
-    <Card className="product-item" onClick={onClick}>
+    <Card className="product-item">
       <Box className="product-image-container">
         <CardMedia
           component="img"
-          image={product?.GlassColors[0]?.Images?.[0] || "images/glass.png"}
-          alt={product?.Description}
+          image={product?.GlassColors?.[0]?.Images?.[0] ?? ""}
+          alt={
+            product?.Category && product?.ID
+              ? generateProductName(product.Category, 0, product.ID)
+              : "Sản phẩm"
+          }
           className="product-image"
         />
-        <IconButton className="cart-button">
+        <IconButton className="cart-button" onClick={handleAddCart}>
           <ShoppingCartIcon />
         </IconButton>
       </Box>
 
-      <CardContent className="product-content">
+      <CardContent className="product-content" onClick={onClick}>
         <Box className="price-container">
           <Typography variant="body2" className="original-price">
-            {(+product.GlassColors[0].Price).toLocaleString()} đ
+            {product?.GlassColors
+              ? formatCurrencyVND(product?.GlassColors[0]?.Price)
+              : ""}
           </Typography>
           <Typography variant="h6" className="sale-price">
-            {(
-              (+product.GlassColors[0].Price *
-                (100 - +product.GlassColors[0].Discount)) /
-              100
-            ).toLocaleString()}{" "}
-            đ
+            {product?.GlassColors
+              ? formatCurrencyVND(
+                  (product?.GlassColors[0]?.Price *
+                    (100 - +product?.GlassColors[0]?.Discount)) /
+                    100
+                )
+              : ""}
           </Typography>
 
           <Box className="rating">
             <StarIcon className="star-icon" />
-            {/* <Typography variant="body2">{rating}/5</Typography> */}
-            <Typography variant="body2">_/5</Typography>
+            <Typography variant="body2">{rating}/5</Typography>
+            {/* <Typography variant="body2">_/5</Typography> */}
           </Box>
         </Box>
 
@@ -104,9 +162,39 @@ const ProductItem = ({ product, onClick }) => {
             textOverflow: "ellipsis",
           }}
         >
-          {/* {product.Description} */}
-            {`${product.Category}  ${translateShape(product.Shape).toLowerCase()} ${product.Material.toLowerCase()}`}
+          {`${product?.Category} ${product?.Material.toLowerCase()} ${
+            product?.Shape
+              ? translateShapeToVietnamese(product.Shape).toLowerCase()
+              : ""
+          } `}
         </Typography>
+
+        <FormGroup row>
+          {ageOptions
+            .filter((option) =>
+              product?.Age?.split(",")
+                .map((a) => a.trim())
+                .includes(option)
+            )
+            .map((option) => (
+              <FormControlLabel
+                key={option}
+                control={
+                  <Checkbox
+                    checked
+                    sx={{
+                      color: "#96eeb3",
+                      "&.Mui-checked": {
+                        color: "#96eeb3",
+                      },
+                    }}
+                  />
+                }
+                label={option}
+                sx={{ marginRight: "10px", marginBottom: "10px" }}
+              />
+            ))}
+        </FormGroup>
 
         <Box className="product-actions">
           <Box className="color-options">

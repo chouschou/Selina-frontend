@@ -8,7 +8,7 @@
   // flex-direction: column;
 
   .order-container {
-    padding-top: 100px;
+    padding-top: 115px;
     // width: 100% !important;
     // max-width: 1280px;
   }
@@ -19,15 +19,15 @@
   .customer-info-section {
     .section-title {
       font-weight: 600;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
 
       &.address-title {
-        margin-top: 30px;
+        margin-top: 15px;
       }
     }
 
     .form-field {
-      margin-bottom: 20px;
+      // margin-bottom: 5px;
 
       .required-label {
         &::after {
