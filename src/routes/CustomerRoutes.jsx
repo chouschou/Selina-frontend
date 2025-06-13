@@ -12,6 +12,9 @@ import QuizSelection from "../pages/Recommendation/QuizSelection";
 import ResultsPage from "../pages/Recommendation/ResultsPage";
 import CameraDetection from "../pages/Recommendation/CameraDetection";
 import VirtualTryOn from "../components/VirtualTryOn/VirtualTryOn";
+import PaymentSuccess from "../pages/payment/PaymentSuccess";
+import PaymentFailure from "../pages/payment/PaymentFailure";
+import PaymentResult from "../pages/payment/PaymentResult";
 
 // const CustomerRoutes = () => [
 //   <Route key="login" path="/login" element={<LogIn />} />,
@@ -36,6 +39,9 @@ const CustomerRoutes = () => (
     <Route path="/detail/:id" element={<ProductDetail />} />
     <Route path="/cart" element={<Cart />} />
     <Route path="/order" element={<Order />} />
+    <Route path="/payment-result" element={<PaymentResult />} />
+    {/* <Route path="/payment-success" element={<PaymentSuccess />} />
+    <Route path="/payment-failure" element={<PaymentFailure />} /> */}
     <Route path="/my-orders" element={<MyOrders />} />
     <Route path="/profile" element={<UserProfile />} />
     <Route path="/recommendation" element={<RecommendationPage />} />

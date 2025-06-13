@@ -1,0 +1,32 @@
+.order-detail-status-section {
+  margin-bottom: 1px;
+}
+
+.order-detail-info-section,
+.customer-info-section,
+.order-items-section {
+  margin-bottom: 16px;
+}
+
+// Status timeline
+.order-status-timeline {
+  padding: 24px 0;
+}
+
+.cancelled-status-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 0;
+}
+
+.subtitle {
+  color: #893d2f;
+  background-color: aquamarine;
+  display: inline;
+}
+
+.stack-info-order-section {
+  gap: 20px;
+}

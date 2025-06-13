@@ -1,10 +1,10 @@
-import * as httpRequest from '../../utils/httpRequest'
-// import api from '../../utils/axiosInterceptors';
+// import * as httpRequest from '../../utils/httpRequest'
+import api from '../../utils/axiosInterceptors';
 import { getAccessToken } from '../../utils/cookieUtils'
 
 export const addCart = async (data) => {
   try {
-    const response = await httpRequest.post('/cart', data, {
+    const response = await api.post('/cart', data, {
       headers: {
         Authorization: `Bearer ${getAccessToken()}`,
       },

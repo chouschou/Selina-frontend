@@ -534,24 +534,26 @@ const ProductDetail = () => {
               </Box>
             </Box>
 
-            <Box className="action-buttons">
-              <Button
-                variant="outlined"
-                className="cart-button"
-                startIcon={<ShoppingCartIcon />}
-                onClick={handleAddCart}
-                ref={imageRef}
-              >
-                Thêm vào giỏ hàng
-              </Button>
-              <Button
-                variant="contained"
-                className="buy-button"
-                onClick={handleBuyNow}
-              >
-                Đặt hàng ngay
-              </Button>
-            </Box>
+            {selectedColorDetail?.Quantity > 0 && (
+              <Box className="action-buttons">
+                <Button
+                  variant="outlined"
+                  className="cart-button"
+                  startIcon={<ShoppingCartIcon />}
+                  onClick={handleAddCart}
+                  ref={imageRef}
+                >
+                  Thêm vào giỏ hàng
+                </Button>
+                <Button
+                  variant="contained"
+                  className="buy-button"
+                  onClick={handleBuyNow}
+                >
+                  Đặt hàng ngay
+                </Button>
+              </Box>
+            )}
           </Grid>
         </Grid>
         <Box>

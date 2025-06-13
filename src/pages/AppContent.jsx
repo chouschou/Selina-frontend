@@ -13,7 +13,7 @@ function AppContent() {
   const location = useLocation();
 
   const isCustomerOrGuest = (isLoggedIn && role === "customer") || !isLoggedIn;
-  const isHiddenRoute = ["/login", "/register", "/recommendation", "/quiz", "/camera-detection", "/results", "/cart", "/my-orders"].includes(location.pathname);
+  const isHiddenRoute = ["/login", "/register", "/recommendation", "/quiz", "/camera-detection", "/results", "/cart", "/my-orders", "/payment-result"].includes(location.pathname);
   const shouldShowChatAndAI = isCustomerOrGuest && !isHiddenRoute;
 
   return (

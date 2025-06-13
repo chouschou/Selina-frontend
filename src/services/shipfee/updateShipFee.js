@@ -1,10 +1,10 @@
-import * as httpRequest from '../../utils/httpRequest'
-// import api from '../../utils/axiosInterceptors';
+// import * as httpRequest from '../../utils/httpRequest'
+import api from '../../utils/axiosInterceptors';
 import { getAccessToken } from '../../utils/cookieUtils'
 
 export const updateShipFee = async (id, data) => {
   try {
-    const response = await httpRequest.put(`/shipping-fee/${id}`, data, {
+    const response = await api.put(`/shipping-fee/${id}`, data, {
       headers: {
         Authorization: `Bearer ${getAccessToken()}`,
       },

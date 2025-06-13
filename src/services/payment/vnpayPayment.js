@@ -4,8 +4,16 @@ import { getAccessToken } from "../../utils/cookieUtils";
 
 export const vnpayPayment = async (orderRes) => {
   try {
-    const response = await api.get(
-      `/orders/vnpay-url/${orderRes.ID}`,
+    // const response = await api.get(
+    //   `/orders/vnpay-url/${orderRes.ID}`,
+    //   {
+    //     headers: {
+    //       Authorization: `Bearer ${getAccessToken()}`,
+    //     },
+    //   }
+    // );
+    const response = await api.post(
+      "/vnpay/create-payment", orderRes,
       {
         headers: {
           Authorization: `Bearer ${getAccessToken()}`,
