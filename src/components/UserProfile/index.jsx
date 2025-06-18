@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   Container,
   Box,
@@ -33,18 +33,39 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import CloseIcon from "@mui/icons-material/Close";
 import Header from "../../components/Header";
 import "./UserProfile.scss";
+import { getAccountInfoByID } from "../../services/user/getInfoByAccountId";
+import { AuthContext } from "../../contexts/AuthContext/AuthContext";
+import { formatDateVN } from "../../services/formatToShow";
 
 const UserProfile = () => {
   const theme = useTheme();
   const isMdUp = useMediaQuery(theme.breakpoints.up("md"));
   const [profileData, setProfileData] = useState({
-    name: "Nguyễn Lý Na",
-    email: "lynanguyen@gmail.com",
-    phone: "0842059055",
-    gender: "Nam",
-    birthDate: "22/02/2001",
-    profileImage: "/profile-image.jpg",
-  });
+        name: '',
+        email: '',
+        phone:"",
+        gender: "",
+        birthDate: "",
+        profileImage: "",
+      });
+  const { isLoggedIn, account } = useContext(AuthContext);
+  useEffect(() => {
+    const getInfoAccount = async () => {
+      const response = await getAccountInfoByID(account.ID);
+      setProfileData({
+        name: response.Customer.Name,
+        email: response.Customer.Email,
+        phone: response.Customer.PhoneNumber,
+        gender: response.Customer.Gender,
+        birthDate: formatDateVN(response.Customer.DateOfBirth),
+        profileImage: response.Customer.Avatar || 'images/avatar_no.png',
+      });
+    };
+
+    if (isLoggedIn) {
+      getInfoAccount();
+    }
+  }, [account?.ID]);
 
   const [addresses, setAddresses] = useState([
     {
@@ -171,7 +192,7 @@ const UserProfile = () => {
               <Box className="profile-image-container">
                 <img
                   src={
-                    profileData.profileImage ||
+                    profileData?.profileImage ||
                     "/placeholder.svg?height=200&width=200"
                   }
                   alt="Profile"
@@ -251,7 +272,12 @@ const UserProfile = () => {
                     control={<Radio />}
                     label="Nam"
                   />
-                  <FormControlLabel value="Nữ"  sx={{ marginRight: 8 }} control={<Radio />} label="Nữ" />
+                  <FormControlLabel
+                    value="Nữ"
+                    sx={{ marginRight: 8 }}
+                    control={<Radio />}
+                    label="Nữ"
+                  />
                   <FormControlLabel
                     value="Khác"
                     control={<Radio />}
@@ -389,7 +415,7 @@ const UserProfile = () => {
                   onChange={(e) => handleAddressChange("name", e.target.value)}
                 />
               </Grid>
-              <Grid item xs={12} md={6} >
+              <Grid item xs={12} md={6}>
                 <TextField
                   fullWidth
                   label="Số điện thoại"

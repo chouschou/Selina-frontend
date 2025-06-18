@@ -8,7 +8,7 @@ import * as faceLandmarksDetection from "@tensorflow-models/face-landmarks-detec
 // import glassesSrc from './assets/images/sunglasses.png';
 // import glassesSrc from "./assets/images/glass7-nobg.png";
 // import glassesSrc from './assets/images/2719_cleanup_crop_nobg.jpg';
-const VirtualTryOn = () => {
+const VirtualTryOn = ({ urlImage = "images/glassVirtualTryOn2.png" }) => {
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
   const [model, setModel] = useState(null);
@@ -54,7 +54,7 @@ const VirtualTryOn = () => {
 
         // Glasses Mesh
         const textureLoader = new THREE.TextureLoader();
-        textureLoader.load("images/2719_cleanup_crop_nobg.jpg", (texture) => {
+        textureLoader.load(urlImage, (texture) => {
           texture.colorSpace = THREE.SRGBColorSpace;
           const geometry = new THREE.PlaneGeometry(2, 1);
           const material = new THREE.MeshBasicMaterial({
@@ -72,6 +72,15 @@ const VirtualTryOn = () => {
     };
 
     loadResources();
+
+    // Dọn dẹp stream khi component bị unmount
+    return () => {
+      if (webcamRef.current && webcamRef.current.srcObject) {
+        webcamRef.current.srcObject
+          .getTracks()
+          .forEach((track) => track.stop());
+      }
+    };
   }, []);
 
   // useEffect(() => {
@@ -187,15 +196,16 @@ const VirtualTryOn = () => {
 
   return (
     <>
-      <div style={{ borderBottom: "1px solid rgba(0, 0, 0, 0.2)" }}>
+      {/* <div style={{ borderBottom: "1px solid rgba(0, 0, 0, 0.2)" }}>
         <h1 style={{ textAlign: "center" }}>Virtual Try-On - 2D Glasses</h1>
-      </div>
+      </div> */}
       <div
         style={{
           position: "relative",
           margin: "0 auto",
-          width: "800px",
-          height: "800px",
+          width: "550px",
+          height: "550px",
+          padding: 0,
         }}
       >
         {isLoading && (
@@ -220,14 +230,14 @@ const VirtualTryOn = () => {
           ref={webcamRef}
           autoPlay
           playsInline
-          style={{ width: "800px", height: "800px" }}
+          style={{ width: "550px", height: "550px" }}
           mirrored={true}
         />
         <canvas
           ref={canvasRef}
           style={{
-            width: "800px",
-            height: "800px",
+            width: "550px",
+            height: "550px",
             position: "absolute",
             top: 0,
             left: 0,
@@ -239,7 +249,6 @@ const VirtualTryOn = () => {
 };
 
 export default VirtualTryOn;
-
 
 // ===================---------------------================-------------------------------------
 

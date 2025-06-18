@@ -11,6 +11,8 @@ import {
   FormGroup,
   FormControlLabel,
   Checkbox,
+  Dialog,
+  DialogTitle,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
@@ -31,6 +33,7 @@ import {
 } from "../../services/formatToShow";
 import { getRatingByColorId } from "../../services/rating/getRatingByColorId";
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
+import { Close as CloseIcon } from "@mui/icons-material";
 import GLBViewer from "./GLBViewer";
 import { AuthContext } from "../../contexts/AuthContext/AuthContext";
 import { addCart } from "../../services/cart/addCart";
@@ -38,6 +41,8 @@ import { toast } from "react-toastify";
 import { CartContext } from "../../contexts/CartContext/CartContext";
 import { updateQuantityCart } from "../../services/cart/updateQuantityCart";
 import { CartIconRefContext } from "../../contexts/CartContext/CartIconRefContext";
+import VirtualTryOn from "../../components/VirtualTryOn/VirtualTryOn";
+import { getProductsByShapes } from "../../services/product/getByShapes";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -49,8 +54,29 @@ const ProductDetail = () => {
   const [reviews, setReviews] = useState(null);
   const [show3D, setShow3D] = useState(false);
   const { isLoggedIn } = useContext(AuthContext);
+  const [isOpenTryOnModal, setOpenTryOnModal] = useState(false);
   // const { cartIconRef } = useContext(CartIconRefContext);
   const imageRef = useRef(null);
+  const [similarProducts, setSimilarProducts] = useState([]);
+
+  const handleTryOn = () => {
+    setOpenTryOnModal(true);
+  };
+
+  useEffect(() => {
+    const getSimilarProducts = async () => {
+      if (!product?.Shape) return;
+
+      try {
+        const response = await getProductsByShapes([product?.Shape]);
+        setSimilarProducts(response);
+      } catch (err) {
+        console.error("Failed to fetch similar products:", err);
+      }
+    };
+
+    getSimilarProducts();
+  }, [product?.Shape]);
 
   // const animateFlyToCart = () => {
   //   const img = imageRef.current;
@@ -310,6 +336,7 @@ const ProductDetail = () => {
                   right: 16,
                   color: "white",
                 }}
+                onClick={handleTryOn}
               >
                 Thử kính
               </Button>
@@ -595,9 +622,45 @@ const ProductDetail = () => {
           <Typography variant="h5" className="section-title">
             SẢN PHẨM TƯƠNG TỰ
           </Typography>
-          {/* <ProductList products={similarProducts} /> */}
+          <ProductList products={similarProducts} />
         </Box>
       </Container>
+
+      <Dialog
+        open={isOpenTryOnModal}
+        onClose={() => setOpenTryOnModal(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>
+          {" "}
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <h2 className="text-xl font-semibold text-gray-800">
+              THỬ KÍNH ẢO - KÍNH 2D
+            </h2>
+            <IconButton
+              onClick={() => setOpenTryOnModal(false)}
+              color="inherit"
+            >
+              <CloseIcon />
+            </IconButton>
+          </Box>
+        </DialogTitle>
+        <Typography className="note-text">
+          Lưu ý: Bạn không nên đeo kính trong quá trình thử để đem đến trải
+          nghiệm tốt nhất.
+        </Typography>
+        <VirtualTryOn
+          urlImage={selectedColorDetail?.ModelVirtualTryOn}
+        ></VirtualTryOn>
+        {/* <DialogActions>
+                <Button onClick={() => setOpenTryOnModal(false)}>Đóng</Button>
+              </DialogActions> */}
+      </Dialog>
     </div>
   );
 };

@@ -15,7 +15,7 @@ import {
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import MessageIcon from "@mui/icons-material/Message";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "./Header.scss";
 import { useContext, useEffect, useState } from "react";
 import avatar2 from "../../assets/images/avatar2.png";
@@ -24,27 +24,30 @@ import { AuthContext } from "../../contexts/AuthContext/AuthContext";
 import MessageNotificationModal from "../../pages/MessageSystem/MessageNotificationModal";
 import socket from "../../utils/socket";
 import { getUserInfoByID } from "../../services/user/getUserInfoByID";
-import {
-  CartProvider,
-} from "../../contexts/CartContext/CartProvider";
+import { CartProvider } from "../../contexts/CartContext/CartProvider";
 import { CartContext } from "../../contexts/CartContext/CartContext";
 import { CartIconRefContext } from "../../contexts/CartContext/CartIconRefContext";
+import { getAccountInfoByID } from "../../services/user/getInfoByAccountId";
 
 const Header = () => {
   const navigate = useNavigate();
   // const cartCount = 1;
   // const unreadMessages = 3; // giả lập số lượng tin nhắn chưa đọc
 
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const currentType = params.get("type") || "optical";
+
+  const handleMenuClick = (type) => {
+    navigate(`/?type=${type}`);
+  };
+
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   const { role, isLoggedIn, account } = useContext(AuthContext);
   const [openModalMessage, setOpenModalMessage] = useState(false);
 
-  const user = {
-    name: "Nguyễn Lý Na",
-    email: "lynanguyen@gmail.com",
-    avatar: "/avatar.jpg",
-  };
+  const [user, setUser] = useState(null);
 
   const [storeAccount, setStoreAccount] = useState({});
   const [unreadInfor, setUnreadInfor] = useState(null);
@@ -55,6 +58,17 @@ const Header = () => {
     console.log("+++store account:", response);
     setStoreAccount(response);
   };
+
+  useEffect(() => {
+    const getInfoAccount = async () => {
+      const response = await getAccountInfoByID(account.ID);
+      setUser(response);
+    };
+
+    if (isLoggedIn) {
+      getInfoAccount();
+    }
+  }, [account?.ID]);
 
   useEffect(() => {
     if (account?.ID && account?.Role.Name === "employee") {
@@ -160,7 +174,8 @@ const Header = () => {
               onClick={() => navigate("/")}
               className="logo"
             >
-              Selina <span className="logo-icon">👓</span>
+              Selina
+              {/* <span className="logo-icon">👓</span> */}
             </p>
           </Box>
 
@@ -190,7 +205,15 @@ const Header = () => {
                   className="account-icon"
                   onClick={handleAccountClick}
                 >
-                  <AccountCircleIcon fontSize="large" />
+                  {user?.Customer.Avatar ? (
+                    <Avatar
+                      src={user?.Customer.Avatar}
+                      alt="avatar"
+                      className="user-avatar"
+                    />
+                  ) : (
+                    <AccountCircleIcon fontSize="large" />
+                  )}
                 </IconButton>
 
                 {/* Popover */}
@@ -205,7 +228,7 @@ const Header = () => {
                   <Box className="user-profile-modal">
                     <Box className="user-profile-header">
                       <Avatar
-                        src={avatar2}
+                        src={user?.Customer.Avatar}
                         alt="avatar"
                         className="user-avatar"
                       />
@@ -258,15 +281,33 @@ const Header = () => {
             // CUSTOMER VIEW
             <>
               <Box className="nav-menu">
-                <Button className="nav-item active">Gọng kính</Button>
-                <Button className="nav-item">Kính râm</Button>
+                <Button
+                  className={`nav-item ${
+                    currentType === "optical" ? "active" : ""
+                  }`}
+                  onClick={() => handleMenuClick("optical")}
+                >
+                  Gọng kính
+                </Button>
+                <Button
+                  className={`nav-item ${
+                    currentType === "sunglasses" ? "active" : ""
+                  }`}
+                  onClick={() => handleMenuClick("sunglasses")}
+                >
+                  Kính râm
+                </Button>
                 <Button className="nav-item">Chính sách</Button>
                 <Button className="nav-item">Hỏi đáp</Button>
               </Box>
 
               {isLoggedIn ? (
                 <Box className="icons-container">
-                  <IconButton  ref={cartIconRef} aria-label="cart" onClick={handleCartClick}>
+                  <IconButton
+                    ref={cartIconRef}
+                    aria-label="cart"
+                    onClick={handleCartClick}
+                  >
                     <Badge badgeContent={totalItems} color="success">
                       <ShoppingCartIcon />
                     </Badge>
@@ -291,16 +332,16 @@ const Header = () => {
                     <Box className="user-profile-modal">
                       <Box className="user-profile-header">
                         <Avatar
-                          src={avatar2}
+                          src={user?.Customer?.Avatar}
                           alt="avatar"
                           className="user-avatar"
                         />
                         <Box className="user-info">
                           <Typography variant="h6" className="user-name">
-                            {user.name}
+                            {user?.Customer?.Name}
                           </Typography>
                           <Typography variant="body2" className="user-email">
-                            {user.email}
+                            {user?.Customer?.Email}
                           </Typography>
                         </Box>
                       </Box>

@@ -180,7 +180,7 @@ function Statistics() {
           pieData = await getStatisticsByMaterial(timeType, time);
           break;
 
-        case "age":
+        case "gender":
           pieData = await getStatisticsByAge(timeType, time);
           break;
 
@@ -299,9 +299,9 @@ function Statistics() {
                       label="Chất liệu"
                     />
                     <FormControlLabel
-                      value="age"
+                      value="gender"
                       control={<Radio />}
-                      label="Độ tuổi"
+                      label="Giới tính"
                     />
                     <FormControlLabel
                       value="price"
@@ -387,7 +387,7 @@ function Statistics() {
       <Box className="time-selector" sx={{ mt: 2 }}>
         <FormControl>
           <Select
-            value={selectedYear}
+            value={selectedYearForRevenue}
             onChange={(e) => setSelectedYearForRevenue(e.target.value)}
             className="year-select"
           >

@@ -30,17 +30,23 @@ const QuizSelection = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
-  const { setGender, setFaceShape, setRecommendations } = useGlasses();
+  const { gender, setGender, setFaceShape, setRecommendations } = useGlasses();
 
   const handleNext = () => setActiveStep((prev) => prev + 1);
   const handleBack = () => setActiveStep((prev) => prev - 1);
 
-  const recommendationMap = {
+    const recommendationFemaleMap = {
     round: ["Square", "Rectangle", "Wayfarers", "Trapezoid"],
     oval: ["Most styles", "Square", "Round", "Aviator"],
     heart: ["Cat-eye", "Oval", "Lightweight", "Aviator"],
     square: ["Round", "Oval", "Rimless", "Semi-rimless"],
     oblong: ["Square", "Round", "Rectangle", "Oval"],
+  };
+  const recommendationMaleMap = {
+    round: ["Square", "Rectangle", "Wayfarers", "Trapezoid"],
+    ovale: ["Most styles", "Square", "Round", "Aviator"],
+    square: ["Round", "Oval", "Rimless", "Semi-rimless"],
+    rectangular: ["Square", "Round", "Rectangle", "Oval"],
   };
   // const recommendationMap = {
   //   round: ['Vuông', 'Chữ nhật', 'Wayfarers', 'Hình thang'],
@@ -66,7 +72,7 @@ const QuizSelection = () => {
       // });
 
       try {
-        const recommendedShapes = recommendationMap[selectedFaceShape];
+        const recommendedShapes = gender==='female' ? recommendationFemaleMap[selectedFaceShape]: recommendationMaleMap[selectedFaceShape];;
 
         const filteredGlasses = await getProductsByShapes(recommendedShapes);
 

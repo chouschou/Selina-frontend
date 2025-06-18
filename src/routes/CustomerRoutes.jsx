@@ -15,6 +15,7 @@ import VirtualTryOn from "../components/VirtualTryOn/VirtualTryOn";
 import PaymentSuccess from "../pages/payment/PaymentSuccess";
 import PaymentFailure from "../pages/payment/PaymentFailure";
 import PaymentResult from "../pages/payment/PaymentResult";
+import Homepage from "../pages/HomePage/HomePage";
 
 // const CustomerRoutes = () => [
 //   <Route key="login" path="/login" element={<LogIn />} />,
@@ -35,7 +36,7 @@ const CustomerRoutes = () => (
   <>
     <Route path="/login" element={<LogIn />} />
     <Route path="/register" element={<RegisterForm />} />
-    <Route path="/" element={<HomePage />} />
+    <Route path="/" element={<Homepage />} />
     <Route path="/detail/:id" element={<ProductDetail />} />
     <Route path="/cart" element={<Cart />} />
     <Route path="/order" element={<Order />} />
@@ -48,7 +49,7 @@ const CustomerRoutes = () => (
     <Route path="/quiz" element={<QuizSelection />} />
     <Route path="/camera-detection" element={<CameraDetection />} />
     <Route path="/results" element={<ResultsPage />} />
-    <Route path="/virtual-try-on" element={<VirtualTryOn />} />
+    {/* <Route path="/virtual-try-on" element={<VirtualTryOn />} /> */}
     {/* <Route path="/glass-try-on" element={<GlassTryOn/>} />
     <Route path="/glass-AR" element={<GlassesAR/>} /> */}
   </>

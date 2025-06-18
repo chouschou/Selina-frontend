@@ -50,7 +50,7 @@ const ProductReviewItem = ({ product, onReviewChange }) => {
     <Box className="product-review-item">
       <Box className="product-info">
         <Box className="product-image-container">
-          <img src={product.image || "/placeholder.svg"} alt={product.name} className="product-image" />
+          <img src={product.image || "images/glass.png"} alt={product.name} className="product-image" />
         </Box>
         <Box className="product-details">
           <Typography variant="h6" className="product-name">

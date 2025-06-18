@@ -65,7 +65,7 @@ const ProductList = ({ title, products, numberProductPerPage = 4 }) => {
           <ArrowBackIosNewIcon />
         </IconButton>
 
-        <Grid container spacing={3} className="products-grid">
+        <Grid container spacing={2} className="products-grid">
           {currentProducts.map((product, index) => (
             // <Grid item xs={12} sm={6} md={4} key={product.id}>
             <Grid item xs={12} sm={6} md={4} key={index}>

@@ -7,8 +7,13 @@ import model2Removebg from "../../assets/images/model2-removebg.png";
 import glass_nobg from "../../assets/images/glass_nobg.png";
 import { getProductsByCategory } from "../../services/product/getProductsByCategory";
 import ConstructionIcon from "@mui/icons-material/Construction";
+import { useLocation } from "react-router-dom";
 
 const HomePage = () => {
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const type = params.get('type') || 'optical'; // default là gọng kính
+
   const [activeFilter, setActiveFilter] = useState("all");
 
   const [productsList, setProductsList] = useState([]);
@@ -16,16 +21,15 @@ const HomePage = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await getProductsByCategory("Gọng kính");
+        const response = await getProductsByCategory(type==="optical" ? "Gọng kính" : "Kính mát");
         setProductsList(response); // Nếu API trả về mảng sản phẩm
         console.log("Products List:", response);
       } catch (error) {
         console.error("Failed to fetch products:", error);
       }
     };
-
     fetchProducts();
-  }, []);
+  }, [type]);
 
   const newArrivalsProducts = [
     {

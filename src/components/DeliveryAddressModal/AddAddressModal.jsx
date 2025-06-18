@@ -115,7 +115,7 @@ const AddAddressModal = ({ isOpen, onClose, onSuccess }) => {
       className="address-modal"
     >
       <DialogTitle className="modal-title">
-        Thêm địa chỉ mới
+        Thêm địa chỉ giao hàng mới
         <IconButton
           className="close-button"
           onClick={() => {

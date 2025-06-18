@@ -17,6 +17,21 @@ export function formatCurrencyVND(value) {
   return parseInt(value).toLocaleString("vi-VN") + " đ";
 }
 
+export const shapeDictionary = {
+  square: "Hình vuông",
+  rectangular: "Hình chữ nhật",
+  oval: "Hình bầu dục",
+  round: "Hình tròn",
+  butterfly: "Hình bướm",
+  "cat eye": "Hình mắt mèo",
+  "cat-eye": "Hình mắt mèo", // để xử lý slug
+  hexagonal: "Hình lục giác",
+  octagonal: "Hình bát giác",
+  wayfarer: "Wayfarer",
+  aviator: "Aviator",
+  other: "Khác",
+};
+
 // Chuyển hình dáng sang tiếng Việt
 export function translateShapeToVietnamese(shape) {
   const dictionary = {
@@ -54,7 +69,7 @@ export function formatOrderID(orderId, orderDate){
 }
 
 
-const COLOR_MAP = [
+export const COLOR_MAP = [
   { name: "Xám", hex: "#808080" },
   { name: "Đen", hex: "#000000" },
   { name: "Nâu", hex: "#A52A2A" },
@@ -75,4 +90,57 @@ export const getColorNameFromHex = (hex) => {
   const normalizedHex = hex.trim().toUpperCase();
   const color = COLOR_MAP.find((c) => c.hex.toUpperCase() === normalizedHex);
   return color?.name || hex; // Trả về mã hex nếu không tìm thấy tên
+};
+
+
+export function formatDateVN(dateString){
+  const date = new Date(dateString);
+
+  const day = date.toLocaleDateString('vi-VN', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
+
+  return `${day}`;
+}
+
+// Order status data for formatting
+export const statusData = {
+  waiting: {
+    label: "Chưa xác nhận",
+    color: "warning",
+  },
+  confirmed: {
+    label: "Đã xác nhận",
+    color: "info",
+  },
+  shipping: {
+    label: "Đang giao hàng",
+    color: "primary",
+  },
+  completed: {
+    label: "Hoàn thành",
+    color: "success",
+  },
+  canceled: {
+    label: "Đã hủy",
+    color: "error",
+  },
+  returned: {
+    label: "Đã trả hàng",
+    color: "error",
+  },
+  refunded: {
+    label: "Đã hoàn tiền",
+    color: "info",
+  },
+  unrefunded: {
+    label: "Chưa hoàn tiền",
+    color: "warn",
+  },
+  paid: {
+    label: "Đã thanh toán",
+    color: "success",
+  },
 };

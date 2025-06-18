@@ -21,6 +21,8 @@ import CloseIcon from "@mui/icons-material/Close"
 import OrderProductItem from "../OrderProductItem"
 import ProductReviewItem from "../ProductReviewItem"
 import "./OrderItem.scss"
+import { formatCurrencyVND, statusData } from "../../services/formatToShow"
+import { formatDateTimeVN } from "../../services/formatDatetimeVN"
 
 const OrderItem = ({ order }) => {
   const [expanded, setExpanded] = useState(false)
@@ -34,7 +36,7 @@ const OrderItem = ({ order }) => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "awaiting":
+      case "waiting":
         return "#ff9800"
       case "confirmed":
         return "#2196f3"
@@ -42,7 +44,7 @@ const OrderItem = ({ order }) => {
         return "#9c27b0"
       case "completed":
         return "#4caf50"
-      case "cancelled":
+      case "canceled":
         return "#f44336"
       default:
         return "#757575"
@@ -83,7 +85,7 @@ const OrderItem = ({ order }) => {
           <Box className="status-indicator" sx={{ color: getStatusColor(order.status) }}>
             <CheckCircleIcon fontSize="small" />
             <Typography variant="body2" className="order-date">
-              {order.date}
+              {formatDateTimeVN(order.date)}
             </Typography>
           </Box>
           <Typography variant="body2" className="payment-status">
@@ -122,10 +124,11 @@ const OrderItem = ({ order }) => {
               </Box>
               <Box className="timeline-content">
                 <Typography variant="body2" className="timeline-status">
-                  {statusItem.status}
+                  {/* {statusItem.status} */}
+                    {statusData[statusItem.status]?.label || "Không xác định"}
                 </Typography>
                 <Typography variant="caption" className="timeline-time">
-                  {statusItem.time}
+                  {formatDateTimeVN(statusItem.time)}
                 </Typography>
               </Box>
             </Box>
@@ -137,7 +140,7 @@ const OrderItem = ({ order }) => {
 
       <Box className="order-products">
         {order.items.map((item) => (
-          <OrderProductItem key={item.id} product={item} />
+          <OrderProductItem key={item.id} productInfo={item} />
         ))}
       </Box>
 
@@ -148,7 +151,7 @@ const OrderItem = ({ order }) => {
               Tổng tiền hàng:
             </Typography>
             <Typography variant="body2" className="total-value">
-              {(order.total - order.shipping + order.discount).toLocaleString()} đ
+              {formatCurrencyVND(order.total - order.shipping + order.discount)}
             </Typography>
           </Box>
           <Box className="total-row">
@@ -156,7 +159,7 @@ const OrderItem = ({ order }) => {
               Phí vận chuyển:
             </Typography>
             <Typography variant="body2" className="total-value">
-              {order.shipping.toLocaleString()} đ
+              {formatCurrencyVND(order.shipping)}
             </Typography>
           </Box>
           <Box className="total-row">
@@ -164,7 +167,7 @@ const OrderItem = ({ order }) => {
               Voucher giảm giá:
             </Typography>
             <Typography variant="body2" className="total-value discount">
-              -{order.discount.toLocaleString()} đ
+              -{formatCurrencyVND(order.discount)}
             </Typography>
           </Box>
           <Divider className="totals-divider" />
@@ -173,15 +176,15 @@ const OrderItem = ({ order }) => {
               Thành tiền:
             </Typography>
             <Typography variant="h6" className="grand-total-value">
-              {order.total.toLocaleString()} đ
+              {formatCurrencyVND(order.total)}
             </Typography>
           </Box>
         </Box>
 
         <Box className="order-actions">
-          {(order.status === "awaiting" || order.status === "confirmed") && (
-            <Button variant="contained" color="error" className="cancel-button" onClick={handleCancelOrder}>
-              Hủy đơn hàng
+          {(order.status === "waiting" || order.status === "confirmed") && (
+            <Button fullWidth variant="contained" color="error" className="cancel-button" onClick={handleCancelOrder}>
+              Hủy đơn
             </Button>
           )}
 
