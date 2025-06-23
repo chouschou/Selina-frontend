@@ -11,7 +11,6 @@ import {
   Paper,
   TextField,
 } from "@mui/material";
-import "./ResetPassword.scss";
 import { toast } from "react-toastify";
 import CustomTextField from "../../components/CustomTextField";
 import { resetPassword } from "../../services/auth/resetPassword";
