@@ -36,7 +36,7 @@ import {
   Close,
   Tune,
 } from "@mui/icons-material";
-import "./Homepage.scss";
+import "./HomePage.scss";
 import ProductItem from "../../components/ProductItem";
 import { COLOR_MAP, shapeDictionary } from "../../services/formatToShow";
 import { ExpandMore as ExpandMoreIcon } from "@mui/icons-material";
