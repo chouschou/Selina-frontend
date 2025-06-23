@@ -12,6 +12,13 @@ import QuizSelection from "../pages/Recommendation/QuizSelection";
 import ResultsPage from "../pages/Recommendation/ResultsPage";
 import CameraDetection from "../pages/Recommendation/CameraDetection";
 import VirtualTryOn from "../components/VirtualTryOn/VirtualTryOn";
+import PaymentSuccess from "../pages/payment/PaymentSuccess";
+import PaymentFailure from "../pages/payment/PaymentFailure";
+import PaymentResult from "../pages/payment/PaymentResult";
+import Homepage from "../pages/HomePage/Homepage";
+import PolicyPage from "../pages/Policy/Policy";
+import FAQPage from "../pages/QandA/QandA";
+import ResetPassword from "../pages/ResetPassword/ResetPassword";
 
 // const CustomerRoutes = () => [
 //   <Route key="login" path="/login" element={<LogIn />} />,
@@ -32,17 +39,23 @@ const CustomerRoutes = () => (
   <>
     <Route path="/login" element={<LogIn />} />
     <Route path="/register" element={<RegisterForm />} />
-    <Route path="/" element={<HomePage />} />
+    <Route path="/reset-password" element={<ResetPassword/>} />
+    <Route path="/" element={<Homepage />} />
+    <Route path="/policy" element={<PolicyPage />} />
+    <Route path="/QandA" element={<FAQPage />} />
     <Route path="/detail/:id" element={<ProductDetail />} />
     <Route path="/cart" element={<Cart />} />
     <Route path="/order" element={<Order />} />
+    <Route path="/payment-result" element={<PaymentResult />} />
+    {/* <Route path="/payment-success" element={<PaymentSuccess />} />
+    <Route path="/payment-failure" element={<PaymentFailure />} /> */}
     <Route path="/my-orders" element={<MyOrders />} />
     <Route path="/profile" element={<UserProfile />} />
     <Route path="/recommendation" element={<RecommendationPage />} />
     <Route path="/quiz" element={<QuizSelection />} />
     <Route path="/camera-detection" element={<CameraDetection />} />
     <Route path="/results" element={<ResultsPage />} />
-    <Route path="/virtual-try-on" element={<VirtualTryOn />} />
+    {/* <Route path="/virtual-try-on" element={<VirtualTryOn />} /> */}
     {/* <Route path="/glass-try-on" element={<GlassTryOn/>} />
     <Route path="/glass-AR" element={<GlassesAR/>} /> */}
   </>

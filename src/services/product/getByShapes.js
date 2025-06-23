@@ -1,8 +1,9 @@
 import * as httpRequest from '../../utils/httpRequest'
+// import api from '../../utils/axiosInterceptors';
 
 export const getProductsByShapes = async (shapes) => {
   try {
-    const response = await httpRequest.post('/products/by-shapes', {
+    const response = await httpRequest.post('/products/all/by-shapes', {
       shapes, // gửi mảng ["Vuông", "Tròn", ...]
     })
     console.log('Products by shape:', response)

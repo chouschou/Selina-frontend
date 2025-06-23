@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   Container,
   Box,
@@ -27,75 +27,108 @@ import {
   InputLabel,
   useTheme,
   useMediaQuery,
+  TablePagination,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CloseIcon from "@mui/icons-material/Close";
 import Header from "../../components/Header";
 import "./UserProfile.scss";
+import { getAccountInfoByID } from "../../services/user/getInfoByAccountId";
+import { AuthContext } from "../../contexts/AuthContext/AuthContext";
+import { formatDateVN } from "../../services/formatToShow";
+import { getDeliveryAddressByAccount } from "../../services/accountDelivery/getDeliveryAddressByAccountId";
+import { checkDeliveryUsed } from "../../services/accountDelivery/checkDeliveryUsedInOrder";
+import { toast } from "react-toastify";
+import { deleteAccountDelivery } from "../../services/accountDelivery/deleteAccountDelivery";
+import AddAddressModal from "../DeliveryAddressModal/AddAddressModal";
+import UpdateAddressModal from "../DeliveryAddressModal/UpdateAddressModal";
+import ConfirmDeleteModal from "../ConfirmDeleteModal/ConfirmDeleteModal";
+import { updateUserInfo } from "../../services/user/updateUserInfo";
+import dayjs from "dayjs";
+import { DatePicker } from "@mui/x-date-pickers";
 
 const UserProfile = () => {
   const theme = useTheme();
   const isMdUp = useMediaQuery(theme.breakpoints.up("md"));
+  const { isLoggedIn, account } = useContext(AuthContext);
+  const [selectedImageFile, setSelectedImageFile] = useState(null);
+
   const [profileData, setProfileData] = useState({
-    name: "Nguyễn Lý Na",
-    email: "lynanguyen@gmail.com",
-    phone: "0842059055",
-    gender: "Nam",
-    birthDate: "22/02/2001",
-    profileImage: "/profile-image.jpg",
-  });
-
-  const [addresses, setAddresses] = useState([
-    {
-      id: 1,
-      name: "Nguyễn Văn Nam",
-      address: "123 Ngô Quyền, Đà Nẵng",
-      phone: "0842056698",
-      isDefault: true,
-    },
-    {
-      id: 2,
-      name: "Nguyễn Thị Lan",
-      address: "123 Ngô Quyền, Đà Nẵng",
-      phone: "0842077698",
-      isDefault: false,
-    },
-  ]);
-
-  const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
-  const [newAddress, setNewAddress] = useState({
     name: "",
+    email: "",
     phone: "",
-    province: "",
-    address: "",
+    gender: "",
+    birthDate: "",
+    profileImage: "",
   });
+  useEffect(() => {
+    const getInfoAccount = async () => {
+      const response = await getAccountInfoByID(account.ID);
+      setProfileData({
+        name: response?.Customer?.Name,
+        email: account.Username,
+        phone: response?.Customer?.PhoneNumber,
+        gender: response?.Customer?.Gender,
+        birthDate: formatDateVN(response?.Customer?.DateOfBirth),
+        profileImage: response?.Customer?.Avatar || "images/avatar_no.png",
+      });
+    };
+
+    if (isLoggedIn) {
+      getInfoAccount();
+    }
+  }, [account?.ID]);
 
   const handleProfileChange = (field, value) => {
-    setProfileData({
-      ...profileData,
+    setProfileData((prev) => ({
+      ...prev,
       [field]: value,
-    });
+    }));
   };
 
   const handleProfileImageChange = (event) => {
-    if (event.target.files && event.target.files[0]) {
+    const file = event.target.files[0];
+    if (file) {
+      setSelectedImageFile(file); // lưu file để gửi lên server
+
       const reader = new FileReader();
       reader.onload = (e) => {
-        setProfileData({
-          ...profileData,
-          profileImage: e.target.result,
-        });
+        setProfileData((prev) => ({
+          ...prev,
+          profileImage: e.target.result, // base64 để preview
+        }));
       };
-      reader.readAsDataURL(event.target.files[0]);
+      reader.readAsDataURL(file);
     }
   };
 
-  const handleSaveProfile = () => {
-    // Save profile data to backend
-    console.log("Saving profile:", profileData);
-    // Show success message
-    alert("Hồ sơ đã được cập nhật thành công!");
+  const handleSaveProfile = async () => {
+    try {
+      const formData = new FormData();
+
+      formData.append("name", profileData.name);
+      formData.append("phoneNumber", profileData.phone);
+      formData.append("gender", profileData.gender);
+      if (profileData.birthDate) {
+        formData.append(
+          "dateOfBirth",
+          dayjs(profileData.birthDate).format("YYYY-MM-DD") // đảm bảo đúng format ISO
+        );
+      }
+
+      // Nếu đang chọn file ảnh (thay vì chỉ là base64)
+      if (selectedImageFile) {
+        formData.append("avatar", selectedImageFile);
+      } else if (profileData.profileImage === "") {
+        formData.append("avatar", ""); // yêu cầu xoá avatar
+      }
+
+      await updateUserInfo(account.ID, formData);
+      toast.success("Cập nhật thành công");
+    } catch (error) {
+      toast.error("Lỗi: " + error);
+    }
   };
 
   const handleCancelProfile = () => {
@@ -103,57 +136,93 @@ const UserProfile = () => {
     console.log("Cancel profile edit");
   };
 
-  const handleOpenAddressModal = () => {
-    setIsAddressModalOpen(true);
+  const [addresses, setAddresses] = useState(null);
+
+  const [page, setPage] = useState(0);
+  const rowsPerPage = 5;
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
   };
 
-  const handleCloseAddressModal = () => {
-    setIsAddressModalOpen(false);
-    setNewAddress({
-      name: "",
-      phone: "",
-      province: "",
-      address: "",
-    });
+  // Lấy dữ liệu tương ứng trang hiện tại
+  const paginatedData = addresses?.slice(
+    page * rowsPerPage,
+    (page + 1) * rowsPerPage
+  );
+
+  const fetchAllDeliveryAddress = async () => {
+    const response = await getDeliveryAddressByAccount(account.ID);
+
+    // Gọi checkUsed cho từng địa chỉ
+    const dataWithUsed = await Promise.all(
+      response.map(async (item) => {
+        try {
+          const usedRes = await checkDeliveryUsed(item.ID);
+          return { ...item, isUsedInOrder: usedRes === true };
+        } catch (error) {
+          console.error(`Failed to check if address ${item.ID} is used`, error);
+          return { ...item, isUsedInOrder: false }; // fallback nếu lỗi
+        }
+      })
+    );
+
+    setAddresses(dataWithUsed);
   };
 
-  const handleAddressChange = (field, value) => {
-    setNewAddress({
-      ...newAddress,
-      [field]: value,
-    });
+  useEffect(() => {
+    if (isLoggedIn) {
+      fetchAllDeliveryAddress();
+    }
+  }, [isLoggedIn, account?.ID]);
+
+  const [accountAddress, setAccountAddress] = useState(null);
+  const [isAddAddressModalOpen, setIsAddAddressModalOpen] = useState(false);
+  const [isEditAddressModalOpen, setIsEditAddressModalOpen] = useState(false);
+  const [isDeleteAddressModalOpen, setIsDeleteAddressModalOpen] =
+    useState(false);
+  const handleCloseAddAddressModal = () => {
+    setIsAddAddressModalOpen(false);
+  };
+  const handleCloseUpdateAddressModal = () => {
+    setIsEditAddressModalOpen(false);
+  };
+  const handleCloseDeleteAddressModal = () => {
+    setIsDeleteAddressModalOpen(false);
+  };
+  const handleDeleteConfirm = async () => {
+    try {
+      await deleteAccountDelivery(accountAddress?.ID);
+      toast.success("Xóa địa chỉ thành công!");
+      fetchAllDeliveryAddress();
+      setIsDeleteAddressModalOpen(false);
+      // onSuccessDelete();
+    } catch (error) {
+      console.error("Error deleting address:", error);
+      toast.error("Xóa địa chỉ thất bại. Vui lòng thử lại sau.");
+    }
   };
 
-  const handleAddAddress = () => {
-    const newAddressEntry = {
-      id: addresses.length + 1,
-      name: newAddress.name,
-      address: `${newAddress.address}, ${newAddress.province}`,
-      phone: newAddress.phone,
-      isDefault: addresses.length === 0, // Make default if it's the first address
-    };
-
-    setAddresses([...addresses, newAddressEntry]);
-    handleCloseAddressModal();
+  const handleAddNewAddress = () => {
+    setIsAddAddressModalOpen(true);
+  };
+  const handleSuccessAddAddress = async () => {
+    await fetchAllDeliveryAddress();
+  };
+  const handleSuccessUpdateAddress = async () => {
+    await fetchAllDeliveryAddress();
+  };
+  const handleEditAddress = (item) => {
+    setIsEditAddressModalOpen(true);
+    setAccountAddress(item);
+    // onClose();
+  };
+  const handleDeleteAddress = (item) => {
+    setIsDeleteAddressModalOpen(true);
+    setAccountAddress(item);
   };
 
-  //   const handleSetDefaultAddress = (id) => {
-  //     setAddresses(
-  //       addresses.map((address) => ({
-  //         ...address,
-  //         isDefault: address.id === id,
-  //       })),
-  //     )
-  //   }
-
-  const handleEditAddress = (id) => {
-    // Implement edit functionality
-    console.log("Edit address:", id);
-  };
-
-  const handleDeleteAddress = (id) => {
-    setAddresses(addresses.filter((address) => address.id !== id));
-  };
+  console.log("Address row:", addresses);
 
   return (
     <div className="user-profile-page">
@@ -171,7 +240,7 @@ const UserProfile = () => {
               <Box className="profile-image-container">
                 <img
                   src={
-                    profileData.profileImage ||
+                    profileData?.profileImage ||
                     "/placeholder.svg?height=200&width=200"
                   }
                   alt="Profile"
@@ -216,6 +285,7 @@ const UserProfile = () => {
                   fullWidth
                   variant="outlined"
                   size="small"
+                  disabled
                   value={profileData.email}
                   onChange={(e) => handleProfileChange("email", e.target.value)}
                 />
@@ -230,7 +300,13 @@ const UserProfile = () => {
                   variant="outlined"
                   size="small"
                   value={profileData.phone}
-                  onChange={(e) => handleProfileChange("phone", e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    // Chỉ giữ số và giới hạn 10 ký tự
+                    if (/^\d{0,10}$/.test(value)) {
+                      handleProfileChange("phone", e.target.value);
+                    }
+                  }}
                 />
               </Box>
 
@@ -251,7 +327,12 @@ const UserProfile = () => {
                     control={<Radio />}
                     label="Nam"
                   />
-                  <FormControlLabel value="Nữ"  sx={{ marginRight: 8 }} control={<Radio />} label="Nữ" />
+                  <FormControlLabel
+                    value="Nữ"
+                    sx={{ marginRight: 8 }}
+                    control={<Radio />}
+                    label="Nữ"
+                  />
                   <FormControlLabel
                     value="Khác"
                     control={<Radio />}
@@ -264,7 +345,7 @@ const UserProfile = () => {
                 <p variant="body1" className="form-label">
                   Ngày sinh
                 </p>
-                <TextField
+                {/* <TextField
                   fullWidth
                   variant="outlined"
                   size="small"
@@ -272,6 +353,24 @@ const UserProfile = () => {
                   onChange={(e) =>
                     handleProfileChange("birthDate", e.target.value)
                   }
+                /> */}
+                <DatePicker
+                  fullWidth
+                  size="small"
+                  sx={{ padding: "0px" }}
+                  label="Ngày sinh"
+                  value={dayjs(profileData.birthDate)} // nếu birthDate là "1999-10-09"
+                  onChange={(newValue) =>
+                    handleProfileChange("birthDate", newValue)
+                  }
+                  format="DD/MM/YYYY"
+                  slotProps={{
+                    textField: {
+                      fullWidth: true,
+                      size: "small",
+                      className: "form-field",
+                    },
+                  }}
                 />
               </Box>
 
@@ -298,44 +397,67 @@ const UserProfile = () => {
 
         {/* Addresses Section */}
         <Paper className="addresses-section">
-          <Typography variant="h5" className="section-title">
-            Địa chỉ của tôi
-          </Typography>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <Typography variant="h5" className="section-title">
+              Địa chỉ của tôi
+            </Typography>
+
+            <Button
+              variant="contained"
+              className="add-address-button"
+              onClick={handleAddNewAddress}
+              sx={{ color: "white", marginBottom: "20px" }}
+            >
+              Thêm địa chỉ
+            </Button>
+          </Box>
 
           <TableContainer>
             <Table>
               <TableHead>
                 <TableRow>
                   <TableCell>Tên người nhận</TableCell>
+                  <TableCell>Tỉnh/thành phố</TableCell>
                   <TableCell>Địa chỉ nhận hàng</TableCell>
                   <TableCell>Số điện thoại</TableCell>
-                  <TableCell>Sửa</TableCell>
-                  <TableCell>Xóa</TableCell>
+                  <TableCell sx={{ textAlign: "center" }}>Sửa</TableCell>
+                  <TableCell sx={{ textAlign: "center" }}>Xóa</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {addresses.map((address) => (
-                  <TableRow key={address.id}>
+                {paginatedData?.map((address) => (
+                  <TableRow key={address?.ID}>
                     <TableCell>
-                      {address.name}
-                      {address.isDefault && (
+                      {address?.DeliveryAddress.Name}
+                      {address?.IsDefault && (
                         <span className="default-badge">Mặc định</span>
                       )}
                     </TableCell>
-                    <TableCell>{address.address}</TableCell>
-                    <TableCell>{address.phone}</TableCell>
+                    <TableCell>{address?.DeliveryAddress.Province}</TableCell>
+                    <TableCell>{address?.DeliveryAddress.Address}</TableCell>
                     <TableCell>
+                      {address?.DeliveryAddress.PhoneNumber}
+                    </TableCell>
+                    <TableCell sx={{ textAlign: "center" }}>
                       <IconButton
                         className="edit-button"
-                        onClick={() => handleEditAddress(address.id)}
+                        onClick={() => handleEditAddress(address)}
+                        disabled={address?.isUsedInOrder}
                       >
                         <EditIcon />
                       </IconButton>
                     </TableCell>
-                    <TableCell>
+                    <TableCell sx={{ textAlign: "center" }}>
                       <IconButton
                         className="delete-button"
-                        onClick={() => handleDeleteAddress(address.id)}
+                        disabled={address?.isUsedInOrder}
+                        onClick={() => handleDeleteAddress(address)}
                       >
                         <DeleteIcon />
                       </IconButton>
@@ -345,102 +467,47 @@ const UserProfile = () => {
               </TableBody>
             </Table>
           </TableContainer>
-
-          <Box className="add-address-container">
-            <Button
-              variant="contained"
-              className="add-address-button"
-              onClick={handleOpenAddressModal}
-            >
-              Thêm địa chỉ
-            </Button>
-          </Box>
+          <Typography
+            variant="caption"
+            color="error"
+            sx={{ marginTop: "5px", marginLeft: "24px" }}
+          >
+            Lưu ý: Những địa chỉ đã được sử dụng trong đơn hàng bạn không thể
+            chỉnh sửa hoặc xóa.
+          </Typography>
+          <TablePagination
+            component="div"
+            count={addresses?.length}
+            page={page}
+            onPageChange={handleChangePage}
+            rowsPerPage={rowsPerPage}
+            rowsPerPageOptions={[5]}
+          />
         </Paper>
       </Container>
 
       {/* Add Address Modal */}
-      <Dialog
-        open={isAddressModalOpen}
-        onClose={handleCloseAddressModal}
-        maxWidth="sm"
-        fullWidth
-        className="address-modal"
-      >
-        <DialogTitle className="modal-title">
-          Địa chỉ mới
-          <IconButton
-            className="close-button"
-            onClick={handleCloseAddressModal}
-          >
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent className="modal-content">
-          <Box className="address-form">
-            <Grid container spacing={10} sx={{ paddingBottom: 3 }}>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  label="Họ và tên"
-                  variant="outlined"
-                  size="small"
-                  sx={{ width: "100%" }}
-                  value={newAddress.name}
-                  onChange={(e) => handleAddressChange("name", e.target.value)}
-                />
-              </Grid>
-              <Grid item xs={12} md={6} >
-                <TextField
-                  fullWidth
-                  label="Số điện thoại"
-                  variant="outlined"
-                  size="small"
-                  sx={{ width: "100%" }}
-                  value={newAddress.phone}
-                  onChange={(e) => handleAddressChange("phone", e.target.value)}
-                />
-              </Grid>
-            </Grid>
-            <Grid item xs={12} sx={{ paddingBottom: 3 }}>
-              <FormControl fullWidth variant="outlined">
-                <InputLabel>Tỉnh/ Thành phố, Quận/Huyện, Phường/Xã</InputLabel>
-                <Select
-                  value={newAddress.province}
-                  onChange={(e) =>
-                    handleAddressChange("province", e.target.value)
-                  }
-                  label="Tỉnh/ Thành phố, Quận/Huyện, Phường/Xã"
-                >
-                  <MenuItem value="Đà Nẵng">Đà Nẵng</MenuItem>
-                  <MenuItem value="Hà Nội">Hà Nội</MenuItem>
-                  <MenuItem value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Địa chỉ cụ thể"
-                variant="outlined"
-                size="small"
-                multiline
-                rows={3}
-                value={newAddress.address}
-                onChange={(e) => handleAddressChange("address", e.target.value)}
-              />
-            </Grid>
-          </Box>
-        </DialogContent>
-        <DialogActions className="modal-actions">
-          <Button
-            variant="contained"
-            className="save-address-button"
-            onClick={handleAddAddress}
-          >
-            Lưu
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <AddAddressModal
+        isOpen={isAddAddressModalOpen}
+        onClose={handleCloseAddAddressModal}
+        onSuccess={handleSuccessAddAddress}
+      ></AddAddressModal>
+      <UpdateAddressModal
+        isOpen={isEditAddressModalOpen}
+        onClose={handleCloseUpdateAddressModal}
+        onSuccess={handleSuccessUpdateAddress}
+        initiateAddress={accountAddress}
+      ></UpdateAddressModal>
+      <ConfirmDeleteModal
+        open={isDeleteAddressModalOpen}
+        onCancel={handleCloseDeleteAddressModal}
+        onConfirm={handleDeleteConfirm}
+        title="Cảnh báo"
+        description="Bạn có chắc muốn xóa địa chỉ này không?"
+        subDescription="Sau khi xóa bạn sẽ không thể khôi phục lại!"
+        getContainer={false}
+        className="custom-delete-modal"
+      />
     </div>
   );
 };

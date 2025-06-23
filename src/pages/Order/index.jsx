@@ -220,7 +220,9 @@ const Order = () => {
 
         console.log("Order Data:", orderData);
         const orderRes = await createOrder(orderData);
+        console.log("Order Response:", orderRes);
         const vnpayResponse = await vnpayPayment(orderRes);
+        // const vnpayResponse = await vnpayPayment(orderData);
 
         window.location.href = vnpayResponse.data.url; // Redirect to VNPay payment page
         setIsLoading(false);

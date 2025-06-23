@@ -14,7 +14,7 @@ import {
   Typography,
 } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
-import { Box, flex } from "@mui/system";
+import { Box } from "@mui/system";
 import { useEffect, useState } from "react";
 import { addAccountDelivery } from "../../services/accountDelivery/addAccountDelivery";
 import { getProvinces } from "../../services/getProvinces";
@@ -115,7 +115,7 @@ const AddAddressModal = ({ isOpen, onClose, onSuccess }) => {
       className="address-modal"
     >
       <DialogTitle className="modal-title">
-        Thêm địa chỉ mới
+        Thêm địa chỉ giao hàng mới
         <IconButton
           className="close-button"
           onClick={() => {
@@ -128,8 +128,8 @@ const AddAddressModal = ({ isOpen, onClose, onSuccess }) => {
       </DialogTitle>
       <DialogContent className="modal-content" sx={{ paddingBottom: 0 }}>
         <Box className="address-form">
-          <Box display={flex} spacing={10} sx={{ paddingBottom: 3 }}>
-            <Box sx={{ paddingBottom: 3 }}>
+          <Box display="flex" spacing={10} sx={{ gap: 2, paddingBottom: 3 }}>
+            <Box flex={1}  sx={{ gap: 2, paddingBottom: 3 }}>
               <TextField
                 fullWidth
                 required
@@ -143,7 +143,7 @@ const AddAddressModal = ({ isOpen, onClose, onSuccess }) => {
                 helperText={errors.name}
               />
             </Box>
-            <Box>
+            <Box flex={1}  sx={{ gap: 2, paddingBottom: 3 }}>
               <TextField
                 fullWidth
                 required

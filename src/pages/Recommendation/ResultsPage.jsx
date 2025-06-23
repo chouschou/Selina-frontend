@@ -23,9 +23,11 @@ const getFaceShapeText = (shape) => {
   const shapeMap = {
     round: "Khuôn mặt tròn",
     oval: "Khuôn mặt oval",
+    ovale: "Khuôn mặt oval",
     heart: "Khuôn mặt trái tim",
     square: "Khuôn mặt vuông",
     oblong: "Khuôn mặt chữ nhật dài",
+    rectangular: "Khuôn mặt chữ nhật",
   };
   return shape ? shapeMap[shape] || shape : "không xác định";
 };
@@ -35,29 +37,39 @@ const getFaceShapeDescription = (shape) => {
     round:
       "Khuôn mặt tròn có đặc điểm là chiều dài và chiều rộng gần tương đương, với đường viền mềm mại và không có góc cạnh rõ ràng.",
     oval: "Khuôn mặt oval có chiều dài lớn hơn chiều rộng, với đường cong nhẹ nhàng và cân đối từ trán xuống cằm.",
+    ovale:
+      "Khuôn mặt oval có chiều dài lớn hơn chiều rộng, với đường cong nhẹ nhàng và cân đối từ trán xuống cằm.",
     heart:
       "Khuôn mặt trái tim có trán rộng và cằm nhọn, tạo hình dáng như trái tim với phần rộng nhất ở vùng má.",
     square:
       "Khuôn mặt vuông có đặc điểm là góc hàm rõ rệt, trán rộng và chiều dài, chiều rộng khá cân đối.",
     oblong:
       "Khuôn mặt chữ nhật dài có chiều dài lớn hơn nhiều so với chiều rộng, với đường viền hai bên thẳng và góc hàm không quá rõ, tạo cảm giác thon dài.",
+    rectangular:
+      "Khuôn mặt chữ nhật có chiều dài lớn hơn nhiều so với chiều rộng, với đường viền hai bên thẳng và góc hàm không quá rõ, tạo cảm giác thon dài.",
   };
   return shape
     ? descriptionMap[shape] || "Hình dáng khuôn mặt độc đáo"
     : "Không thể xác định hình dáng khuôn mặt";
 };
 
-const getRecommendedGlassShapes = (faceShape) => {
-  const recommendationMap = {
+const getRecommendedGlassShapes = (gender, faceShape) => {
+  const recommendationFemaleMap = {
     round: ["Vuông", "Chữ nhật", "Wayfarers", "Hình thang"],
     oval: ["Hầu hết các kiểu", "Vuông", "Tròn", "Aviator"],
     heart: ["Cat-eye", "Oval", "Nhẹ", "Aviator"],
     square: ["Tròn", "Oval", "Không viền", "Semi-rimless"],
     oblong: ["Vuông", "Tròn", "Hình chữ nhật", "Bầu dục"],
   };
-  return faceShape
-    ? recommendationMap[faceShape] || ["Vuông", "Tròn", "Oval"]
-    : ["Vuông", "Tròn", "Oval"];
+  const recommendationMaleMap = {
+    round: ["Vuông", "Chữ nhật", "Wayfarers", "Hình thang"],
+    ovale: ["Hầu hết các kiểu", "Vuông", "Tròn", "Aviator"],
+    square: ["Tròn", "Oval", "Không viền", "Semi-rimless"],
+    rectangular: ["Vuông", "Tròn", "Hình chữ nhật", "Bầu dục"],
+  };
+  return gender === "female"
+    ? recommendationFemaleMap[faceShape] || [""]
+    : recommendationMaleMap[faceShape] || [""];
 };
 
 const ResultsPage = () => {
@@ -70,16 +82,22 @@ const ResultsPage = () => {
     }
   }, [gender, faceShape, recommendations, isLoading, navigate]);
 
-  const recommendedShapes = getRecommendedGlassShapes(faceShape);
+  const recommendedShapes = getRecommendedGlassShapes(gender, faceShape);
 
   const [filter, setFilter] = useState("Tất cả");
-
+  console.log("recommendations:", recommendations);
   const filteredRecommendations = useMemo(() => {
     if (recommendations.length !== 0) {
-      if (filter === "Tất cả") return recommendations;
-      return recommendations.filter((item) => item.Category === filter);
+      if (filter === "Tất cả")
+        return recommendations.filter((item) =>
+          item.Age.split(",").includes(gender==="female" ? "Nữ" : "Nam")
+        );
+      return recommendations.filter(
+        (item) =>
+          item.Category === filter && item.Age.split(",").includes(gender==="female" ? "Nữ" : "Nam")
+      );
     }
-  }, [filter, recommendations]);
+  }, [filter, recommendations, gender]);
 
   return (
     <Box sx={{ py: 12, bgcolor: "grey.50", minHeight: "calc(100vh - 64px)" }}>

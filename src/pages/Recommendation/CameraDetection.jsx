@@ -16,6 +16,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 import { useGlasses } from "./GlassesContext";
 import { getProductsByShapes } from "../../services/product/getByShapes.js";
+import { predictFaceAndGender } from "../../services/predictFaceAndGender.js";
 
 // Mock face detection
 // const detectFaceShape = async () => {
@@ -47,14 +48,21 @@ const CameraDetection = () => {
   const [shapeFace, setShapeFace] = useState(null);
   const navigate = useNavigate();
 
-  const recommendationMap = {
+  const recommendationFemaleMap = {
     round: ["Square", "Rectangle", "Wayfarers", "Trapezoid"],
     oval: ["Most styles", "Square", "Round", "Aviator"],
     heart: ["Cat-eye", "Oval", "Lightweight", "Aviator"],
     square: ["Round", "Oval", "Rimless", "Semi-rimless"],
     oblong: ["Square", "Round", "Rectangle", "Oval"],
   };
+  const recommendationMaleMap = {
+    round: ["Square", "Rectangle", "Wayfarers", "Trapezoid"],
+    ovale: ["Most styles", "Square", "Round", "Aviator"],
+    square: ["Round", "Oval", "Rimless", "Semi-rimless"],
+    rectangular: ["Square", "Round", "Rectangle", "Oval"],
+  };
   const {
+    gender,
     setGender,
     setFaceShape,
     isLoading,
@@ -124,12 +132,14 @@ const CameraDetection = () => {
     const formData = new FormData();
     formData.append("file", file);
 
-    const response = await fetch("http://localhost:3000/ai/predict", {
-      method: "POST",
-      body: formData,
-    });
+    // const response = await fetch("http://localhost:3000/ai/predict", {
+    //   method: "POST",
+    //   body: formData,
+    // });
+    const response = await predictFaceAndGender(formData);
 
-    const result = await response.json();
+    // const result = await response.json();
+    const result = await response;
     console.log("Kết quả từ AI:", result);
     setShapeFace(result.prediction.toLowerCase());
     setFaceShape(result.prediction.toLowerCase());
@@ -194,7 +204,7 @@ const CameraDetection = () => {
         console.log("vô nè");
       if (shapeFace) {
         console.log("shapeFace", shapeFace);
-        const recommendedShapes = recommendationMap[shapeFace];
+        const recommendedShapes = gender==='female' ? recommendationFemaleMap[shapeFace]: recommendationMaleMap[shapeFace];
         console.log("recommendedShapes", recommendedShapes);
         if (recommendedShapes) {
           const filteredGlasses = await getProductsByShapes(recommendedShapes);

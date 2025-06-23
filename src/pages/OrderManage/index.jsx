@@ -42,7 +42,6 @@ import { getAllOrders } from "../../services/order/getAllOrders";
 import { updateStatusRefund } from "../../services/order/updateStatusRefund";
 import { toast } from "react-toastify";
 import { updateStatus } from "../../services/order/updateStatus";
-import { order } from "@mui/system";
 
 // Order status data for formatting
 const statusData = {
@@ -179,7 +178,7 @@ const OrderManage = () => {
       }
     } else {
       setIsDetailDialogOpen(false);
-      setSelectedOrder(currentOrder);
+      setSelectedOrder(currentOrder ?? selectedOrder);
       // setNewStatus(currentOrder.status);
       setIsStatusDialogOpen(true);
     }
