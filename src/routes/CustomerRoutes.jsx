@@ -15,7 +15,10 @@ import VirtualTryOn from "../components/VirtualTryOn/VirtualTryOn";
 import PaymentSuccess from "../pages/payment/PaymentSuccess";
 import PaymentFailure from "../pages/payment/PaymentFailure";
 import PaymentResult from "../pages/payment/PaymentResult";
-import Homepage from "../pages/HomePage/HomePage";
+import Homepage from "../pages/HomePage/Homepage";
+import PolicyPage from "../pages/Policy/Policy";
+import FAQPage from "../pages/QandA/QandA";
+import ResetPassword from "../pages/ResetPassword/ResetPassword";
 
 // const CustomerRoutes = () => [
 //   <Route key="login" path="/login" element={<LogIn />} />,
@@ -36,7 +39,10 @@ const CustomerRoutes = () => (
   <>
     <Route path="/login" element={<LogIn />} />
     <Route path="/register" element={<RegisterForm />} />
+    <Route path="/reset-password" element={<ResetPassword/>} />
     <Route path="/" element={<Homepage />} />
+    <Route path="/policy" element={<PolicyPage />} />
+    <Route path="/QandA" element={<FAQPage />} />
     <Route path="/detail/:id" element={<ProductDetail />} />
     <Route path="/cart" element={<Cart />} />
     <Route path="/order" element={<Order />} />

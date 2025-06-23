@@ -11,13 +11,13 @@ import {
   Paper,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import imgLogIn from "../../../assets/images/imgLogIn.png";
 import "./LogIn.scss";
 import CustomTextField from "../../../components/CustomTextField";
 import { useNavigate } from "react-router-dom";
 import { login } from "../../../services/auth/login";
 import { toast } from "react-toastify";
 import { AuthContext } from "../../../contexts/AuthContext/AuthContext";
+import { forgotPassword } from "../../../services/auth/forgotPassword";
 
 const LogIn = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -73,6 +73,22 @@ const LogIn = () => {
     }
   };
 
+  const handleForgotPassword = async () => {
+    if (!email) {
+      toast.error("Vui lòng nhập email trước khi đặt lại mật khẩu.");
+      return;
+    }
+
+    try {
+      await forgotPassword(email)
+      toast.success("Đã gửi đường dẫn đặt lại mật khẩu đến email.");
+    } catch (error) {
+      toast.error(
+        error || "Lỗi khi gửi email đặt lại mật khẩu."
+      );
+    }
+  };
+
   // // Lưu role
   // localStorage.setItem("role", "staff");
   // // Lấy role
@@ -85,7 +101,7 @@ const LogIn = () => {
       <Grid container spacing={2} sx={{ justifyContent: "center" }}>
         <Grid item xs={12} md={6} className="image-container">
           <img
-            src={imgLogIn}
+            src={'images/imgLogIn.png'}
             alt="Woman with glasses"
             className="login-image"
           />
@@ -155,9 +171,17 @@ const LogIn = () => {
               </Box>
 
               <Box className="forgot-password-container">
-                <a href="/forgot-password" className="forgot-password-link">
+                <span
+                  onClick={handleForgotPassword}
+                  className="forgot-password-link"
+                  style={{
+                    cursor: "pointer",
+                    color: "#1FAB89",
+                    textDecoration: "underline",
+                  }}
+                >
                   Quên mật khẩu?
-                </a>
+                </span>
               </Box>
 
               <Button

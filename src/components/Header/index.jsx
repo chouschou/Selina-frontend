@@ -18,7 +18,6 @@ import MessageIcon from "@mui/icons-material/Message";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./Header.scss";
 import { useContext, useEffect, useState } from "react";
-import avatar2 from "../../assets/images/avatar2.png";
 import { toast } from "react-toastify";
 import { AuthContext } from "../../contexts/AuthContext/AuthContext";
 import MessageNotificationModal from "../../pages/MessageSystem/MessageNotificationModal";
@@ -28,6 +27,7 @@ import { CartProvider } from "../../contexts/CartContext/CartProvider";
 import { CartContext } from "../../contexts/CartContext/CartContext";
 import { CartIconRefContext } from "../../contexts/CartContext/CartIconRefContext";
 import { getAccountInfoByID } from "../../services/user/getInfoByAccountId";
+import ChangePasswordModal from "../ChangePasswordModal/ChangePasswordModal";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -36,10 +36,25 @@ const Header = () => {
 
   const location = useLocation();
   const params = new URLSearchParams(location.search);
-  const currentType = params.get("type") || "optical";
+  // const currentType = params.get("type") || "optical";
+
+  const pathname = location.pathname;
+  const typeParam = params.get("type");
+
+  // Xác định tab hiện tại
+  const currentTab =
+    pathname === "/policy"
+      ? "policy"
+      : pathname === "/QandA"
+      ? "QandA"
+      : typeParam || "optical";
 
   const handleMenuClick = (type) => {
-    navigate(`/?type=${type}`);
+    if (type === "policy" || type === "QandA") {
+      navigate(`/${type}`);
+    } else {
+      navigate(`/?type=${type || "optical"}`);
+    }
   };
 
   const [anchorEl, setAnchorEl] = useState(null);
@@ -52,6 +67,8 @@ const Header = () => {
   const [storeAccount, setStoreAccount] = useState({});
   const [unreadInfor, setUnreadInfor] = useState(null);
   const [conversations, setConversations] = useState([]);
+
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
 
   const getStoreAccount = async () => {
     const response = await getUserInfoByID(account?.ID, "store");
@@ -142,6 +159,7 @@ const Header = () => {
 
   const handleChangePasswordClick = () => {
     handleClose();
+    setShowChangePasswordModal(true);
     // navigate("/change-password")
   };
   const { logoutContext } = useContext(AuthContext);
@@ -205,15 +223,11 @@ const Header = () => {
                   className="account-icon"
                   onClick={handleAccountClick}
                 >
-                  {user?.Customer.Avatar ? (
-                    <Avatar
-                      src={user?.Customer.Avatar}
-                      alt="avatar"
-                      className="user-avatar"
-                    />
-                  ) : (
-                    <AccountCircleIcon fontSize="large" />
-                  )}
+                  <Avatar
+                    src={"/images/avatar2.png"}
+                    alt="avatar"
+                    className="user-avatar"
+                  />
                 </IconButton>
 
                 {/* Popover */}
@@ -228,30 +242,18 @@ const Header = () => {
                   <Box className="user-profile-modal">
                     <Box className="user-profile-header">
                       <Avatar
-                        src={user?.Customer.Avatar}
+                        src={"/images/avatar2.png"}
                         alt="avatar"
                         className="user-avatar"
                       />
                       <Box className="user-info">
                         <Typography variant="h6" className="user-name">
-                          {user.name}
+                          Selina Store
                         </Typography>
                         <Typography variant="body2" className="user-email">
-                          {user.email}
+                          store@gmail.com
                         </Typography>
                       </Box>
-                    </Box>
-
-                    <Box className="user-menu">
-                      <Button fullWidth onClick={handleMyAccountClick}>
-                        Tài khoản của tôi
-                      </Button>
-                      <Button fullWidth onClick={handleMyOrdersClick}>
-                        Đơn mua hàng
-                      </Button>
-                      <Button fullWidth onClick={handleChangePasswordClick}>
-                        Đổi mật khẩu
-                      </Button>
                     </Box>
                     <Divider />
                     <Button
@@ -259,13 +261,14 @@ const Header = () => {
                       color="primary"
                       fullWidth
                       onClick={handleLogout}
+                      sx={{ color: "white", borderRadius: "20px" }}
                     >
                       Đăng xuất
                     </Button>
                   </Box>
                 </Popover>
                 <Typography variant="body1" fontWeight="medium">
-                  Nhân viên 1
+                  Selina store
                 </Typography>
               </Stack>
 
@@ -283,7 +286,7 @@ const Header = () => {
               <Box className="nav-menu">
                 <Button
                   className={`nav-item ${
-                    currentType === "optical" ? "active" : ""
+                    currentTab === "optical" ? "active" : ""
                   }`}
                   onClick={() => handleMenuClick("optical")}
                 >
@@ -291,14 +294,28 @@ const Header = () => {
                 </Button>
                 <Button
                   className={`nav-item ${
-                    currentType === "sunglasses" ? "active" : ""
+                    currentTab === "sunglasses" ? "active" : ""
                   }`}
                   onClick={() => handleMenuClick("sunglasses")}
                 >
-                  Kính râm
+                  Kính mát
                 </Button>
-                <Button className="nav-item">Chính sách</Button>
-                <Button className="nav-item">Hỏi đáp</Button>
+                <Button
+                  className={`nav-item ${
+                    currentTab === "policy" ? "active" : ""
+                  }`}
+                  onClick={() => handleMenuClick("policy")}
+                >
+                  Chính sách
+                </Button>
+                <Button
+                  className={`nav-item ${
+                    currentTab === "QandA" ? "active" : ""
+                  }`}
+                  onClick={() => handleMenuClick("QandA")}
+                >
+                  Hỏi đáp
+                </Button>
               </Box>
 
               {isLoggedIn ? (
@@ -312,12 +329,18 @@ const Header = () => {
                       <ShoppingCartIcon />
                     </Badge>
                   </IconButton>
-                  <IconButton
-                    aria-label="account"
-                    className="account-icon"
-                    onClick={handleAccountClick}
-                  >
-                    <AccountCircleIcon fontSize="large" />
+                  <IconButton onClick={handleAccountClick}>
+                    <Avatar
+                      src={user?.Customer.Avatar ||  'images/avatar_no.png'}
+                      alt="avatar"
+                      sx={{
+                        width: 40,
+                        height: 40,
+                        border: "1px solid #1b5e20",
+                      }}
+                    >
+                      <AccountCircleIcon fontSize="large" />
+                    </Avatar>
                   </IconButton>
 
                   {/* Popover */}
@@ -332,7 +355,7 @@ const Header = () => {
                     <Box className="user-profile-modal">
                       <Box className="user-profile-header">
                         <Avatar
-                          src={user?.Customer?.Avatar}
+                          src={user?.Customer?.Avatar || 'images/avatar_no.png'}
                           alt="avatar"
                           className="user-avatar"
                         />
@@ -341,7 +364,7 @@ const Header = () => {
                             {user?.Customer?.Name}
                           </Typography>
                           <Typography variant="body2" className="user-email">
-                            {user?.Customer?.Email}
+                            {account?.Username}
                           </Typography>
                         </Box>
                       </Box>
@@ -363,6 +386,7 @@ const Header = () => {
                         color="primary"
                         fullWidth
                         onClick={handleLogout}
+                        sx={{ color: "white", borderRadius: "20px" }}
                       >
                         Đăng xuất
                       </Button>
@@ -411,6 +435,10 @@ const Header = () => {
           )}
         </Toolbar>
       </Container>
+      <ChangePasswordModal
+        open={showChangePasswordModal}
+        onClose={() => setShowChangePasswordModal(false)}
+      />
     </AppBar>
   );
 };

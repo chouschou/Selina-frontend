@@ -208,7 +208,7 @@ const ProductDetail = () => {
                   Age: product?.Age,
                 },
                 Color: selectedColorDetail?.Color,
-                Quantity: 30,
+                Quantity: selectedColor?.Quantity,
                 Price: selectedColorDetail?.Price,
                 Discount: selectedColorDetail?.Discount,
                 ModelVirtualTryOn: selectedColorDetail?.ModelVirtualTryOn,

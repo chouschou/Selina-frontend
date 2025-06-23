@@ -178,7 +178,7 @@ const OrderManage = () => {
       }
     } else {
       setIsDetailDialogOpen(false);
-      setSelectedOrder(currentOrder);
+      setSelectedOrder(currentOrder ?? selectedOrder);
       // setNewStatus(currentOrder.status);
       setIsStatusDialogOpen(true);
     }

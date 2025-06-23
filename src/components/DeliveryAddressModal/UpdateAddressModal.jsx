@@ -14,7 +14,7 @@ import {
   Typography,
 } from "@mui/material";
 import { Close as CloseIcon } from "@mui/icons-material";
-import { Box, flex } from "@mui/system";
+import { Box } from "@mui/system";
 import { useEffect, useState } from "react";
 import { getProvinces } from "../../services/getProvinces";
 import { toast } from "react-toastify";
@@ -138,8 +138,8 @@ const UpdateAddressModal = ({
       </DialogTitle>
       <DialogContent className="modal-content" sx={{ paddingBottom: 0 }}>
         <Box className="address-form">
-          <Box display={flex} spacing={10} sx={{ paddingBottom: 3 }}>
-            <Box sx={{ paddingBottom: 3 }}>
+          <Box display='flex' spacing={10} sx={{ gap: 2, paddingBottom: 3 }}>
+            <Box flex={1} sx={{ paddingBottom: 3 }}>
               <TextField
                 fullWidth
                 required
@@ -153,7 +153,7 @@ const UpdateAddressModal = ({
                 helperText={errors.name}
               />
             </Box>
-            <Box>
+            <Box flex={1}>
               <TextField
                 fullWidth
                 required

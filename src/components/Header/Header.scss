@@ -81,11 +81,13 @@
 .user-avatar {
   width: 60px;
   height: 60px;
-  margin-right: 16px;
+  // margin-right: 16px;
+  border: 1px solid #999;
 }
 
 .user-info {
   flex: 1;
+  margin-left: 16px;
 }
 
 .user-name {

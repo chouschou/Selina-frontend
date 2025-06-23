@@ -7,179 +7,14 @@ import OrderItem from "../../components/OrderItem";
 import "./MyOrders.scss";
 import { getOrdersByAccountId } from "../../services/order/getOrdersByAccountId";
 import { AuthContext } from "../../contexts/AuthContext/AuthContext";
-import { generateProductCategoryName, generateProductName } from "../../services/formatToShow";
+import {
+  generateProductCategoryName,
+  generateProductName,
+} from "../../services/formatToShow";
 
 const MyOrders = () => {
   const [activeTab, setActiveTab] = useState(0);
   const { isLoggedIn, account } = useContext(AuthContext);
-
-  // Sample orders data with different statuses
-  // const orders = [
-  //   {
-  //     id: 1,
-  //     date: "12:00, 12/03/2024",
-  //     status: "awaiting",
-  //     paymentStatus: "Đã thanh toán",
-  //     statusHistory: [{ time: "12:00, 12/03/2024", status: "Đã thanh toán" }],
-  //     deliveryInfo: {
-  //       name: "Nguyễn Thân Lý",
-  //       phone: "0842569888",
-  //       address: "123 Nguyễn Lương Bằng, Đà Nẵng",
-  //     },
-  //     items: [
-  //       {
-  //         id: 101,
-  //         image: "/glasses1.jpg",
-  //         name: "Gọng kính tròn, kim loại",
-  //         variant: "Màu đen",
-  //         quantity: 2,
-  //         originalPrice: 280000,
-  //         price: 240000,
-  //       },
-  //     ],
-  //     shipping: 40000,
-  //     discount: 0,
-  //     total: 280000,
-  //   },
-  //   {
-  //     id: 2,
-  //     date: "15:00, 12/03/2024",
-  //     status: "confirmed",
-  //     paymentStatus: "Đã thanh toán",
-  //     statusHistory: [
-  //       { time: "15:00, 12/03/2024", status: "Cửa hàng đã xác nhận" },
-  //       { time: "12:00, 12/03/2024", status: "Đã thanh toán" },
-  //     ],
-  //     deliveryInfo: {
-  //       name: "Nguyễn Thân Lý",
-  //       phone: "0842569888",
-  //       address: "123 Nguyễn Lương Bằng, Đà Nẵng",
-  //     },
-  //     items: [
-  //       {
-  //         id: 201,
-  //         image: "/glasses2.jpg",
-  //         name: "Gọng kính tròn, kim loại",
-  //         variant: "Màu đen",
-  //         quantity: 2,
-  //         originalPrice: 280000,
-  //         price: 240000,
-  //       },
-  //       {
-  //         id: 202,
-  //         image: "/glasses3.jpg",
-  //         name: "Gọng kính tròn, kim loại",
-  //         variant: "Màu đen",
-  //         quantity: 2,
-  //         originalPrice: 280000,
-  //         price: 240000,
-  //       },
-  //     ],
-  //     shipping: 40000,
-  //     discount: 0,
-  //     total: 520000,
-  //   },
-  //   {
-  //     id: 3,
-  //     date: "19:00, 12/03/2024",
-  //     status: "shipping",
-  //     paymentStatus: "Đã thanh toán",
-  //     statusHistory: [
-  //       { time: "19:00, 12/03/2024", status: "Cửa hàng đã giao cho đơn vị vận chuyển" },
-  //       { time: "15:00, 12/03/2024", status: "Cửa hàng đã xác nhận" },
-  //       { time: "12:00, 12/03/2024", status: "Đã thanh toán" },
-  //     ],
-  //     deliveryInfo: {
-  //       name: "Nguyễn Thân Lý",
-  //       phone: "0842569888",
-  //       address: "123 Nguyễn Lương Bằng, Đà Nẵng",
-  //     },
-  //     items: [
-  //       {
-  //         id: 301,
-  //         image: "/glasses1.jpg",
-  //         name: "Gọng kính tròn, kim loại",
-  //         variant: "Màu đen",
-  //         quantity: 2,
-  //         originalPrice: 280000,
-  //         price: 240000,
-  //       },
-  //     ],
-  //     shipping: 40000,
-  //     discount: 0,
-  //     total: 280000,
-  //   },
-  //   {
-  //     id: 4,
-  //     date: "11:00, 12/03/2024",
-  //     status: "completed",
-  //     paymentStatus: "Đã thanh toán",
-  //     statusHistory: [
-  //       { time: "11:00, 12/03/2024", status: "Đã nhận được hàng" },
-  //       { time: "19:00, 12/03/2024", status: "Cửa hàng đã giao cho đơn vị vận chuyển" },
-  //       { time: "15:00, 12/03/2024", status: "Cửa hàng đã xác nhận" },
-  //       { time: "12:00, 12/03/2024", status: "Đã thanh toán" },
-  //     ],
-  //     deliveryInfo: {
-  //       name: "Nguyễn Thân Lý",
-  //       phone: "0842569888",
-  //       address: "123 Nguyễn Lương Bằng, Đà Nẵng",
-  //     },
-  //     items: [
-  //       {
-  //         id: 401,
-  //         image: "images/glass.png",
-  //         name: "Gọng kính tròn, kim loại",
-  //         variant: "Màu đen",
-  //         quantity: 2,
-  //         originalPrice: 280000,
-  //         price: 240000,
-  //       },
-  //       {
-  //         id: 402,
-  //         image: "images/glass1.png",
-  //         name: "Gọng kính tròn, kim loại",
-  //         variant: "Màu đen",
-  //         quantity: 2,
-  //         originalPrice: 280000,
-  //         price: 240000,
-  //       },
-  //     ],
-  //     shipping: 40000,
-  //     discount: 0,
-  //     total: 280000,
-  //     canReview: true,
-  //   },
-  //   {
-  //     id: 5,
-  //     date: "19:00, 12/03/2024",
-  //     status: "cancelled",
-  //     paymentStatus: "Đã thanh toán",
-  //     statusHistory: [
-  //       { time: "19:00, 12/03/2024", status: "Đã hủy bởi bạn" },
-  //       { time: "15:00, 12/03/2024", status: "Đã thanh toán" },
-  //     ],
-  //     deliveryInfo: {
-  //       name: "Nguyễn Thân Lý",
-  //       phone: "0842569888",
-  //       address: "123 Nguyễn Lương Bằng, Đà Nẵng",
-  //     },
-  //     items: [
-  //       {
-  //         id: 501,
-  //         image: "/glasses1.jpg",
-  //         name: "Gọng kính tròn, kim loại",
-  //         variant: "Màu đen",
-  //         quantity: 2,
-  //         originalPrice: 280000,
-  //         price: 240000,
-  //       },
-  //     ],
-  //     shipping: 40000,
-  //     discount: 0,
-  //     total: 280000,
-  //   },
-  // ]
 
   const mapOrderData = (rawOrder) => {
     return {
@@ -202,16 +37,27 @@ const MyOrders = () => {
       statusHistory: rawOrder.OrderStatuses.map((s) => ({
         status: s.Status,
         time: s.CreateAt,
+        refund: s.Refund,
       })),
       items: rawOrder.OrderDetails.map((detail) => ({
         id: detail.ID,
+        idColor: detail.GlassColor.ID,
         quantity: detail.Quantity,
         price: parseFloat(detail.Price),
         discount: parseFloat(detail.Discount),
+        rating: detail.Rating,
         product: {
-          id: detail.GlassColor.Glass.ID,
-          variantProduct: generateProductCategoryName(detail.GlassColor.Glass.Category, detail.GlassColor.Glass.Material, detail.GlassColor.Glass.Shape),
-          name: generateProductName(detail.GlassColor.Glass.Category, 0, detail.GlassColor.Glass.ID),
+          idGlass: detail.GlassColor.Glass.ID,
+          variantProduct: generateProductCategoryName(
+            detail.GlassColor.Glass.Category,
+            detail.GlassColor.Glass.Material,
+            detail.GlassColor.Glass.Shape
+          ),
+          name: generateProductName(
+            detail.GlassColor.Glass.Category,
+            0,
+            detail.GlassColor.Glass.ID
+          ),
           color: detail.GlassColor.Color,
           image: detail.GlassColor.ModelVirtualTryOn,
           material: detail.GlassColor.Glass.Material,
@@ -223,13 +69,12 @@ const MyOrders = () => {
   };
 
   const [orders, setOrders] = useState([]);
+  const fetchAllOrders = async () => {
+    const response = await getOrdersByAccountId(account.ID);
+    const mappedOrders = response.map(mapOrderData);
+    setOrders(mappedOrders);
+  };
   useEffect(() => {
-    const fetchAllOrders = async () => {
-      const response = await getOrdersByAccountId(account.ID);
-      const mappedOrders = response.map(mapOrderData);
-      setOrders(mappedOrders);
-    };
-
     if (isLoggedIn) {
       fetchAllOrders();
     }
@@ -246,6 +91,7 @@ const MyOrders = () => {
       "confirmed",
       "shipping",
       "completed",
+      "returned",
       "canceled",
     ];
     return orders.filter((order) => order.status === statusMap[activeTab]);
@@ -255,6 +101,10 @@ const MyOrders = () => {
 
   console.log("My orders - orders:", orders);
   console.log("My orders - filtered orders", filteredOrders);
+
+  const onSuccess = async() => {
+    fetchAllOrders()
+  }
 
   return (
     <div className="my-orders-page">
@@ -275,6 +125,7 @@ const MyOrders = () => {
             <Tab label="Đã xác nhận" />
             <Tab label="Đang vận chuyển" />
             <Tab label="Hoàn thành" />
+            <Tab label="Đã trả hàng"></Tab>
             <Tab label="Đã hủy" />
           </Tabs>
         </Box>
@@ -282,7 +133,7 @@ const MyOrders = () => {
         <Box className="orders-list">
           {filteredOrders.length > 0 ? (
             filteredOrders.map((order) => (
-              <OrderItem key={order.id} order={order} />
+              <OrderItem key={order.id} order={order} onSuccess={onSuccess} />
             ))
           ) : (
             <Box className="no-orders">

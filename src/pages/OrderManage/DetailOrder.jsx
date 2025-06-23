@@ -56,7 +56,7 @@ const DetailOrder = ({
   }, [selectedOrder]);
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+    <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
       <DialogTitle>Chi tiết đơn hàng {selectedOrder?.orderId}</DialogTitle>
       <DialogContent dividers>
         {selectedOrder && (

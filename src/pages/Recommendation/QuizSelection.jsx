@@ -72,7 +72,8 @@ const QuizSelection = () => {
       // });
 
       try {
-        const recommendedShapes = gender==='female' ? recommendationFemaleMap[selectedFaceShape]: recommendationMaleMap[selectedFaceShape];;
+        const recommendedShapes = selectedGender ==='female' ? recommendationFemaleMap[selectedFaceShape]: recommendationMaleMap[selectedFaceShape];
+        console.log("gender-selectedFaceShape-recommendedShapes",gender,selectedFaceShape, recommendedShapes)
 
         const filteredGlasses = await getProductsByShapes(recommendedShapes);
 

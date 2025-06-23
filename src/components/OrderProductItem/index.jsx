@@ -3,7 +3,7 @@ import "./OrderProductItem.scss";
 import { formatCurrencyVND } from "../../services/formatToShow";
 
 const OrderProductItem = ({ productInfo }) => {
-  const { image, product, quantity, discount, price } = productInfo;
+  const { product, quantity, discount, price } = productInfo;
   const originalPrice = price;
   const newPrice = (price * (100 - discount)) / 100;
 
@@ -11,7 +11,7 @@ const OrderProductItem = ({ productInfo }) => {
     <Box className="order-product-item">
       <Box className="product-image-container">
         <img
-          src={image || "/placeholder.svg"}
+          src={product?.image || "/placeholder.svg"}
           alt={name}
           className="product-image"
         />

@@ -43,6 +43,8 @@ import { ExpandMore as ExpandMoreIcon } from "@mui/icons-material";
 import { useLocation } from "react-router-dom";
 import { getProductsByCategory } from "../../services/product/getProductsByCategory";
 import ProductList from "../../components/ProductList";
+import Footer from "../../components/Footer";
+import FeaturesSection from "./FeaturesSection";
 
 const Homepage = () => {
   const [products, setProducts] = useState([]);
@@ -56,22 +58,26 @@ const Homepage = () => {
     color: [],
   });
   const [sortBy, setSortBy] = useState("newest");
-  const [viewMode, setViewMode] = useState("grid");
+  // const [viewMode, setViewMode] = useState("grid");
+  const viewMode = "grid";
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
-  const [priceSlider, setPriceSlider] = useState([0, 2000000]);
   const [expandedPanel, setExpandedPanel] = useState(false);
 
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const type = params.get("type") || "optical"; // default là gọng kính
-//   const [productsList, setProductsList] = useState([]);
+  //   const [productsList, setProductsList] = useState([]);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const response = await getProductsByCategory(
-          type === "optical" ? "Gọng kính" : "Kính mát"
+          type === "optical"
+            ? "Gọng kính"
+            : type === "sunglasses"
+            ? "Kính mát"
+            : ""
         );
         setProducts(response); // Nếu API trả về mảng sản phẩm
         setFilteredProducts(response);
@@ -473,7 +479,8 @@ const Homepage = () => {
               Khám phá bộ sưu tập kính thời trang
             </Typography>
             <Typography variant="h6" className="hero-subtitle">
-              Tìm kiếm phong cách hoàn hảo cho bạn với hàng nghìn mẫu kính đa dạng
+              Tìm kiếm phong cách hoàn hảo cho bạn với hàng nghìn mẫu kính đa
+              dạng
             </Typography>
             <Box className="hero-search">
               <TextField
@@ -665,7 +672,11 @@ const Homepage = () => {
               //   </Grid>
               <Box className="products-section">
                 {products.length > 0 && (
-                  <ProductList title="" products={filteredProducts} numberProductPerPage={3}/>
+                  <ProductList
+                    title=""
+                    products={filteredProducts}
+                    numberProductPerPage={3}
+                  />
                 )}
               </Box>
             )}
@@ -699,7 +710,9 @@ const Homepage = () => {
             </Box>
           </Box>
         </Drawer>
+        <FeaturesSection></FeaturesSection>
       </Container>
+      <Footer></Footer>
     </Box>
   );
 };

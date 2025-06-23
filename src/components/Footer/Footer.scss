@@ -1,0 +1,486 @@
+/* Footer Styles */
+.footer {
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  color: white;
+  margin-top: auto;
+}
+
+.footer-content {
+  padding: 32px 0 24px;
+}
+
+/* Brand Section */
+.brand-section {
+  margin-bottom: 20px;
+}
+
+.brand-name {
+  font-weight: 700 !important;
+  background: linear-gradient(135deg, #ff3568 0%, #ff3366 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 6px !important;
+  font-size: 2rem !important;
+  letter-spacing: -1px;
+}
+
+.brand-slogan {
+  color: #5cba9a !important;
+  font-weight: 500 !important;
+  margin-bottom: 12px !important;
+  font-style: italic;
+  font-size: 1rem !important;
+}
+
+.brand-description {
+  color: #b0b0b0 !important;
+  line-height: 1.5;
+  margin-bottom: 16px !important;
+  font-size: 14px !important;
+}
+
+/* Social Media */
+.social-media {
+  margin-top: 16px;
+}
+
+.social-title {
+  color: #e0e0e0 !important;
+  margin-bottom: 8px !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+}
+
+.social-icons {
+  display: flex;
+  gap: 8px;
+}
+
+.social-icon {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 8px !important;
+  transition: all 0.3s ease !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.social-icon:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+}
+
+.social-icon.facebook {
+  background: linear-gradient(135deg, #1877f2 0%, #42a5f5 100%);
+}
+
+.social-icon.facebook:hover {
+  box-shadow: 0 6px 15px rgba(24, 119, 242, 0.4);
+}
+
+.social-icon.instagram {
+  background: linear-gradient(135deg, #e4405f 0%, #f77737 50%, #fccc63 100%);
+}
+
+.social-icon.instagram:hover {
+  box-shadow: 0 6px 15px rgba(228, 64, 95, 0.4);
+}
+
+.social-icon.twitter {
+  background: linear-gradient(135deg, #1da1f2 0%, #0d8bd9 100%);
+}
+
+.social-icon.twitter:hover {
+  box-shadow: 0 6px 15px rgba(29, 161, 242, 0.4);
+}
+
+.social-icon.youtube {
+  background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+}
+
+.social-icon.youtube:hover {
+  box-shadow: 0 6px 15px rgba(255, 0, 0, 0.4);
+}
+
+/* Footer Sections */
+.footer-section {
+  margin-bottom: 20px;
+}
+
+.section-title {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  margin-bottom: 12px !important;
+  position: relative;
+  padding-bottom: 6px;
+  font-size: 16px !important;
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 24px;
+  height: 2px;
+  background: linear-gradient(135deg, #5cba9a 0%, #4a9d7e 100%);
+  border-radius: 1px;
+}
+
+/* Footer Links */
+.footer-links {
+  padding: 0 !important;
+}
+
+.footer-link-item {
+  padding: 2px 0 !important;
+}
+
+.footer-link {
+  color: #b0b0b0 !important;
+  text-decoration: none !important;
+  font-size: 13px !important;
+  transition: all 0.3s ease !important;
+  position: relative;
+  padding-left: 10px;
+}
+
+.footer-link::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 3px;
+  background: #5cba9a;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.footer-link:hover {
+  color: #5cba9a !important;
+  padding-left: 14px;
+}
+
+.footer-link:hover::before {
+  opacity: 1;
+}
+
+.footer-link.sale-link {
+  color: #ff6b6b !important;
+  font-weight: 600 !important;
+}
+
+.footer-link.sale-link:hover {
+  color: #ff5252 !important;
+}
+
+/* Contact Info */
+.contact-info {
+  padding: 0 !important;
+  display: flex;
+}
+
+.contact-item {
+  padding: 6px 0 !important;
+  align-items: flex-start !important;
+}
+
+.contact-icon {
+  min-width: 32px !important;
+  margin-right: 8px !important;
+  margin-top: 6px;
+}
+
+.contact-icon .MuiSvgIcon-root {
+  color: #5cba9a !important;
+  font-size: 18px !important;
+}
+
+.contact-item .MuiListItemText-primary {
+  color: #e0e0e0 !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+}
+
+.contact-item .MuiListItemText-secondary {
+  color: #b0b0b0 !important;
+  font-size: 13px !important;
+  margin-top: 1px !important;
+}
+
+/* Newsletter */
+.newsletter {
+  margin-top: 16px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.newsletter-title {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  margin-bottom: 6px !important;
+  font-size: 14px !important;
+}
+
+.newsletter-description {
+  color: #b0b0b0 !important;
+  margin-bottom: 12px !important;
+  font-size: 12px !important;
+}
+
+.newsletter-form {
+  display: flex;
+  gap: 6px;
+  flex-direction: column;
+}
+
+.newsletter-input .MuiOutlinedInput-root {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-radius: 6px !important;
+  color: white !important;
+}
+
+.newsletter-input .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.newsletter-input .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(92, 186, 154, 0.5) !important;
+}
+
+.newsletter-input .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #5cba9a !important;
+}
+
+.newsletter-input .MuiInputBase-input::placeholder {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.newsletter-button {
+  background: linear-gradient(135deg, #5cba9a 0%, #4a9d7e 100%) !important;
+  color: white !important;
+  border-radius: 6px !important;
+  padding: 8px 16px !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  margin-top: 6px !important;
+  transition: all 0.3s ease !important;
+  font-size: 13px !important;
+}
+
+.newsletter-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 15px rgba(92, 186, 154, 0.3);
+}
+
+/* Features Section */
+.features-section {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 24px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.feature-item {
+  text-align: center;
+  padding: 12px;
+  transition: transform 0.3s ease;
+}
+
+.feature-item:hover {
+  transform: translateY(-3px);
+}
+
+.feature-icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 10px;
+  background: linear-gradient(135deg, #5cba9a 0%, #4a9d7e 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 10px rgba(92, 186, 154, 0.3);
+}
+
+.feature-icon .MuiSvgIcon-root {
+  color: white;
+  font-size: 20px;
+}
+
+.feature-title {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  margin-bottom: 4px !important;
+  font-size: 14px !important;
+}
+
+.feature-description {
+  color: #b0b0b0 !important;
+  font-size: 12px !important;
+}
+
+/* Footer Divider */
+.footer-divider {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  margin: 0 !important;
+}
+
+/* Bottom Footer */
+.bottom-footer {
+  padding: 16px 0;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.copyright {
+  color: #b0b0b0 !important;
+  font-size: 13px !important;
+}
+
+.footer-bottom-links {
+  display: flex;
+  gap: 20px;
+  justify-content: flex-end;
+}
+
+.bottom-link {
+  color: #b0b0b0 !important;
+  text-decoration: none !important;
+  font-size: 13px !important;
+  transition: color 0.3s ease !important;
+}
+
+.bottom-link:hover {
+  color: #5cba9a !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .footer-content {
+    padding: 24px 0 20px;
+  }
+  
+  .brand-name {
+    font-size: 1.8rem !important;
+  }
+  
+  .brand-slogan {
+    font-size: 0.9rem !important;
+  }
+  
+  .social-icons {
+    justify-content: center;
+  }
+  
+  .newsletter-form {
+    flex-direction: column;
+  }
+  
+  .newsletter-button {
+    margin-top: 6px !important;
+  }
+  
+  .footer-bottom-links {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  
+  .features-section {
+    padding: 20px 0;
+  }
+  
+  .feature-item {
+    padding: 10px;
+  }
+  
+  .feature-icon {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .feature-icon .MuiSvgIcon-root {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer-content {
+    padding: 20px 0 16px;
+  }
+  
+  .brand-section {
+    text-align: center;
+    margin-bottom: 16px;
+  }
+  
+  .social-icons {
+    gap: 6px;
+  }
+  
+  .social-icon {
+    width: 32px !important;
+    height: 32px !important;
+  }
+  
+  .newsletter {
+    padding: 12px;
+  }
+  
+  .contact-item {
+    padding: 4px 0 !important;
+  }
+  
+  .bottom-footer {
+    text-align: center;
+    padding: 12px 0;
+  }
+  
+  .footer-bottom-links {
+    margin-top: 8px;
+    justify-content: center;
+  }
+  
+  .features-section {
+    padding: 16px 0;
+  }
+}
+
+/* Animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.footer-section {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* Custom Scrollbar for Newsletter */
+.newsletter::-webkit-scrollbar {
+  width: 3px;
+}
+
+.newsletter::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.newsletter::-webkit-scrollbar-thumb {
+  background: rgba(92, 186, 154, 0.5);
+  border-radius: 2px;
+}
+
+.newsletter::-webkit-scrollbar-thumb:hover {
+  background: rgba(92, 186, 154, 0.7);
+}
