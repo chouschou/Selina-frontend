@@ -12,10 +12,8 @@ import {
   TextField,
 } from "@mui/material";
 import { toast } from "react-toastify";
-import CustomTextField from "../../components/CustomTextField";
 import { resetPassword } from "../../services/auth/resetPassword";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { Password } from "@mui/icons-material";
 
 const ResetPassword = () => {
   const [params] = useSearchParams();

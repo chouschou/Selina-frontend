@@ -11,6 +11,11 @@ import {
   Avatar,
   Typography,
   Divider,
+  Drawer,
+  ListItemText,
+  ListItemButton,
+  ListItem,
+  List,
 } from "@mui/material";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
@@ -28,6 +33,7 @@ import { CartContext } from "../../contexts/CartContext/CartContext";
 import { CartIconRefContext } from "../../contexts/CartContext/CartIconRefContext";
 import { getAccountInfoByID } from "../../services/user/getInfoByAccountId";
 import ChangePasswordModal from "../ChangePasswordModal/ChangePasswordModal";
+import MenuIcon from "@mui/icons-material/Menu";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -174,6 +180,9 @@ const Header = () => {
   const { cartIconRef } = useContext(CartIconRefContext);
   const { totalItems } = useContext(CartContext);
 
+  // -----mobileview---------
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
   return (
     <AppBar
       position="fixed"
@@ -283,12 +292,17 @@ const Header = () => {
           ) : (
             // CUSTOMER VIEW
             <>
-              <Box className="nav-menu">
+              {/* ẩn khi nhỏ hơn md */}
+              <Box
+                className="nav-menu"
+                sx={{ display: { xs: "none", md: "flex" } }}
+              >
                 <Button
                   className={`nav-item ${
                     currentTab === "optical" ? "active" : ""
                   }`}
                   onClick={() => handleMenuClick("optical")}
+                  sx={{ display: { xs: "none", md: "flex" } }}
                 >
                   Gọng kính
                 </Button>
@@ -297,6 +311,7 @@ const Header = () => {
                     currentTab === "sunglasses" ? "active" : ""
                   }`}
                   onClick={() => handleMenuClick("sunglasses")}
+                  sx={{ display: { xs: "none", md: "flex" } }}
                 >
                   Kính mát
                 </Button>
@@ -305,6 +320,7 @@ const Header = () => {
                     currentTab === "policy" ? "active" : ""
                   }`}
                   onClick={() => handleMenuClick("policy")}
+                  sx={{ display: { xs: "none", md: "flex" } }}
                 >
                   Chính sách
                 </Button>
@@ -313,10 +329,54 @@ const Header = () => {
                     currentTab === "QandA" ? "active" : ""
                   }`}
                   onClick={() => handleMenuClick("QandA")}
+                  sx={{ display: { xs: "none", md: "flex" } }}
                 >
                   Hỏi đáp
                 </Button>
               </Box>
+
+              {/* Mobile view */}
+              <IconButton
+                edge="start"
+                color="inherit"
+                aria-label="menu"
+                onClick={() => setDrawerOpen(true)}
+                sx={{
+                  display: { xs: "block", md: "none" }, // chỉ hiện khi màn hình nhỏ hơn md
+                }}
+                className="mobile-menu-button"
+              >
+                <MenuIcon />
+              </IconButton>
+
+              <Drawer
+                anchor="left"
+                open={drawerOpen}
+                onClose={() => setDrawerOpen(false)}
+              >
+                <Box
+                  sx={{ width: 250 }}
+                  role="presentation"
+                  onClick={() => setDrawerOpen(false)}
+                >
+                  <List>
+                    {[
+                      { label: "Gọng kính", value: "optical" },
+                      { label: "Kính mát", value: "sunglasses" },
+                      { label: "Chính sách", value: "policy" },
+                      { label: "Hỏi đáp", value: "QandA" },
+                    ].map((item) => (
+                      <ListItem key={item.value} disablePadding>
+                        <ListItemButton
+                          onClick={() => handleMenuClick(item.value)}
+                        >
+                          <ListItemText primary={item.label} />
+                        </ListItemButton>
+                      </ListItem>
+                    ))}
+                  </List>
+                </Box>
+              </Drawer>
 
               {isLoggedIn ? (
                 <Box className="icons-container">
@@ -331,7 +391,7 @@ const Header = () => {
                   </IconButton>
                   <IconButton onClick={handleAccountClick}>
                     <Avatar
-                      src={user?.Customer.Avatar ||  'images/avatar_no.png'}
+                      src={user?.Customer.Avatar || "images/avatar_no.png"}
                       alt="avatar"
                       sx={{
                         width: 40,
@@ -355,7 +415,7 @@ const Header = () => {
                     <Box className="user-profile-modal">
                       <Box className="user-profile-header">
                         <Avatar
-                          src={user?.Customer?.Avatar || 'images/avatar_no.png'}
+                          src={user?.Customer?.Avatar || "images/avatar_no.png"}
                           alt="avatar"
                           className="user-avatar"
                         />

@@ -18,6 +18,9 @@ import { login } from "../../../services/auth/login";
 import { toast } from "react-toastify";
 import { AuthContext } from "../../../contexts/AuthContext/AuthContext";
 import { forgotPassword } from "../../../services/auth/forgotPassword";
+import { GoogleLogin } from "@react-oauth/google";
+import { loginGoogle } from "../../../services/auth/loginGoogle";
+import { getAccountInfoByID } from "../../../services/user/getInfoByAccountId";
 
 const LogIn = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -36,6 +39,35 @@ const LogIn = () => {
     setPassword(e.target.value);
   };
   const { loginContext } = useContext(AuthContext);
+  const handleGoogleSuccess = async (credentialResponse) => {
+    const { credential } = credentialResponse;
+
+    try {
+      const response = await loginGoogle(credential);
+      const { accessToken, refreshToken, account } = response;
+
+      toast.success("Đăng nhập thành công!");
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("refreshToken", refreshToken);
+
+      const accountInfo = await getAccountInfoByID(account.ID);
+
+      const role = accountInfo.Role.Name;
+      loginContext(role, accountInfo);
+
+      if (role === "employee") navigate("/order-manage");
+      else if (role === "owner") navigate("/owner");
+      else {
+        const redirectUrl = localStorage.getItem("redirectAfterLogin") || "/";
+        localStorage.removeItem("redirectAfterLogin");
+        navigate(redirectUrl);
+      }
+    } catch (error) {
+      toast.error("Đăng nhập thất bại!");
+      console.log("Lỗi đăng nhập bằng gg:", error);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -52,7 +84,7 @@ const LogIn = () => {
       loginContext(role, user); // dùng context để cập nhật React
       toast.success("Đăng nhập thành công!");
 
-      // 👉 Điều hướng theo vai trò
+      // Điều hướng theo vai trò
       if (role === "employee") {
         navigate("/order-manage");
       } else if (role === "owner") {
@@ -80,12 +112,10 @@ const LogIn = () => {
     }
 
     try {
-      await forgotPassword(email)
+      await forgotPassword(email);
       toast.success("Đã gửi đường dẫn đặt lại mật khẩu đến email.");
     } catch (error) {
-      toast.error(
-        error || "Lỗi khi gửi email đặt lại mật khẩu."
-      );
+      toast.error(error || "Lỗi khi gửi email đặt lại mật khẩu.");
     }
   };
 
@@ -101,7 +131,7 @@ const LogIn = () => {
       <Grid container spacing={2} sx={{ justifyContent: "center" }}>
         <Grid item xs={12} md={6} className="image-container">
           <img
-            src={'images/imgLogIn.png'}
+            src={"images/imgLogIn.png"}
             alt="Woman with glasses"
             className="login-image"
           />
@@ -203,20 +233,11 @@ const LogIn = () => {
                 <Divider className="divider" />
               </Box>
 
-              <Button
-                variant="outlined"
-                startIcon={
-                  <img
-                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1024px-Google_%22G%22_logo.svg.png"
-                    alt="Google logo"
-                    style={{ width: 24, height: 24 }}
-                  />
-                }
-                className="google-button"
-                fullWidth
-              >
-                Đăng nhập bằng Google
-              </Button>
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => console.log("Google Login Failed")}
+                size="large"
+              />
 
               <Typography variant="body2" className="register-link-container">
                 Bạn chưa có tài khoản?
