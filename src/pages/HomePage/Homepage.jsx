@@ -691,12 +691,12 @@ const Homepage = () => {
           className="mobile-filter-drawer"
         >
           <Box className="mobile-filter-content">
-            <Box className="mobile-filter-header">
+            {/* <Box className="mobile-filter-header">
               <Typography variant="h6">Bộ lọc</Typography>
               <IconButton onClick={() => setMobileFilterOpen(false)}>
                 <Close />
               </IconButton>
-            </Box>
+            </Box> */}
             <FilterSection />
             <Box className="mobile-filter-actions">
               <Button

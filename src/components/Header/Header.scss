@@ -37,6 +37,16 @@
   flex-grow: 1 !important;
   margin-left: 80px !important;
   justify-content: start !important;
+  @media (max-width: 500px) {
+    display: none; /* Ẩn menu thường trên mobile */
+  }
+}
+.mobile-menu-button {
+  display: none;
+
+  @media (max-width: 500px) {
+    display: block; /* Hiện menu icon */
+  }
 }
 
 .nav-item {
@@ -64,7 +74,6 @@
 .account-icon {
   color: #1b5e20 !important;
 }
-
 
 /* User Profile Modal Styles */
 .user-profile-modal {
