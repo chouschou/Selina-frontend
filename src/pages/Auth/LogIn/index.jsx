@@ -233,11 +233,13 @@ const LogIn = () => {
                 <Divider className="divider" />
               </Box>
 
-              <GoogleLogin
-                onSuccess={handleGoogleSuccess}
-                onError={() => console.log("Google Login Failed")}
-                size="large"
-              />
+              <Box sx={{ width: "100%" }}>
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => console.log("Google Login Failed")}
+                  size="large"
+                />
+              </Box>
 
               <Typography variant="body2" className="register-link-container">
                 Bạn chưa có tài khoản?
